@@ -8,54 +8,186 @@ import {
   AppLoader,
 } from '../../theme-components';
 import styled from 'styled-components/native';
-import * as Animatable from 'react-native-animatable';
 import { useSelector, useDispatch } from 'react-redux';
-import { AppSettingAction } from '../../store/action/settingAction';
-import {
-  AllCategoriesAction,
-  categoriesAction,
-} from '../../store/action/productAction';
 import URL from '../../utils/baseurl';
+import { getValue, isEmpty, unflatten } from '../../utils/helper';
+import { useIsFocused } from '@react-navigation/native';
+import { useState } from 'react';
+import {
+  AppSettingAction,
+  featureDataAction,
+  productByPerticulareAction,
+  productOnSaleAction,
+  recentaddedproductAction,
+  categoriesAction,
+  addCartAction,
+  updateCartAction
+} from '../../store/action';
 
 const HomeScreen = ({ navigation }) => {
-  const categoriesDispatch = useDispatch();
-  const allCategories = useSelector(state => state.products.allCategories);
+  const isFocused = useIsFocused();
+  const dispatch = useDispatch();
+  // var allCategories = useSelector(state => state.products.allCategories);
   const allCategoriesWithChild = useSelector(
-    state => state.products.categories,
+    state => state.products.categories.data,
   );
+  const { cartId, cartChecked } = useSelector(state => state.cart);
+  const cartItems = useSelector(state => state.cart.products);
+  const userDetails = useSelector(state => state.customer.userDetails);
   const catLoading = useSelector(state => state.products.loading);
-  const settingsDispatch = useDispatch();
-  const themeSetting = useSelector(state => state.settings.themeSettings);
+  const { themeSettings, homeData, featureData, recentAddedProduct, saleProduct, ProductByCategory } = useSelector(state => state.settings);
   const primaryColor = '#000';
   const settingLoading = useSelector(state => state.settings.loading);
-  const categories = useDispatch();
+  const [allCategories, setAllCategories] = useState([])
 
   useEffect(() => {
-    categories(categoriesAction());
-  }, [categories]);
+    dispatch(AppSettingAction());
+    // dispatch(AllCategoriesAction(null));
+    dispatch(categoriesAction());
+  }, [isFocused]);
 
   useEffect(() => {
-    settingsDispatch(AppSettingAction());
-    categoriesDispatch(AllCategoriesAction(null));
-  }, [categoriesDispatch, settingsDispatch]);
+    if (!isEmpty(homeData)) {
+      if (homeData.feature_product) {
+        dispatch(featureDataAction())
+      }
+      if (homeData.recently_added_products) {
+        dispatch(recentaddedproductAction())
+      }
+      // if (homeData.most_viewed_products) {
+      //   console.log('most viewed product ')
+      // }
+      // if (homeData.recently_bought_products) {
+      //   console.log('recently_bought_products ')
+      // }
+      // if (homeData.product_recommendation) {
+      //   console.log('product_recommendation ')
+      // }
+      if (homeData.products_on_sales) {
+        dispatch(productOnSaleAction())
+      }
+      if (homeData.product_from_specific_categories) {
+        let catID = '62fe094eb2831ffd1e6fdfe8'
+        dispatch(productByPerticulareAction(catID))
+
+      }
+    }
+
+  }, [homeData])
+  useEffect(() => {
+    if (allCategoriesWithChild) {
+      const data = unflatten(allCategoriesWithChild)
+      setAllCategories(data)
+    }
+  }, [allCategoriesWithChild]);
+
+  useEffect(() => {
+    if (isFocused) {
+      if (cartChecked) {
+        if (!isEmpty(userDetails)) {
+          UpdateCart();
+        }
+      }
+    }
+  }, [cartId])
+
+
+  const UpdateCart = async () => {
+    var cartProduct = await getValue('cartproducts');
+    if (!isEmpty(cartProduct)) {
+      var filteredProducts = []
+      cartProduct = JSON.parse(cartProduct)
+      var mergedArr = [...cartProduct, ...cartItems];
+      var filteredProducts = []
+      mergedArr.filter((val) => {
+        let exist = mergedArr.find(n => (n.product_id === val.product_id) && (n.qty > val.qty))
+        if (!filteredProducts.find(n => n.product_id === val.product_id)) {
+          if (isEmpty(exist)) {
+            filteredProducts.push({
+              'product_id': val.product_id,
+              'product_title': val.product_title,
+              'qty': val.qty
+            });
+          } else {
+            filteredProducts.push({
+              'product_id': val.product_id,
+              'product_title': val.product_title,
+              'qty': exist.qty
+            });
+          }
+        }
+      })
+      if (!isEmpty(filteredProducts)) {
+        if (isEmpty(cartId)) {
+          const cartData = {
+            user_id: userDetails._id,
+            products: filteredProducts,
+          }
+          dispatch(addCartAction(cartData))
+        } else {
+          const cartData = {
+            id: cartId,
+            products: filteredProducts,
+          }
+          dispatch(updateCartAction(cartData, userDetails._id))
+        }
+      }
+    }
+  }
 
   const navigateNextScreen = category => {
     var navigateTo = '';
-    if (category.child_cat.length < 1) {
+    if ((category.children.length < 1)) {
       navigateTo = 'Category';
     } else {
       navigateTo = 'SubCategories';
     }
-    var nestedCategory = allCategoriesWithChild.filter(
-      cat => cat.parentId === category.id,
-    );
-    navigation.navigate('Categories', {
+
+    var nestedCategory = []
+    if (!isEmpty(category.children)) {
+      nestedCategory = category.children
+    }
+    navigation.navigate('CateGories', {
       screen: navigateTo,
       initial: false,
       params: { singleCategory: category, withChildern: nestedCategory },
     });
   };
-
+  const CategoryShowView = React.memo(() => {
+    return (
+      <ARow wrap row>
+        {allCategories &&
+          allCategories.map((category, index) => {
+            return (
+              <ACol col={3} key={category.id}>
+                <CategoriesListingWrapper
+                  onPress={() => navigateNextScreen(category)}>
+                  <CategoriesImageWrapper>
+                    {category.image ? (
+                      <CategoriesImage
+                        source={{
+                          uri: URL + category.image.medium,
+                        }}
+                      />
+                    ) : (
+                      <CategoriesImage
+                        source={{
+                          uri:
+                            'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+                        }}
+                      />
+                    )}
+                  </CategoriesImageWrapper>
+                  <AText small uppercase color="#000" center>
+                    {category.name}
+                  </AText>
+                </CategoriesListingWrapper>
+              </ACol>
+            );
+          })}
+      </ARow>
+    )
+  }, [])
   return (
     <>
       {settingLoading && catLoading ? <AppLoader /> : null}
@@ -84,38 +216,7 @@ const HomeScreen = ({ navigation }) => {
           <AText uppercase heavy mb={'20px'} center color={primaryColor}>
             Shop by Category
           </AText>
-
-          <ARow wrap row>
-            {allCategories &&
-              allCategories.map(category => {
-                return (
-                  <ACol col={3} key={category.id}>
-                    <CategoriesListingWrapper
-                      onPress={() => navigateNextScreen(category)}>
-                      <CategoriesImageWrapper>
-                        {category.image ? (
-                          <CategoriesImage
-                            source={{
-                              uri: URL + category.image.medium,
-                            }}
-                          />
-                        ) : (
-                          <CategoriesImage
-                            source={{
-                              uri:
-                                'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                            }}
-                          />
-                        )}
-                      </CategoriesImageWrapper>
-                      <AText small uppercase color="#000" center>
-                        {category.name}
-                      </AText>
-                    </CategoriesListingWrapper>
-                  </ACol>
-                );
-              })}
-          </ARow>
+          <CategoryShowView />
         </SectionView>
 
         <ARow wrap row>

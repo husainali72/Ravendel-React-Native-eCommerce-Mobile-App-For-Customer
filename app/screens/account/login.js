@@ -1,11 +1,21 @@
 import React from 'react';
-import { AText, AButton } from '../../theme-components';
+import { AText, AButton, AppLoader } from '../../theme-components';
 import LinearGradient from 'react-native-linear-gradient';
 import styled from 'styled-components/native';
+import { Formik } from 'formik';
+import { loginValidationSchema } from '../checkout/validationSchema';
+import { useDispatch, useSelector } from 'react-redux';
+import { LoginAction } from '../../store/action';
 
 const LoginScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const loading = useSelector(state => state.login.loading);
+  const sendValues=(values)=>{
+    dispatch(LoginAction(values.email,values.password,navigation))
+  }
   return (
     <>
+        {loading  ? <AppLoader /> : null}
       <LoginContainer>
         <LinearGradient
           // colors={['#EB3349', '#F45C43']}
@@ -21,16 +31,59 @@ const LoginScreen = ({ navigation }) => {
             <AText uppercase color="#000" center mb="20px" large>
               Sign IN
             </AText>
+            <Formik
+            initialValues={{
+              email: "",
+              password: "",
+            }}
+            validationSchema={loginValidationSchema}
+            onSubmit={(values, { setSubmitting, resetForm }) => {
+              setSubmitting(false);
+              sendValues(values);
+               
+            }}
+            >
+               {({
+                submitForm,
+                isSubmitting,
+                touched,
+                errors,
+                setFieldValue,
+                values,
+                handleChange,
+              }) => (
+            <>
             <InputWrapper>
-              <AText mb="5px">Username</AText>
-              <CustomInput autoCapitalize="none" />
+              <AText mb="5px">Email</AText>
+              <CustomInput 
+                onChangeText={(text) => setFieldValue("email", text)}
+              autoCapitalize="none" />
+              {touched.email && errors.email && (
+                  <AText color="red" xtrasmall>
+                    {errors.email}
+                  </AText>
+                )}
             </InputWrapper>
             <InputWrapper>
               <AText mb="5px">Password</AText>
-              <CustomInput secureTextEntry={true} />
+              <CustomInput
+                onChangeText={(text) => setFieldValue("password", text)}
+               secureTextEntry={true} />
+              {touched.password && errors.password && (
+                  <AText color="red" xtrasmall>
+                    {errors.password}
+                  </AText>
+                )}
             </InputWrapper>
+            <AButton
+            onPress={submitForm}
+             title="Sign In" 
+             block />
+            </>
+              )}
+            </Formik>
 
-            <AButton title="Sign In" block />
+         
 
             <FormBottom>
               <FormLink

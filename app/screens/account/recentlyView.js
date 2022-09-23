@@ -1,10 +1,10 @@
 import React from 'react';
 import { AContainer, AHeader } from '../../theme-components';
 
-const RecentlyViewScreen = () => {
+const RecentlyViewScreen = ({navigation}) => {
   return (
     <>
-      <AHeader title="Recently Viewed" back />
+      <AHeader navigation={navigation}  title="Recently Viewed" back />
       <AContainer />
     </>
   );

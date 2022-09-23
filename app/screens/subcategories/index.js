@@ -11,6 +11,8 @@ import {
 import { useSelector } from 'react-redux';
 import URL from '../../utils/baseurl';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { CommonActions } from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const singleCat = route.params.singleCategory;
@@ -19,7 +21,7 @@ const SubCategoriesScreen = ({ navigation, route }) => {
   const [collapseCategory, setCollapseCategory] = useState({});
   const [withChild, setWithChild] = useState([]);
 
-  useEffect(() => {}, [singleCat]);
+
 
   useEffect(() => {
     if (singleCatChildern && singleCatChildern.length > 0) {
@@ -51,11 +53,21 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                       <ListItem>
                         <CategoryImageWrapper>
                           {cat.image && cat.image.original ? (
-                            <CategoryImage
+                            <>
+                              <FastImage
+                                style={{ flex: 1, resizeMode: 'cover' }}
+                                source={{
+                                  uri: URL + cat.image.thumbnail,
+                                  priority: FastImage.priority.normal,
+                                }}
+                                resizeMode={FastImage.resizeMode.contain}
+                              />
+                              {/* <CategoryImage
                               source={{
                                 uri: URL + cat.image.original,
                               }}
-                            />
+                            /> */}
+                            </>
                           ) : (
                             <CategoryImage
                               source={{
@@ -85,12 +97,22 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 <ACol col={1}>
                   <ListItem>
                     <CategoryImageWrapper>
-                      {cat.image && cat.image.original ? (
-                        <CategoryImage
+                      {cat.image && cat.image.thumbnail ? (
+                        <>
+                          <FastImage
+                            style={{ flex: 1, resizeMode: 'cover' }}
+                            source={{
+                              uri: URL + cat.image.thumbnail,
+                              priority: FastImage.priority.normal,
+                            }}
+                            resizeMode={FastImage.resizeMode.contain}
+                          />
+                          {/* <CategoryImage
                           source={{
                             uri: URL + cat.image.original,
                           }}
-                        />
+                        /> */}
+                        </>
                       ) : (
                         <CategoryImage
                           source={{
@@ -141,11 +163,10 @@ const SubCategoriesScreen = ({ navigation, route }) => {
       );
     });
   };
-
   return (
     <>
       {loading ? <AppLoader /> : null}
-      <AHeader title={singleCat.name} back />
+      <AHeader title={singleCat.name} navigation={navigation} back />
       <AContainer>
         {withChild.length ? menuListing(withChild) : null}
       </AContainer>

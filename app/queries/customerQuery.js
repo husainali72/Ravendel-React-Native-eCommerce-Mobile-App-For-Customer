@@ -18,15 +18,20 @@ const GET_CUSTOMERS = gql`
 const GET_CUSTOMER = gql`
   query($id: ID!) {
     customer(id: $id) {
-      id
-      first_name
-      last_name
-      email
-      company
-      phone
-      address_book
-      date
-      updated
+      data {
+        _id:id
+        first_name
+        last_name
+        email
+        company
+        phone
+        password
+        address_book
+      }
+      message{
+        message
+        success
+      }
     }
   }
 `;
@@ -74,6 +79,7 @@ const ADD_ADDRESSBOOK = gql`
     $country: String
     $state: String
     $pincode: String
+    $default_address: Boolean
   ) {
     addAddressBook(
       id: $id
@@ -87,16 +93,10 @@ const ADD_ADDRESSBOOK = gql`
       country: $country
       state: $state
       pincode: $pincode
+      default_address: $default_address
     ) {
-      id
-      first_name
-      last_name
-      email
-      company
-      phone
-      address_book
-      date
-      updated
+      message
+    success
     }
   }
 `;
@@ -139,7 +139,6 @@ const UPDATE_ADDRESSBOOK = gql`
     $_id: ID!
     $first_name: String
     $last_name: String
-    $company: String
     $phone: String
     $address_line1: String
     $address_line2: String
@@ -147,13 +146,14 @@ const UPDATE_ADDRESSBOOK = gql`
     $country: String
     $state: String
     $pincode: String
+    $default_address: Boolean
+
   ) {
     updateAddressBook(
       id: $id
       _id: $_id
       first_name: $first_name
       last_name: $last_name
-      company: $company
       phone: $phone
       address_line1: $address_line1
       address_line2: $address_line2
@@ -161,16 +161,11 @@ const UPDATE_ADDRESSBOOK = gql`
       country: $country
       state: $state
       pincode: $pincode
+      default_address: $default_address
+
     ) {
-      id
-      first_name
-      last_name
-      email
-      company
-      phone
-      address_book
-      date
-      updated
+      message
+      success
     }
   }
 `;
@@ -194,15 +189,8 @@ const DELETE_CUSTOMER = gql`
 const DELETE_ADDRESSBOOK = gql`
   mutation($id: ID!, $_id: ID!) {
     deleteAddressBook(id: $id, _id: $_id) {
-      id
-      first_name
-      last_name
-      email
-      company
-      phone
-      address_book
-      date
-      updated
+      message
+      success
     }
   }
 `;

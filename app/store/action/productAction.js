@@ -8,18 +8,18 @@ import {
   GET_ALL_CATEGORIES,
 } from '../../queries/productQuery';
 import {mutation, query} from '../../utils/service';
-// import jumpTo from "../../utils/navigation";
+import { ALERT_ERROR } from '../reducers/alert';
 
 export const productsAction = () => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
   query(GET_PRODUCTS)
-    .then(response => {
+  .then(response => {
       if (response) {
         return dispatch({
           type: PRODUCTS_SUCCESS,
-          payload: response.data.products,
+          payload: response.data.products.data,
         });
       }
     })
@@ -38,12 +38,12 @@ export const productAction = id => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  query(GET_PRODUCT, {id: id})
+  query(GET_PRODUCT, {'id': id})
     .then(response => {
       if (response) {
         return dispatch({
           type: PRODUCT_SUCCESS,
-          payload: response.data.product,
+          payload: response.data.product.data,
         });
       }
     })
@@ -86,7 +86,7 @@ export const catProductAction = url => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  query(GET_CAT_PRODUCTS, {url: url})
+  query(GET_CAT_PRODUCTS, {'url': url})
     .then(response => {
       if (response) {
         return dispatch({
@@ -141,12 +141,12 @@ export const productReviewsAction = id => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  query(GET_PRODUCT_REVIEWS, {id: id})
+  query(GET_PRODUCT_REVIEWS, {product_id: id})
     .then(response => {
       if (response) {
         return dispatch({
           type: PRODUCT_REVIEWS,
-          payload: response.data.productwisereview,
+          payload: response.data.productwisereview.data,
         });
       }
     })
@@ -167,10 +167,19 @@ export const productAddReviewAction = object => dispatch => {
   });
   mutation(ADD_REVIEW, object)
     .then(response => {
-      if (response) {
+      console.log(response,'res[ponse')
+      if (response.data.addReview.success) {
         dispatch({
           type: ADD_PRODUCT_REVIEWS,
-          payload: response.data.addReviews,
+          payload: response.data.addReview,
+        });
+      }else{
+        dispatch({
+          type: PRODUCT_FAIL,
+        });
+        dispatch({
+          type: ALERT_ERROR,
+          payload: response.data.addReview.message || 'Something went wrong',
         });
       }
     })
@@ -191,7 +200,9 @@ export const PRODUCT_SUCCESS = 'PRODUCT_SUCCESS';
 export const PRODUCTS_SUCCESS = 'PRODUCTS_SUCCESS';
 export const PRODUCT_FAIL = 'PRODUCT_FAIL';
 export const CAT_PRODUCTS = 'CAT_PRODUCTS';
+export const CAT_PRODUCTS_CLEAR = 'CAT_PRODUCTS_CLEAR';
 export const PRODUCT_REVIEWS = 'PRODUCT_REVIEWS';
+export const PRODUCT_CLEAR = 'PRODUCT_CLEAR';
 export const ADD_PRODUCT_REVIEWS = 'ADD_PRODUCT_REVIEWS';
 export const ALL_CATEGORIES = 'ALL_CATEGORIES';
 export const SINGLE_CATEGORY = 'SINGLE_CATEGORY';
