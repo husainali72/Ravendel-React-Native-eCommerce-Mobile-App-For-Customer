@@ -27,6 +27,7 @@ const GET_CUSTOMER = gql`
         phone
         password
         address_book
+        gender
       }
       message{
         message

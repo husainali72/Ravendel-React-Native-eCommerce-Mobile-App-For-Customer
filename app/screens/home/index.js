@@ -23,6 +23,8 @@ import {
   addCartAction,
   updateCartAction
 } from '../../store/action';
+import HomeCategoryShowViews from './Components.js/CategoryShow';
+import HomeComponentShowViews from './Components.js/HomeComponentShowViews';
 
 const HomeScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
@@ -153,46 +155,11 @@ const HomeScreen = ({ navigation }) => {
       params: { singleCategory: category, withChildern: nestedCategory },
     });
   };
-  const CategoryShowView = React.memo(() => {
-    return (
-      <ARow wrap row>
-        {allCategories &&
-          allCategories.map((category, index) => {
-            return (
-              <ACol col={3} key={category.id}>
-                <CategoriesListingWrapper
-                  onPress={() => navigateNextScreen(category)}>
-                  <CategoriesImageWrapper>
-                    {category.image ? (
-                      <CategoriesImage
-                        source={{
-                          uri: URL + category.image.medium,
-                        }}
-                      />
-                    ) : (
-                      <CategoriesImage
-                        source={{
-                          uri:
-                            'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                        }}
-                      />
-                    )}
-                  </CategoriesImageWrapper>
-                  <AText small uppercase color="#000" center>
-                    {category.name}
-                  </AText>
-                </CategoriesListingWrapper>
-              </ACol>
-            );
-          })}
-      </ARow>
-    )
-  }, [])
   return (
     <>
       {settingLoading && catLoading ? <AppLoader /> : null}
       <AHeader title="Ravendel" />
-      <AContainer>
+      <AContainer nestedScrollEnabled={true}>
         <ARow wrap row>
           <ACol col={1}>
             <PopularPicksWrapper
@@ -212,28 +179,45 @@ const HomeScreen = ({ navigation }) => {
           </ACol>
         </ARow>
 
-        <SectionView>
-          <AText uppercase heavy mb={'20px'} center color={primaryColor}>
-            Shop by Category
-          </AText>
-          <CategoryShowView />
-        </SectionView>
+        {!isEmpty(allCategories) &&
+          <SectionView>
+            <AText uppercase heavy mb={'20px'} center color={primaryColor}>
+              Shop by Category
+            </AText>
+            <HomeCategoryShowViews
+              allCategories={allCategories}
+              navigation
+              navigateNextScreen={(item) => { navigateNextScreen(item) }} />
+          </SectionView>
+        }
+        {!isEmpty(featureData) &&
+          <>
+            <ARow wrap row>
+              <ACol col={1}>
+                <PopularPicksWrapper>
+                  <PopularPicksImage
+                    source={require('../../assets/images/new-collection.webp')}
+                  />
+                </PopularPicksWrapper>
+              </ACol>
+            </ARow>
 
-        <ARow wrap row>
-          <ACol col={1}>
-            <PopularPicksWrapper>
-              <PopularPicksImage
-                source={require('../../assets/images/new-collection.webp')}
+            <SectionView>
+              <AText uppercase heavy mb={'20px'} center color={primaryColor}>
+                FEATURED COLLECTIONS
+              </AText>
+              <HomeComponentShowViews
+                dataItems={featureData}    
+                navigatetonext={(item) => {                
+                  navigation.navigate('CateGories', {
+                    screen: 'SingleProduct',
+                    initial: false,
+                    params: {productID: item._id},
+                  });
+                }
+                }
               />
-            </PopularPicksWrapper>
-          </ACol>
-        </ARow>
-
-        <SectionView>
-          <AText uppercase heavy mb={'20px'} center color={primaryColor}>
-            FEATURED COLLECTIONS
-          </AText>
-          <ARow wrap row>
+              {/* <ARow wrap row>
             <ACol col={2}>
               <FeaturedImage
                 source={require('../../assets/images/women-glass.webp')}
@@ -244,8 +228,41 @@ const HomeScreen = ({ navigation }) => {
                 source={require('../../assets/images/men-glases.webp')}
               />
             </ACol>
-          </ARow>
-        </SectionView>
+          </ARow> */}
+            </SectionView>
+          </>
+        }
+
+        <ARow wrap row>
+          <ACol col={1}>
+            <PopularPicksWrapper>
+              <PopularPicksImage
+                source={require('../../assets/images/section.jpg')}
+              />
+            </PopularPicksWrapper>
+          </ACol>
+        </ARow>
+        {!isEmpty(recentAddedProduct) &&
+          <>
+            <SectionView>
+              <AText uppercase heavy mb={'20px'} center color={primaryColor}>
+                Latest collection
+              </AText>
+              <HomeComponentShowViews
+                dataItems={recentAddedProduct}
+                navigatetonext={(item) => {
+                  console.log(item)
+                  navigation.navigate('CateGories', {
+                    screen: 'SingleProduct',
+                    initial: false,
+                    params: {productID: item._id},
+                  });
+                }
+                }
+              />
+            </SectionView>
+          </>
+        }
 
         <SectionView>
           <AText uppercase heavy center color={primaryColor}>
@@ -262,23 +279,36 @@ const HomeScreen = ({ navigation }) => {
           </ARow>
         </SectionView>
 
-        <SectionView>
-          <ARow>
-            <ACol col={1}>
-              <PopularPicksWrapper>
-                <PopularPicksImage
-                  source={require('../../assets/images/summer_sale_60.webp')}
-                />
-              </PopularPicksWrapper>
-            </ACol>
-          </ARow>
-        </SectionView>
+        {!isEmpty(saleProduct) &&
+          <>
+            <SectionView>
+              <ARow>
+                <ACol col={1}>
+                  <PopularPicksWrapper>
+                    <PopularPicksImage
+                      source={require('../../assets/images/summer_sale_60.webp')}
+                    />
+                  </PopularPicksWrapper>
+                </ACol>
+              </ARow>
+            </SectionView>
 
-        <SectionView>
-          <AText uppercase heavy mb={'20px'} center color={primaryColor}>
-            OFFERS
-          </AText>
-          <ARow wrap row>
+            <SectionView>
+              <AText uppercase heavy mb={'20px'} center color={primaryColor}>
+                OFFERS
+              </AText>
+              <HomeComponentShowViews
+                dataItems={saleProduct}
+                navigatetonext={(item) => {
+                  navigation.navigate('CateGories', {
+                    screen: 'SingleProduct',
+                    initial: false,
+                    params: {productID: item._id},
+                  });
+                }
+                }
+              />
+              {/* <ARow wrap row>
             <ACol col={2}>
               <CategoryListingWrapper>
                 <CategoryListing
@@ -293,8 +323,44 @@ const HomeScreen = ({ navigation }) => {
                 />
               </CategoryListingWrapper>
             </ACol>
-          </ARow>
-        </SectionView>
+          </ARow> */}
+            </SectionView>
+          </>
+        }
+
+        {!isEmpty(ProductByCategory) &&
+          <>
+            <SectionView>
+              <ARow>
+                <ACol col={1}>
+                  <PopularPicksWrapper>
+                    <PopularPicksImage
+                      style={{ height: 200, width: '100%', resizeMode: 'contain' }}
+                      source={require('../../assets/images/section2.jpg')}
+                    />
+                  </PopularPicksWrapper>
+                </ACol>
+              </ARow>
+            </SectionView>
+
+            <SectionView>
+              <AText uppercase heavy mb={'20px'} center color={primaryColor}>
+
+              </AText>
+              <HomeComponentShowViews
+                dataItems={ProductByCategory}
+                navigatetonext={(item) => {
+                  navigation.navigate('CateGories', {
+                    screen: 'SingleProduct',
+                    initial: false,
+                    params: {productID: item._id},
+                  });
+                }
+                }
+              />
+            </SectionView>
+          </>
+        }
       </AContainer>
     </>
   );

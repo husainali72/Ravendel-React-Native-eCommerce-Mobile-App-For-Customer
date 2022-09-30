@@ -7,6 +7,7 @@ import { AContainer, AHeader, AText } from '../../theme-components';
 import { isEmpty } from '../../utils/helper';
 import man from '../../assets/images/man.png';
 import woman from '../../assets/images/woman.png';
+import question from '../../assets/images/question.png';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ProfileScreen = ({ navigation }) => {
@@ -24,14 +25,11 @@ const ProfileScreen = ({ navigation }) => {
       <ProfileView>
         <ImageWrapper>
           <ProfileImage
-            source={man} />
-          <AText bold center>Or</AText>
-          <ProfileImage
-            source={woman} />
+            source={isEmpty(userDetails.gender)?question: userDetails.gender == 'female' ? woman : man} />
         </ImageWrapper>
-        <Header onPress={()=>navigation.navigate('EditProfile')}>
-        <AText bold centeR uppercase medium>{userDetails.first_name} {userDetails.last_name}</AText>
-        <Icon name="edit" size={18} style={{marginTop:3,marginHorizontal:9,alignSelf:'center'}} />
+        <Header onPress={() => navigation.navigate('EditProfile')}>
+          <AText bold centeR uppercase medium>{userDetails.first_name} {userDetails.last_name}</AText>
+          <Icon name="edit" size={18} style={{ marginTop: 3, marginHorizontal: 9, alignSelf: 'center' }} />
         </Header>
       </ProfileView>
 
@@ -39,21 +37,21 @@ const ProfileScreen = ({ navigation }) => {
         <ItemDescription>
           <ProfileDetailWrapper>
             <AText style={{ width: '35%' }} heavy>Name</AText>
-            <AText medium style={{marginRight:15}}>:</AText>
+            <AText medium style={{ marginRight: 15 }}>:</AText>
             <AText capitalize>{userDetails.first_name} {userDetails.last_name}</AText>
           </ProfileDetailWrapper>
           <ProfileDetailWrapper>
             {!isEmpty(userDetails.phone) &&
               <>
                 <AText style={{ width: '35%' }} heavy>Phone Number</AText>
-                <AText medium style={{marginRight:15}}>:</AText>
+                <AText medium style={{ marginRight: 15 }}>:</AText>
                 <AText>{userDetails.phone}</AText>
               </>
             }
           </ProfileDetailWrapper>
           <ProfileDetailWrapper>
             <AText style={{ width: '35%' }} heavy>Email</AText>
-            <AText medium style={{marginRight:15}}>:</AText>
+            <AText medium style={{ marginRight: 15 }}>:</AText>
             <AText>{userDetails.email}</AText>
           </ProfileDetailWrapper>
         </ItemDescription>

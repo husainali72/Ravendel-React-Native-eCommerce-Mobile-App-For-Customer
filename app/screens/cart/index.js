@@ -75,7 +75,7 @@ const CartScreen = ({ navigation }) => {
 
   const fetchCart =()=>{
     if (isEmpty(userDetails)) {
-      dispatch(checkStorageActio());
+      dispatch(checkStorageAction());
     } else {
       dispatch(checkStorageAction(userDetails._id));
     }
