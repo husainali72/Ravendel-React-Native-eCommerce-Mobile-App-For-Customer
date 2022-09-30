@@ -8,7 +8,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
     <>
       <LoginContainer>
         <LinearGradient
-          colors={['#EB3349', '#F45C43']}
+          // colors={['#EB3349', '#F45C43']}
+          colors={['#eee', '#eee']}
           // eslint-disable-next-line react-native/no-inline-styles
           style={{
             flex: 1,
@@ -17,7 +18,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             alignItems: 'center',
           }}>
           <LoginInner>
-            <AText uppercase color="#fff" center mb="20px" large>
+          <AText uppercase color="#000" center mb="20px" large>
               Forgot Password
             </AText>
             <InputWrapper>

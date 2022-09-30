@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import URL from '../../utils/baseurl';
 import ImageView from 'react-native-image-view';
+import FastImage from 'react-native-fast-image';
 
 const {width} = Dimensions.get('window');
 const height = 297;
@@ -64,10 +65,18 @@ const GalleryImagesSlider = props => {
           {SliderImages ? (
             SliderImages.map((image, index) => (
               <TouchableOpacity key={index} onPress={() => previewImage()}>
-                <Image
+                 <FastImage
+                         style={styles.slideImage}
+                          source={{
+                              uri: URL + image.original,            
+                              priority: FastImage.priority.normal,
+                          }}
+                          resizeMode={FastImage.resizeMode.contain}
+                        />
+                {/* <Image
                   source={{uri: URL + image.original}}
                   style={styles.slideImage}
-                />
+                /> */}
               </TouchableOpacity>
             ))
           ) : (

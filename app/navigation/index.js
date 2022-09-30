@@ -22,10 +22,16 @@ import {
   ShippingScreen,
   PaymentMethodScreen,
   CheckoutScreen,
+  OrderDetailScreen,
+  EditProfileScreen,
+  ChangePasswordScreen,
 } from '../screens';
 import { View, Text } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { checkStorageAction } from '../store/action/cartAction';
+import { getValue, isEmpty } from '../utils/helper';
+import AlertError from '../theme-components/alert';
+import { sessionCheck } from '../store/action/loginAction';
+import { checkStorageAction } from '../store/action';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -36,10 +42,10 @@ const AccountStack = () => {
   return (
     <Stack.Navigator
       initialRouteName="Account"
+      detachInactiveScreens={true}
       screenOptions={{
         title: '',
-        headerTransparent: true,
-        headerTintColor: '#fff',
+        headerShown: false,
       }}>
       <Stack.Screen name="Account" component={AccountScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
@@ -50,6 +56,9 @@ const AccountStack = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
     </Stack.Navigator>
   );
 };
@@ -59,13 +68,14 @@ const CategoriesStack = () => {
   return (
     <Stack.Navigator
       initialRouteName="Categories"
+      detachInactiveScreens={true}
       screenOptions={{
         title: '',
         headerTransparent: true,
         headerTintColor: '#fff',
       }}>
       <Stack.Screen name="Categories" component={CategoriesScreen} />
-      <Stack.Screen name="SubCategories" component={SubCategoriesScreen} />
+      <Stack.Screen name="SubCategories" options={{ headerShown: false }} component={SubCategoriesScreen} />
       <Stack.Screen name="Category" component={CategoryScreen} />
       <Stack.Screen name="SingleProduct" component={SingleProductScreen} />
     </Stack.Navigator>
@@ -92,13 +102,24 @@ const CartStack = () => {
 
 const Navigation = () => {
   const cartItems = useSelector(state => state.cart.products) || 0;
-
-  const checkStorage = useDispatch();
+  const { isLoggin } = useSelector(state => state.customer);
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    checkStorage(checkStorageAction());
-  }, []);
+    dispatch(sessionCheck())
+    getCart();
+  }, [isLoggin]);
 
+  const getCart = async () => {
+    var userDetails = await getValue('userDetails')
+    if (!isEmpty(userDetails)) {
+      userDetails = JSON.parse(userDetails)
+      dispatch(checkStorageAction(userDetails._id));
+    } else {
+      dispatch(checkStorageAction());
+
+    }
+  }
   const IconWithBadge = ({ name, badgeCount, color, size }) => {
     return (
       <View style={{ width: 24, height: 24, margin: 5 }}>
@@ -130,59 +151,74 @@ const Navigation = () => {
   };
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+    <>
+      <Tab.Navigator
+      detachInactiveScreens={true}
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          unmountOnBlur: true,
+          lazy: false,
+          tabBarActiveTintColor: setting.themes[0].primaryColor,
+          tabBarInactiveTintColor: 'gray',
+          tabBarHideOnKeyboard: true,
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            if (route.name === 'Home') {
+              // iconName = focused ? 'home' : 'home';
+              iconName = 'home';
+            } else if (route.name === 'CateGories') {
+              iconName = 'list';
+            } else if (route.name === 'Cart') {
+              // iconName = 'shopping-cart';
+              return (
+                <HomeIconWithBadge
+                  name="shopping-cart"
+                  size={size}
+                  color={color}
+                />
+              );
+            } else if (route.name === 'AccountWrapper') {
+              iconName = 'user-circle-o';
+            }
+            return <Icon name={iconName} size={size} color={color} />;
+          },
+        })}
+        backBehavior={'initialRoute'}
+      >
+        {/* unmountInactiveRoutes */}
+        <Tab.Screen 
+        name="Home"
+         options={{
+          tabBarLabel: 'Home',
+        }}
+         component={HomeScreen} />
+        <Tab.Screen
+          name="CateGories"
+          component={CategoriesStack}
+          options={({ route }) => ({
+            unmountOnBlur:false,
+            lazy:true,
+            tabBarLabel: 'Categories',
+          })}
+        />
+        <Tab.Screen name="Cart"
+          component={CartStack}
+          options={({ route }) => ({
+            tabBarLabel: 'Cart',
+          })}
+        />
+        <Tab.Screen name="AccountWrapper"
+          component={AccountStack}
+          options={({ route }) => ({
+            unmountOnBlur:true,
+            lazy:false,
+            tabBarLabel: 'Account',
+          })}
+        />
+      </Tab.Navigator>
+      <AlertError />
 
-          if (route.name === 'Home') {
-            // iconName = focused ? 'home' : 'home';
-            iconName = 'home';
-          } else if (route.name === 'Categories') {
-            iconName = 'list';
-          } else if (route.name === 'Cart') {
-            // iconName = 'shopping-cart';
-            return (
-              <HomeIconWithBadge
-                name="shopping-cart"
-                size={size}
-                color={color}
-              />
-            );
-          } else if (route.name === 'Account') {
-            iconName = 'user-circle-o';
-          }
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-      })}
-      lazy={true}
-      swipeEnabled={false}
-      animationEnabled={true}
-      tabBarOptions={{
-        activeTintColor: setting.themes[0].primaryColor,
-        inactiveTintColor: 'gray',
-        scrollEnabled: true,
-      }}>
-      {/* unmountInactiveRoutes */}
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen
-        name="Categories"
-        children={CategoriesStack}
-        options={({ route }) => ({
-          tabBarVisible: route.state && route.state.index === 0,
-        })}
-      />
-      <Tab.Screen name="Cart" children={CartStack}
-        options={({ route }) => ({
-          tabBarVisible: route.state && route.state.index === 0,
-        })}
-      />
-      <Tab.Screen name="Account" children={AccountStack}
-        options={({ route }) => ({
-          tabBarVisible: route.state && route.state.index === 0,
-        })}
-      />
-    </Tab.Navigator>
+    </>
   );
 };
 

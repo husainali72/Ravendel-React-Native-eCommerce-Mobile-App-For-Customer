@@ -58,10 +58,12 @@ const AText = styled.Text`
     }
   }}
 
-  ${({ uppercase }) => {
+  ${({ uppercase,capitalize }) => {
     switch (true) {
       case uppercase:
         return `text-transform: uppercase`;
+      case capitalize:
+        return `text-transform: capitalize`;
       default:
         `text-transform: inherit`;
     }

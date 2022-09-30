@@ -83,5 +83,63 @@ const DELETE_USER = gql`
     }
   }
 `;
+const ADD_CUSTOMER = gql`
+mutation (
+     $first_name: String,
+     $last_name: String, 
+     $email: String,
+     $phone: String,
+     $password: String
+      ) {
+  addCustomer(
+    first_name: $first_name
+    last_name: $last_name
+    email: $email
+    phone: $phone
+    password: $password
+  ) {
+    message
+    success
+    __typename
+  }
+}
 
-export { GET_USERS, GET_USER, ADD_USER, UPDATE_USER, DELETE_USER };
+`;
+const EDIT_CUSTOMER = gql`
+mutation (
+      $id: ID!
+      $first_name: String,
+      $last_name: String, 
+      $email: String,
+      $phone: String,
+      $gender:String
+    ) {
+  updateCustomer(
+    id: $id
+    first_name: $first_name
+    last_name: $last_name
+    email: $email
+    phone: $phone
+    gender:$gender
+  ) {
+    message
+    success
+     }
+   }
+`;
+const CHANGE_PASSWORD = gql`
+  mutation(
+    $id: ID!,
+    $oldPassword: String, 
+    $newPassword: String) {
+    updateCustomerPassword(
+      id: $id, 
+      oldPassword: $oldPassword,
+      newPassword: $newPassword) {
+      message
+      success
+    }
+  }
+`;
+
+export { GET_USERS, GET_USER, ADD_USER, UPDATE_USER, DELETE_USER,ADD_CUSTOMER,EDIT_CUSTOMER,CHANGE_PASSWORD };

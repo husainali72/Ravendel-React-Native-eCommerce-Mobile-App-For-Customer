@@ -8,7 +8,7 @@ const AHeader = props => {
       <StatusBar backgroundColor="#000" />
       <Appbar style={{ backgroundColor: '#fff' }}>
         {props.back ? (
-          <Appbar.BackAction onPress={() => props.navigation.goBack()} />
+          <Appbar.BackAction onPress={() => props.navigation.goBack(null)} />
         ) : null}
         <Appbar.Content
           title={<Text> {props.title} </Text>}

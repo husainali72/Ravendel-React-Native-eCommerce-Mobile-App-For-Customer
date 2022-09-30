@@ -2,6 +2,7 @@ import React from 'react';
 import { AText } from '../../theme-components';
 import styled from 'styled-components/native';
 import URL from '../../utils/baseurl';
+import FastImage from 'react-native-fast-image';
 
 const ProductCard = props => {
   const product = props.productDetail;
@@ -12,17 +13,26 @@ const ProductCard = props => {
       productID: id,
     });
   };
-
   return (
     <>
-      <Card onPress={() => navigateSingleProductScreen(product.id)}>
+      <Card onPress={() => navigateSingleProductScreen(product._id)}>
         <CardImageWrapper>
           {product.feature_image ? (
-            <CardImage
+            <>
+            <FastImage
+              style={{ flex:1,resizeMode:'cover' }}
+              source={{
+                  uri:  URL + product.feature_image.medium,                
+                  priority: FastImage.priority.normal,
+              }}
+              resizeMode={FastImage.resizeMode.contain}
+            />
+            {/* <CardImage
               source={{
                 uri: URL + product.feature_image.medium,
               }}
-            />
+            /> */}
+            </>
           ) : (
               <CardNotImage
                 source={{
@@ -34,6 +44,11 @@ const ProductCard = props => {
         </CardImageWrapper>
         <CardBody>
           <AText>
+          {product.pricing.sellprice ? (
+              <AText heavy color="#DB3022">
+                ${product.pricing.sellprice.toFixed(2)}{'  '}
+              </AText>
+            ) : null}
             <AText
               lineThrough={product.pricing.sellprice ? true : false}
               medium={product.pricing.sellprice ? false : true}
@@ -41,11 +56,7 @@ const ProductCard = props => {
               color={product.pricing.sellprice ? '#7b7b7b' : '#000000'}>
               ${product.pricing.price.toFixed(2)}
             </AText>
-            {product.pricing.sellprice ? (
-              <AText heavy color="#DB3022">
-                {'  '}${product.pricing.sellprice.toFixed(2)}
-              </AText>
-            ) : null}
+        
           </AText>
           <AText small bold color="#000">
             {product.name.length > 20
