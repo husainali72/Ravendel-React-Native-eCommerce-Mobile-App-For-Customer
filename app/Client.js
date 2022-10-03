@@ -1,25 +1,25 @@
-import {ApolloClient} from 'apollo-client';
-import {InMemoryCache} from 'apollo-cache-inmemory';
-import {createUploadLink} from 'apollo-upload-client';
-import {ApolloLink} from 'apollo-link';
+import { ApolloClient, InMemoryCache,ApolloLink,createHttpLink,from, ApolloProvider, gql } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import { getToken, isEmpty } from './utils/helper';
 
-const httpLink = new createUploadLink({
-  uri: `https://ravendel-backend.hbwebsol.com/graphql`,
+const httpLink = createHttpLink({
+  uri:`https://ravendel.herokuapp.com/graphql`,
 });
-
-const authLink = new ApolloLink((operation, forward) => {
-  operation.setContext({
+const authMiddleware = new ApolloLink(async(operation, forward) => {
+    const token = await getToken();
+  operation.setContext(({ headers = {} }) => ({
     headers: {
-      authorization: '',
-    },
-  });
-  // Call the next link in the middleware chain.
+      ...headers,
+      authorization: !isEmpty(token)?token: ''
+    }
+  }));
   return forward(operation);
-});
- 
+})
 const APclient = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: from([
+    authMiddleware,
+    httpLink
+  ]),
   cache: new InMemoryCache(),
 });
-
 export default APclient;

@@ -11,6 +11,10 @@ import {
 import { useSelector } from 'react-redux';
 import URL from '../../utils/baseurl';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { CommonActions } from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
+import { isEmpty } from '../../utils/helper';
+import { StyleSheet } from 'react-native';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const singleCat = route.params.singleCategory;
@@ -19,7 +23,7 @@ const SubCategoriesScreen = ({ navigation, route }) => {
   const [collapseCategory, setCollapseCategory] = useState({});
   const [withChild, setWithChild] = useState([]);
 
-  useEffect(() => {}, [singleCat]);
+
 
   useEffect(() => {
     if (singleCatChildern && singleCatChildern.length > 0) {
@@ -50,22 +54,16 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                     <ACol col={1}>
                       <ListItem>
                         <CategoryImageWrapper>
-                          {cat.image && cat.image.original ? (
-                            <CategoryImage
-                              source={{
-                                uri: URL + cat.image.original,
-                              }}
-                            />
-                          ) : (
-                            <CategoryImage
-                              source={{
-                                uri:
-                                  'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                              }}
-                            />
-                          )}
-                        </CategoryImageWrapper>
 
+                          <FastImage
+                            style={styles.fastImageStyle}
+                            source={{
+                              uri:!isEmpty(cat.image) && !isEmpty(cat.image.original) ? URL + cat.image.thumbnail : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+                              priority:  FastImage.priority.normal,
+                            }}
+                            resizeMode={FastImage.resizeMode.contain}
+                          />
+                        </CategoryImageWrapper>
                         <AText ml="10px">{cat.name}</AText>
                       </ListItem>
                     </ACol>
@@ -84,21 +82,15 @@ const SubCategoriesScreen = ({ navigation, route }) => {
               <ARow row wrap alignItems="center">
                 <ACol col={1}>
                   <ListItem>
-                    <CategoryImageWrapper>
-                      {cat.image && cat.image.original ? (
-                        <CategoryImage
-                          source={{
-                            uri: URL + cat.image.original,
-                          }}
-                        />
-                      ) : (
-                        <CategoryImage
-                          source={{
-                            uri:
-                              'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                          }}
-                        />
-                      )}
+                    <CategoryImageWrapper>                     
+                          <FastImage
+                            style={styles.fastImageStyle}
+                            source={{
+                              uri: !isEmpty(cat.image) && !isEmpty(cat.image.original) ? URL + cat.image.thumbnail : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+                              priority: FastImage.priority.normal,
+                            }}
+                            resizeMode={FastImage.resizeMode.contain}
+                          />                    
                     </CategoryImageWrapper>
                     <CategoryName>
                       <AText ml="10px">{cat.name}</AText>
@@ -141,17 +133,19 @@ const SubCategoriesScreen = ({ navigation, route }) => {
       );
     });
   };
-
   return (
     <>
       {loading ? <AppLoader /> : null}
-      <AHeader title={singleCat.name} back />
+      <AHeader title={singleCat.name} navigation={navigation} back />
       <AContainer>
         {withChild.length ? menuListing(withChild) : null}
       </AContainer>
     </>
   );
 };
+const styles = StyleSheet.create({
+  fastImageStyle:{ flex: 1, resizeMode: 'cover' }
+});
 
 const CollapseContainer = styled.View`
   background: #f7f7f7;
@@ -186,15 +180,6 @@ const CategoryImage = styled.Image`
   flex: 1;
   resize-mode: cover;
 `;
-
-const CategoryHeaderImage = styled.ImageBackground`
-  width: 100%;
-  height: 100%;
-  flex: 1;
-  resize-mode: cover;
-  justify-content: center;
-`;
-
 const CollapseIcon = styled.Text`
   align-self: flex-end;
 `;

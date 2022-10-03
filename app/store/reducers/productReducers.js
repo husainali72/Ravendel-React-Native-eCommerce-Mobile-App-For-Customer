@@ -12,6 +12,8 @@ import {
   ADD_PRODUCT_REVIEWS,
   ALL_CATEGORIES,
   SINGLE_CATEGORY,
+  CAT_PRODUCTS_CLEAR,
+  PRODUCT_CLEAR,
 } from '../action/productAction';
 
 const initialState = {
@@ -107,6 +109,13 @@ export default (state = initialState, action) => {
         loading: false,
         success: true,
       };
+    case PRODUCT_CLEAR:
+      return {
+        ...state,
+        product: [],
+        loading: false,
+        success: true,
+      };
     case ALL_CATEGORIES:
       return {
         ...state,
@@ -125,6 +134,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         singleCategoryDetails: action.payload,
+        loading: false,
+        success: true,
+      };
+    case CAT_PRODUCTS_CLEAR:
+      return {
+        ...state,
+        singleCategoryDetails:[],
         loading: false,
         success: true,
       };

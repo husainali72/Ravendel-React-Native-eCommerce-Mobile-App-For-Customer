@@ -1,21 +1,25 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useRef, useState} from 'react';
-import {AText, ARow, ACol, AppLoader} from '../../theme-components';
-import {useSelector, useDispatch} from 'react-redux';
-import {catProductAction} from '../../store/action/productAction';
-import {ProductCard} from '../components';
+import React, { useEffect, useRef, useState } from 'react';
+import { AText, ARow, ACol, AppLoader } from '../../theme-components';
+import { useSelector, useDispatch } from 'react-redux';
+import { catProductAction } from '../../store/action';
+import { CAT_PRODUCTS_CLEAR } from '../../store/action/productAction';
+import { ProductCard } from '../components';
 import styled from 'styled-components/native';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { isEmpty } from '../../utils/helper';
+import { useIsFocused } from '@react-navigation/native';
 
-const CategoryScreen = ({route, navigation}) => {
+const CategoryScreen = ({ route, navigation }) => {
   const singleCatId = route.params.singleCategory.url;
-  const categoryDispatch = useDispatch();
+  const dispatch = useDispatch();
   const singleCateogry = useSelector(
     state => state.products.singleCategoryDetails,
   );
   const loading = useSelector(state => state.products.loading);
   const refRBSheet = useRef();
   const [sortBy, setSortBy] = useState('low-high');
+  const isFocused =useIsFocused()
 
   useEffect(() => {
     navigation.setOptions({
@@ -26,37 +30,47 @@ const CategoryScreen = ({route, navigation}) => {
   }, [singleCateogry]);
 
   useEffect(() => {
-    categoryDispatch(catProductAction(singleCatId));
-  }, [singleCatId]);
+    if(isFocused){
+      dispatch(catProductAction(singleCatId));
+    }else{
+      dispatch({
+        type: CAT_PRODUCTS_CLEAR,
+      });
+    }
+  }, [isFocused,singleCatId]);
 
   const changeSortBy = sortName => {
     setSortBy(sortName);
     refRBSheet.current.close();
   };
-
   return (
     <>
       {loading ? <AppLoader /> : null}
       <Wrapper>
         <ARow row wrap>
-          {singleCateogry.products && singleCateogry.products.length ? (
-            singleCateogry.products.map(product => {
-              return (
-                <ACol col={2} key={product.id}>
-                  <ProductCard
-                    productDetail={product}
-                    navigationChild={navigation}
-                  />
-                </ACol>
-              );
-            })
-          ) : (
-            <NotFoundWrapper>
-              <NotFoundImage
-                source={require('../../assets/images/no-product-fonds.webp')}
-              />
-            </NotFoundWrapper>
-          )}
+          {!isEmpty(singleCateogry) &&
+            <>
+              { singleCateogry.data.products && singleCateogry.data.products.length ? (
+                singleCateogry.data.products.map(product => {
+                  return (
+                    <ACol col={2} key={product.id}>
+                      <ProductCard
+                        productDetail={product}
+                        navigationChild={navigation}
+                      />
+                    </ACol>
+                  );
+                })
+              )
+
+                : (
+                  <NotFoundWrapper>
+                    <NotFoundImage
+                      source={require('../../assets/images/no-product-fonds.webp')}
+                    />
+                  </NotFoundWrapper>
+                )}
+            </>}
         </ARow>
       </Wrapper>
       <FittlerRow>

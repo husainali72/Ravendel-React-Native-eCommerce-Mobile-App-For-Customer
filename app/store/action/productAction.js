@@ -7,8 +7,9 @@ import {
   ADD_REVIEW,
   GET_ALL_CATEGORIES,
 } from '../../queries/productQuery';
-import {mutation, query} from '../../utils/service';
-// import jumpTo from "../../utils/navigation";
+import { isEmpty } from '../../utils/helper';
+import { mutation, query } from '../../utils/service';
+import { ALERT_ERROR } from '../reducers/alert';
 
 export const productsAction = () => dispatch => {
   dispatch({
@@ -16,10 +17,10 @@ export const productsAction = () => dispatch => {
   });
   query(GET_PRODUCTS)
     .then(response => {
-      if (response) {
+      if (!isEmpty(response.data.products) && response) {
         return dispatch({
           type: PRODUCTS_SUCCESS,
-          payload: response.data.products,
+          payload: response.data.products.data,
         });
       }
     })
@@ -29,7 +30,7 @@ export const productsAction = () => dispatch => {
       });
       return dispatch({
         type: PRODUCT_FAIL,
-        payload: {boolean: true, message: error, error: true},
+        payload: { boolean: true, message: error, error: true },
       });
     });
 };
@@ -38,12 +39,12 @@ export const productAction = id => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  query(GET_PRODUCT, {id: id})
+  query(GET_PRODUCT, { 'id': id })
     .then(response => {
-      if (response) {
+      if (!isEmpty(response.data.product)) {
         return dispatch({
           type: PRODUCT_SUCCESS,
-          payload: response.data.product,
+          payload: response.data.product.data,
         });
       }
     })
@@ -53,7 +54,7 @@ export const productAction = id => dispatch => {
       });
       return dispatch({
         type: PRODUCT_FAIL,
-        payload: {boolean: true, message: error, error: true},
+        payload: { boolean: true, message: error, error: true },
       });
     });
 };
@@ -64,7 +65,7 @@ export const categoriesAction = () => dispatch => {
   });
   query(GET_CATEGORIES)
     .then(response => {
-      if (response) {
+      if (!isEmpty(response.data.productCategories)) {
         return dispatch({
           type: CATS_SUCCESS,
           payload: response.data.productCategories,
@@ -77,7 +78,7 @@ export const categoriesAction = () => dispatch => {
       });
       return dispatch({
         type: CAT_FAIL,
-        payload: {boolean: true, message: error, error: true},
+        payload: { boolean: true, message: error, error: true },
       });
     });
 };
@@ -86,9 +87,9 @@ export const catProductAction = url => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  query(GET_CAT_PRODUCTS, {url: url})
+  query(GET_CAT_PRODUCTS, { 'url': url })
     .then(response => {
-      if (response) {
+      if (!isEmpty(response.data.productsbycaturl)) {
         return dispatch({
           type: CAT_PRODUCTS,
           payload: response.data.productsbycaturl,
@@ -101,7 +102,7 @@ export const catProductAction = url => dispatch => {
       });
       return dispatch({
         type: PRODUCT_FAIL,
-        payload: {boolean: true, message: error, error: true},
+        payload: { boolean: true, message: error, error: true },
       });
     });
 };
@@ -110,9 +111,9 @@ export const AllCategoriesAction = id => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  query(GET_ALL_CATEGORIES, {fillter: {parentId: id}})
+  query(GET_ALL_CATEGORIES, { fillter: { parentId: id } })
     .then(response => {
-      if (response) {
+      if (!isEmpty(response.data.productCategoriesByFilter)) {
         if (id === null) {
           return dispatch({
             type: ALL_CATEGORIES,
@@ -132,7 +133,7 @@ export const AllCategoriesAction = id => dispatch => {
       });
       return dispatch({
         type: PRODUCT_FAIL,
-        payload: {boolean: true, message: error, error: true},
+        payload: { boolean: true, message: error, error: true },
       });
     });
 };
@@ -141,12 +142,12 @@ export const productReviewsAction = id => dispatch => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  query(GET_PRODUCT_REVIEWS, {id: id})
+  query(GET_PRODUCT_REVIEWS, { product_id: id })
     .then(response => {
-      if (response) {
+      if (isEmpty(response.data.productwisereview)) {
         return dispatch({
           type: PRODUCT_REVIEWS,
-          payload: response.data.productwisereview,
+          payload: response.data.productwisereview.data,
         });
       }
     })
@@ -156,7 +157,7 @@ export const productReviewsAction = id => dispatch => {
       });
       return dispatch({
         type: PRODUCT_FAIL,
-        payload: {boolean: true, message: error, error: true},
+        payload: { boolean: true, message: error, error: true },
       });
     });
 };
@@ -167,10 +168,18 @@ export const productAddReviewAction = object => dispatch => {
   });
   mutation(ADD_REVIEW, object)
     .then(response => {
-      if (response) {
+      if (!isEmpty(response.data.addReview) && response.data.addReview.success) {
         dispatch({
           type: ADD_PRODUCT_REVIEWS,
-          payload: response.data.addReviews,
+          payload: response.data.addReview,
+        });
+      } else {
+        dispatch({
+          type: PRODUCT_FAIL,
+        });
+        dispatch({
+          type: ALERT_ERROR,
+          payload: response.data.addReview.message || 'Something went wrong',
         });
       }
     })
@@ -191,7 +200,9 @@ export const PRODUCT_SUCCESS = 'PRODUCT_SUCCESS';
 export const PRODUCTS_SUCCESS = 'PRODUCTS_SUCCESS';
 export const PRODUCT_FAIL = 'PRODUCT_FAIL';
 export const CAT_PRODUCTS = 'CAT_PRODUCTS';
+export const CAT_PRODUCTS_CLEAR = 'CAT_PRODUCTS_CLEAR';
 export const PRODUCT_REVIEWS = 'PRODUCT_REVIEWS';
+export const PRODUCT_CLEAR = 'PRODUCT_CLEAR';
 export const ADD_PRODUCT_REVIEWS = 'ADD_PRODUCT_REVIEWS';
 export const ALL_CATEGORIES = 'ALL_CATEGORIES';
 export const SINGLE_CATEGORY = 'SINGLE_CATEGORY';
