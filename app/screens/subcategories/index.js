@@ -11,15 +11,17 @@ import {
 import { useSelector } from 'react-redux';
 import URL from '../../utils/baseurl';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { CommonActions } from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
+import { isEmpty } from '../../utils/helper';
+import { StyleSheet } from 'react-native';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const singleCat = route.params.singleCategory;
   const singleCatChildern = route.params.withChildern;
-  const loading = useSelector(state => state.products.loading);
+  const loading = useSelector((state) => state.products.loading);
   const [collapseCategory, setCollapseCategory] = useState({});
   const [withChild, setWithChild] = useState([]);
-
-  useEffect(() => {}, [singleCat]);
 
   useEffect(() => {
     if (singleCatChildern && singleCatChildern.length > 0) {
@@ -27,48 +29,41 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     }
   }, [singleCatChildern]);
 
-  const collapseToggle = category => {
+  const collapseToggle = (category) => {
     category.open = !category.open;
     setCollapseCategory({ ...collapseCategory, [category.id]: category.open });
   };
-
-  const navigateCategoryScreen = category => {
+  const navigateCategoryScreen = (category) => {
     navigation.navigate('Category', {
       singleCategory: category,
     });
   };
 
-  const menuListing = categories => {
-    return categories.map(cat => {
+  const menuListing = (categories) => {
+    return categories.map((cat) => {
       if (!cat.children.length) {
         return (
-          <ARow row wrap alignItems="center" key={cat.id}>
+          <ARow row wrap alignItems="center" padding={0} key={cat.id}>
             <ACol col={1}>
               <CategoryContainer>
                 <CategoriesList onPress={() => navigateCategoryScreen(cat)}>
                   <ARow row wrap alignItems="center">
-                    <ACol col={1}>
-                      <ListItem>
-                        <CategoryImageWrapper>
-                          {cat.image && cat.image.original ? (
-                            <CategoryImage
-                              source={{
-                                uri: URL + cat.image.original,
-                              }}
-                            />
-                          ) : (
-                            <CategoryImage
-                              source={{
-                                uri:
-                                  'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                              }}
-                            />
-                          )}
-                        </CategoryImageWrapper>
-
-                        <AText ml="10px">{cat.name}</AText>
-                      </ListItem>
-                    </ACol>
+                    <ListItem>
+                      <CategoryImageWrapper>
+                        <FastImage
+                          style={styles.fastImageStyle}
+                          source={{
+                            uri:
+                              !isEmpty(cat.image) && !isEmpty(cat.image)
+                                ? URL + cat.image
+                                : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+                            priority: FastImage.priority.normal,
+                          }}
+                          resizeMode={FastImage.resizeMode.contain}
+                        />
+                      </CategoryImageWrapper>
+                      <AText ml="10px">{cat.name}</AText>
+                    </ListItem>
                   </ARow>
                 </CategoriesList>
               </CategoryContainer>
@@ -85,20 +80,16 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 <ACol col={1}>
                   <ListItem>
                     <CategoryImageWrapper>
-                      {cat.image && cat.image.original ? (
-                        <CategoryImage
-                          source={{
-                            uri: URL + cat.image.original,
-                          }}
-                        />
-                      ) : (
-                        <CategoryImage
-                          source={{
-                            uri:
-                              'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                          }}
-                        />
-                      )}
+                      <FastImage
+                        style={styles.fastImageStyle}
+                        source={{
+                          uri: !isEmpty(cat.image)
+                            ? URL + cat.image
+                            : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+                          priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.contain}
+                      />
                     </CategoryImageWrapper>
                     <CategoryName>
                       <AText ml="10px">{cat.name}</AText>
@@ -141,17 +132,19 @@ const SubCategoriesScreen = ({ navigation, route }) => {
       );
     });
   };
-
   return (
     <>
       {loading ? <AppLoader /> : null}
-      <AHeader title={singleCat.name} back />
+      <AHeader title={singleCat.name} navigation={navigation} back />
       <AContainer>
         {withChild.length ? menuListing(withChild) : null}
       </AContainer>
     </>
   );
 };
+const styles = StyleSheet.create({
+  fastImageStyle: { flex: 1, resizeMode: 'cover' },
+});
 
 const CollapseContainer = styled.View`
   background: #f7f7f7;
@@ -163,6 +156,7 @@ const CategoriesList = styled.TouchableOpacity``;
 const ListItem = styled.View`
   flex: 1;
   flex-wrap: wrap;
+  margin: 5px 2px 5px 5px;
   flex-direction: row;
   align-items: center;
 `;
@@ -186,15 +180,6 @@ const CategoryImage = styled.Image`
   flex: 1;
   resize-mode: cover;
 `;
-
-const CategoryHeaderImage = styled.ImageBackground`
-  width: 100%;
-  height: 100%;
-  flex: 1;
-  resize-mode: cover;
-  justify-content: center;
-`;
-
 const CollapseIcon = styled.Text`
   align-self: flex-end;
 `;

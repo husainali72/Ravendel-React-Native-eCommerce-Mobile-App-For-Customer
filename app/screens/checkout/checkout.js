@@ -6,19 +6,31 @@ import {
 } from '../../theme-components';
 import styled from 'styled-components/native';
 import URL from '../../utils/baseurl';
-import { DataTable, Text } from 'react-native-paper';
+import { DataTable } from 'react-native-paper';
 import { Alert } from 'react-native';
-import { checkoutDetailsAction } from "../../store/action/checkoutAction";
-import { useDispatch } from 'react-redux';
+import { checkoutDetailsAction } from "../../store/action";
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+import { formatCurrency, isEmpty } from '../../utils/helper';
+import { ProductPriceText } from '../components';
 
 const CheckoutScreen = ({ navigation, route }) => {
   var shippingValue = route.params.shippingValue;
   var cartAmount = route.params.cartAmount;
   var cartProducts = route.params.cartProducts;
+  var couponCode = route.params.couponCode;
   var paymentMethod = route.params.paymentMethod;
-  const checkoutDispatch = useDispatch();
+  const dispatch = useDispatch();
+  const { cartId } = useSelector(state => state.cart);
+  const userDetails = useSelector(state => state.customer.userDetails);
+  const { checkoutSuccess } = useSelector(state => state.checkoutDetail)
   const [deliveryCharges, setDeliveryCharges] = useState(0);
-
+  const [taxAmount, setTaxAmount] = useState(0);
+  const [productArr, setProductArr] = useState([])
+  const { couponDiscount } = useSelector(state => state.cart);
+  const { currencyOptions, currencySymbol } = useSelector(state => state.settings);
+  const isFocused = useIsFocused();
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title: 'Order Summary',
@@ -26,19 +38,84 @@ const CheckoutScreen = ({ navigation, route }) => {
       headerTintColor: '#000',
       headerRight: () => (
         <AText bold pr="10px">
-          ${cartAmount}
+          {formatCurrency(cartAmount, currencyOptions, currencySymbol)}
         </AText>
       ),
     });
   }, [navigation]);
+
+  useEffect(() => {
+    setproducts()
+  }, [isFocused])
+  const setproducts = () => {
+    var products = []
+    cartProducts.map((val) => {
+      products.push({
+        'product_id': val._id,
+        'qty': val.cartQty,
+        'name': val.name,
+        'cost': val.pricing.sellprice,
+        'feature_image': val.feature_image.medium
+      })
+    })
+    setProductArr(products)
+  }
+  const checkoutDetails = () => {
+    const payload = {
+      customer_id: userDetails._id,
+      billing: {
+        order_notes: "",
+        zip: shippingValue.pincode,
+        state: shippingValue.state,
+        city: shippingValue.city,
+        address_line2: shippingValue.address_line2,
+        address: shippingValue.address_line1,
+        phone: userDetails.phone || "1234",
+        company: "",
+        email: userDetails.email,
+        lastname: userDetails.last_name,
+        firstname: userDetails.first_name,
+        country: shippingValue.country,
+        payment_method: "Cash On Delivery",
+        transaction_id: ""
+      },
+      shipping: {
+        order_notes: "",
+        zip: shippingValue.pincode,
+        state: shippingValue.state,
+        city: shippingValue.city,
+        address_line2: shippingValue.address_line2,
+        address: shippingValue.address_line1,
+        phone: shippingValue.phone || "1234",
+        company: "",
+        email: shippingValue.email,
+        lastname: shippingValue.last_name,
+        firstname: shippingValue.first_name,
+        country: shippingValue.country,
+        payment_method: "Cash On Delivery",
+        transaction_id: ""
+      },
+      products: productArr,
+      subtotal: cartAmount.toString(),
+      shipping_amount: !isEmpty(deliveryCharges) ? deliveryCharges.toString() : '',
+      tax_amount: !isEmpty(taxAmount) ? taxAmount.toString() : '',
+      discount_amount: !isEmpty(couponDiscount) ? couponDiscount.toString() : '',
+      coupon_code: !isEmpty(couponCode) ? couponCode : "",
+      grand_total: !isEmpty(cartAmount) ? cartAmount.toString() : '',
+      checkoutDate: new Date().toString(),
+      shippingAddress: true,
+    }
+    dispatch(checkoutDetailsAction(payload, cartId, navigation));
+  }
+
 
   return (
     <>
       <AContainer>
         <AText large heavy>Shipping Details</AText>
         <Shippingwrapper>
-          <AText medium bold color="#000">{shippingValue.firstname + ' ' + shippingValue.lastname}</AText>
-          <AText mt="10px">{`${shippingValue.address}, ${shippingValue.city}`}</AText>
+          <AText medium bold color="#000">{shippingValue.first_name + ' ' + shippingValue.last_name}</AText>
+          <AText mt="10px">{`${shippingValue.address_line1},${shippingValue.address_line2}, ${shippingValue.city}`}</AText>
           <AText>{`${shippingValue.state}, ${shippingValue.pincode}`}</AText>
           <AText>{`${shippingValue.country}`}</AText>
           <AText mt="10px">{shippingValue.phone}</AText>
@@ -51,15 +128,13 @@ const CheckoutScreen = ({ navigation, route }) => {
             <DataTable.Row>
               <DataTable.Cell>Payment</DataTable.Cell>
               <DataTable.Cell numeric>
-                <Text style={{ textTransform: 'capitalize' }}>
-                  {paymentMethod}
-                </Text>
+                <AText capitalize>{paymentMethod}</AText>
               </DataTable.Cell>
             </DataTable.Row>
 
             <DataTable.Row>
               <DataTable.Cell>Items ({cartProducts.length})</DataTable.Cell>
-              <DataTable.Cell numeric>${cartAmount}</DataTable.Cell>
+              <DataTable.Cell numeric>{formatCurrency(cartAmount, currencyOptions, currencySymbol)}</DataTable.Cell>
             </DataTable.Row>
 
             <DataTable.Row>
@@ -67,14 +142,21 @@ const CheckoutScreen = ({ navigation, route }) => {
               <DataTable.Cell numeric>Free</DataTable.Cell>
             </DataTable.Row>
 
-            <DataTable.Row>
-              <DataTable.Cell>Delivery Charges</DataTable.Cell>
-              <DataTable.Cell numeric>{deliveryCharges === 0 ? "Free" : deliveryCharges}</DataTable.Cell>
-            </DataTable.Row>
+         
+            {couponDiscount > 0 &&
+              <DataTable.Row>             
+                <DataTable.Cell>Coupon code<AText bold>{!isEmpty(couponCode) && ' (' + couponCode + ')'}</AText> </DataTable.Cell>
+                <DataTable.Cell numeric><AText color={'green'}>- {formatCurrency(couponDiscount, currencyOptions, currencySymbol)}</AText></DataTable.Cell>
+              </DataTable.Row>
+            }
 
             <DataTable.Row>
+              <DataTable.Cell>Taxes</DataTable.Cell>
+              <DataTable.Cell numeric>{taxAmount === 0 ? "Free" : taxAmount}</DataTable.Cell>
+            </DataTable.Row>
+            <DataTable.Row>
               <DataTable.Cell>Amount Payable</DataTable.Cell>
-              <DataTable.Cell numeric>${cartAmount + deliveryCharges}</DataTable.Cell>
+              <DataTable.Cell numeric>{formatCurrency(cartAmount + deliveryCharges-couponDiscount, currencyOptions, currencySymbol)}</DataTable.Cell>
             </DataTable.Row>
           </DataTable>
         </Shippingwrapper>
@@ -84,21 +166,11 @@ const CheckoutScreen = ({ navigation, route }) => {
         </AText>
         {cartProducts.map(product => (
           <ItemWrapper key={product.id}>
-            {product.feature_image ? (
-              <ItemImage
-                source={{
-                  uri: URL + product.feature_image.medium,
-                }}
-              />
-            ) : (
-                <ItemImage
-                  source={{
-                    uri:
-                      'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                  }}
-                />
-              )}
-
+            <ItemImage
+              source={{
+                uri: !isEmpty(product.feature_image) ? URL + product.feature_image.medium : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+              }}
+            />
             <ItemDescription>
               <AText medium heavy>
                 {product.name.length > 20
@@ -112,37 +184,16 @@ const CheckoutScreen = ({ navigation, route }) => {
                     {product.cartQty}
                   </AText>
                 </AText>
-                <AText small light ml="10px">
-                  Color:{' '}
-                  <AText small heavy>
-                    Black
-                  </AText>
-                </AText>
-
-                <AText small light ml="10px">
-                  Size:{' '}
-                  <AText small heavy>
-                    L
-                  </AText>
-                </AText>
               </AttributedWrapper>
 
               <PriceQtyWrapper>
-                <PriceWrapper>
-                  <AText
-                    right
-                    lineThrough={product.pricing.sellprice ? true : false}
-                    small={product.pricing.sellprice ? true : false}
-                    heavy={product.pricing.sellprice ? false : true}
-                    color={product.pricing.sellprice ? '#7b7b7b' : '#000000'}>
-                    ${(product.pricing.price * product.cartQty).toFixed(2)}
-                  </AText>
-                  {product.pricing.sellprice ? (
-                    <AText heavy color="#DB3022" right>
-                      ${(product.pricing.sellprice * product.cartQty).toFixed(2)}
-                    </AText>
-                  ) : null}
-                </PriceWrapper>
+                <ProductPriceText
+                  fontsizesmall={true}
+                  Pricing={product.pricing}
+                  DontshowPercentage={true}
+                  showInMulipleLine={'column-reverse'}
+                  fontColor={'#DB3022'}
+                />
               </PriceQtyWrapper>
             </ItemDescription>
           </ItemWrapper>
@@ -153,21 +204,7 @@ const CheckoutScreen = ({ navigation, route }) => {
         title="Place Order"
         block
         onPress={() => {
-          Alert.alert(
-            'Success',
-            'Congratulations! Your order has been placed successfully.',
-            [
-              {
-                text: 'Ok',
-                onPress: () => {
-                  navigation.navigate('Cart');
-                  checkoutDispatch(checkoutDetailsAction([]));
-                },
-                style: 'cancel',
-              },
-            ],
-            { cancelable: false },
-          );
+          checkoutDetails()
         }}
       />
     </>

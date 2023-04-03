@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
+import { FontStyle } from '../utils/helper';
 
 const AText = styled.Text`
   letter-spacing: 0.5px;
@@ -34,16 +35,18 @@ const AText = styled.Text`
     }
   }}
 
-  ${({ bold, heavy, light }) => {
+  ${({ bold, heavy, light,medium }) => {
     switch (true) {
       case heavy:
-        return `font-weight: 700`;
+        return `font-family: ${FontStyle.fontBlack}`;
       case bold:
-        return `font-weight: 600`;
+        return `font-family: ${FontStyle.fontBold}`;
       case light:
-        return `font-weight: 200`;
+        return `font-family: ${FontStyle.fontThin}`;
+      case medium:
+        return `font-family: ${FontStyle.fontMedium}`;
       default:
-        return `font-weight: 400`;
+        return `font-family: ${FontStyle.fontRegular}`;
     }
   }}
 
@@ -58,10 +61,12 @@ const AText = styled.Text`
     }
   }}
 
-  ${({ uppercase }) => {
+  ${({ uppercase,capitalize }) => {
     switch (true) {
       case uppercase:
         return `text-transform: uppercase`;
+      case capitalize:
+        return `text-transform: capitalize`;
       default:
         `text-transform: inherit`;
     }

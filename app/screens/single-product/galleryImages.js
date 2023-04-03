@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Image,
   ScrollView,
@@ -10,11 +10,12 @@ import {
 } from 'react-native';
 import URL from '../../utils/baseurl';
 import ImageView from 'react-native-image-view';
+import FastImage from 'react-native-fast-image';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const height = 297;
 
-const GalleryImagesSlider = props => {
+const GalleryImagesSlider = (props) => {
   const [SliderImages, setSliderImages] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
   const [preview, setPreview] = useState(false);
@@ -27,7 +28,7 @@ const GalleryImagesSlider = props => {
   useEffect(() => {
     var previewImageArr = [];
     if (SliderImages) {
-      SliderImages.map(img => {
+      SliderImages.map((img) => {
         var object = {
           source: {
             uri: URL + img.original,
@@ -39,7 +40,7 @@ const GalleryImagesSlider = props => {
     setPreviewImages(previewImageArr);
   }, [SliderImages]);
 
-  const changeSlide = ({nativeEvent}) => {
+  const changeSlide = ({ nativeEvent }) => {
     const slide = Math.ceil(
       nativeEvent.contentOffset.x / nativeEvent.layoutMeasurement.width,
     );
@@ -64,9 +65,13 @@ const GalleryImagesSlider = props => {
           {SliderImages ? (
             SliderImages.map((image, index) => (
               <TouchableOpacity key={index} onPress={() => previewImage()}>
-                <Image
-                  source={{uri: URL + image.original}}
+                <FastImage
                   style={styles.slideImage}
+                  source={{
+                    uri: URL + image,
+                    priority: FastImage.priority.normal,
+                  }}
+                  resizeMode={FastImage.resizeMode.contain}
                 />
               </TouchableOpacity>
             ))
@@ -95,17 +100,17 @@ const GalleryImagesSlider = props => {
 };
 
 const styles = StyleSheet.create({
-  container: {width, height},
-  scroll: {width, height},
-  slideImage: {width, height, resizeMode: 'cover'},
+  container: { width, height },
+  scroll: { width, height },
+  slideImage: { width, height, resizeMode: 'cover' },
   dots: {
     flexDirection: 'row',
     position: 'absolute',
     bottom: 0,
     alignSelf: 'center',
   },
-  dot: {color: '#888', margin: 3, fontSize: 10},
-  activeDot: {color: '#EB3349', margin: 3, fontSize: 10},
+  dot: { color: '#888', margin: 3, fontSize: 10 },
+  activeDot: { color: '#EB3349', margin: 3, fontSize: 10 },
 });
 
 export default GalleryImagesSlider;

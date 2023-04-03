@@ -1,46 +1,90 @@
-export const isEmpty = value =>
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AWS3 } from 'react-native-aws3';
+import AWS from 'aws-sdk';
+
+export const isEmpty = (value) =>
   value === undefined ||
   value === null ||
   (typeof value === 'object' && Object.keys(value).length === 0) ||
   (typeof value === 'string' && value.trim().length === 0);
 
+/*let baseURL = "";
+if (process.env.NODE_ENV === "production") {
+  baseURL = "http://159.89.170.199:80";
+} else {
+  baseURL = "http://localhost:8000";
+}*/
 
-export const baseUrl = 'https://ravendel-backend.hbwebsol.com';
+export const baseUrl = 'http://192.168.1.12:8000';
+// export const baseUrl = 'http://localhost:8000';
+// export const baseUrl = 'https://ravendel-backend.hbwebsol.com';
 
 /*-------------------------------------------------------------------------------------------------------------------------------------- */
 //simple category array to Tree array
-export const unflatten = arr => {
-  var tree = [],
-    mappedArr = {},
-    arrElem,
-    mappedElem;
-
-  // First map the nodes of the array to an object -> create a hash table.
-  for (var i = 0, len = arr.length; i < len; i++) {
-    arrElem = arr[i];
-    mappedArr[arrElem.id] = arrElem;
-    mappedArr[arrElem.id].children = [];
+export const unflatten = (items, id = null, link = 'parentId') => {
+  const arr = items
+    .filter((item) => item[link] === id)
+    .map((item) => ({ ...item, children: unflatten(items, item.id) }));
+  return arr;
+};
+export const FontStyle = {
+  fontBlack: 'Roboto-Black',
+  fontBold: 'Roboto-Bold',
+  fontExtraLight: 'Roboto-ExtraLight',
+  fontMedium: 'Roboto-Medium',
+  fontRegular: 'Roboto-Regular',
+  fontThin: 'Roboto-Thin',
+};
+export const shippedStatuscolor = (status, alpha) => {
+  const INPROGRESS_COLOR = '#8fbec7';
+  const SHIPPED_COLOR = '#D6BFBF';
+  const OUTFORDELIVERY_COLOR = '#D6D6BF';
+  const DELIVERED_COLOR = '#BFD6C4';
+  if (status === 'shipped') {
+    return SHIPPED_COLOR + `${alpha ? '10' : ''}`;
+  } else if (status === 'outfordelivery') {
+    return OUTFORDELIVERY_COLOR + `${alpha ? '10' : ''}`;
+  } else if (status === 'delivered') {
+    return DELIVERED_COLOR + `${alpha ? '10' : ''}`;
+  } else {
+    return INPROGRESS_COLOR + `${alpha ? '10' : ''}`;
   }
-
-  for (var id in mappedArr) {
-    if (mappedArr.hasOwnProperty(id)) {
-      mappedElem = mappedArr[id];
-      // If the element is not at the root level, add it to its parent array of children.
-      if (mappedElem.parentId) {
-        mappedArr[mappedElem.parentId].children.push(mappedElem);
-      }
-      // If the element is at the root level, add it to first level elements array.
-      else {
-        tree.push(mappedElem);
-      }
-    }
+};
+export const shippedFinalStatuscolor = (status, alpha) => {
+  const INPROGRESS_COLOR = '#00D8FF';
+  const SHIPPED_COLOR = '#FF3636';
+  const OUTFORDELIVERY_COLOR = '#FAFF00';
+  const DELIVERED_COLOR = '#12C324';
+  if (status === 'shipped') {
+    return SHIPPED_COLOR + `${alpha ? '10' : ''}`;
+  } else if (status === 'outfordelivery') {
+    return OUTFORDELIVERY_COLOR + `${alpha ? '10' : ''}`;
+  } else if (status === 'delivered') {
+    return DELIVERED_COLOR + `${alpha ? '10' : ''}`;
+  } else {
+    return INPROGRESS_COLOR + `${alpha ? '10' : ''}`;
   }
-  return tree;
 };
 
+/*----------------------------------------------------------------------------------------------------------------------------------------- */
+//print tree array with html
+// export var categoriesPrint = "";
+// export const printTree = tree => {
+//   categoriesPrint += "<ul>";
+
+//   for (let i in tree) {
+//     categoriesPrint += "<li>" + tree[i].name;
+//     if (tree[i].children && tree[i].children.length) {
+//       printTree(tree[i].children);
+//     }
+//     categoriesPrint += "</li>";
+//   }
+
+//   categoriesPrint += "</ul>";
+// };
 
 export var categoriesPrint = '';
-export const printTree = tree => {
+export const printTree = (tree) => {
   categoriesPrint += "<ul className='category-dropdown'>";
 
   for (let i in tree) {
@@ -62,4 +106,58 @@ export const printTree = tree => {
   }
 
   categoriesPrint += '</ul>';
+};
+
+export const storeData = async (key, value) => {
+  try {
+    await AsyncStorage.setItem(key, value);
+  } catch (e) {
+    // saving error
+  }
+};
+
+export const getToken = async () => {
+  const token = await AsyncStorage.getItem('token');
+  return token;
+};
+
+export const getValue = async (key) => {
+  var data = '';
+  try {
+    const storageToken = await AsyncStorage.getItem(key);
+    if (storageToken !== null) {
+      data = storageToken;
+    }
+  } catch (e) {
+    // Error
+  }
+  return data;
+};
+
+export const checkUserLoginStorage = async () => {
+  const token = await AsyncStorage.getItem('token');
+  const userDetails = await AsyncStorage.getItem('userDetails');
+
+  return {
+    token,
+    userDetails: JSON.parse(userDetails),
+  };
+};
+
+export const formatCurrency = (amt, currencyOptions, currencySymbol) => {
+  if (!amt || !currencyOptions || !currencySymbol) {
+    return '';
+  }
+  var amount = parseFloat(amt);
+  if (currencyOptions && currencySymbol) {
+    let postion = currencyOptions.currency_position;
+    let decimal = currencyOptions.number_of_decimals || 2;
+    return `${
+      postion == 'left' || postion === 'left_space' ? currencySymbol : ''
+    }${amount.toFixed(decimal)}${
+      postion == 'right' || postion === 'right_space' ? currencySymbol : ''
+    }`;
+  } else {
+    return `$${amount}`;
+  }
 };

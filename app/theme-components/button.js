@@ -6,10 +6,10 @@ const AButton = styled.TouchableOpacity`
   letter-spacing: 0.5px;
   color: ${props => props.color ?? '#fff'};
   background-color: ${props => props.bgColor ?? '#3a3a3a'};
-  border-radius: ${props => (props.round ? '25px' : '3px')};
+  border-radius: ${props => (props.radius ? props.radius : props.round ? '25px' : '3px')};
   min-width: 100px;
   text-align: center;
-  margin: 5px auto;
+  margin: ${props => props.margin ?? '5px auto'} ;
   width: ${props => (props.block ? '95%' : 'auto')}
     ${({ large, medium, small }) => {
     switch (true) {

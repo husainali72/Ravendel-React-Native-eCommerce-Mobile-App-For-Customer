@@ -2,14 +2,21 @@ import React from 'react';
 import { AText, AContainer, AHeader, AButton } from '../../theme-components';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { LogOut } from '../../store/reducers/loginReducer';
 
 const AccountScreen = ({ navigation }) => {
-  const isLoggin = useSelector(state => state.customer.userDetails.isLoggin);
+  const isLoggin = useSelector(state => state.customer.isLoggin);
+  const dispatch=useDispatch()
+
+ const Logout =()=>{
+  dispatch(LogOut(navigation))
+ }
   return (
     <>
       <AHeader title="Account" />
       <AContainer withoutPadding>
+        {isLoggin ?
         <InnerContainer>
           <ListView
             onPress={() =>
@@ -45,6 +52,22 @@ const AccountScreen = ({ navigation }) => {
           </ListView>
           <ListView
             onPress={() =>
+              navigation.navigate('ChangePassword', {
+                initial: false,
+              })
+            }>
+            <ListIcon>
+              <Icon name="key" size={20} />
+            </ListIcon>
+            <ListTitleWrapper>
+              <AText medium heavy mb="5px">
+                Change Password 
+              </AText>
+              <AText small>Update your credentials</AText>
+            </ListTitleWrapper>
+          </ListView>
+          {/* <ListView
+            onPress={() =>
               navigation.navigate('RecentlyViewed', {
                 initial: false,
               })
@@ -58,7 +81,7 @@ const AccountScreen = ({ navigation }) => {
               </AText>
               <AText small>Last viewed product</AText>
             </ListTitleWrapper>
-          </ListView>
+          </ListView> */}
           <ListView
             onPress={() =>
               navigation.navigate('SavedAddress', {
@@ -75,7 +98,7 @@ const AccountScreen = ({ navigation }) => {
               <AText small>Save addresses for faster checkout</AText>
             </ListTitleWrapper>
           </ListView>
-          <ListView
+          {/* <ListView
             onPress={() =>
               navigation.navigate('SaveCards', {
                 initial: false,
@@ -90,8 +113,12 @@ const AccountScreen = ({ navigation }) => {
               </AText>
               <AText small>Save cards for faster payments</AText>
             </ListTitleWrapper>
-          </ListView>
+          </ListView> */}
         </InnerContainer>
+        :(
+          <AText large center bold>Please sign in</AText>
+        )
+          }
       </AContainer>
       <UserSection>
         {!isLoggin ? (
@@ -107,7 +134,10 @@ const AccountScreen = ({ navigation }) => {
             />
           </>
         ) : (
-            <AButton title="Sign Out" />
+            <AButton 
+            title="Sign Out"
+            onPress={() => {Logout()} } 
+            />
           )}
         <AppFooter>
           <AppInfo>

@@ -2,51 +2,43 @@ import React from 'react';
 import { AText } from '../../theme-components';
 import styled from 'styled-components/native';
 import URL from '../../utils/baseurl';
+import FastImage from 'react-native-fast-image';
+import { isEmpty } from '../../utils/helper';
+import { StyleSheet } from 'react-native';
+import ProductPriceText from './productPrice';
 
-const ProductCard = props => {
+const ProductCard = (props) => {
   const product = props.productDetail;
   const NavigateTo = props.navigationChild;
 
-  const navigateSingleProductScreen = id => {
+  const navigateSingleProductScreen = (id) => {
     NavigateTo.navigate('SingleProduct', {
       productID: id,
     });
   };
-
   return (
     <>
-      <Card onPress={() => navigateSingleProductScreen(product.id)}>
+      <Card onPress={() => navigateSingleProductScreen(product._id)}>
         <CardImageWrapper>
-          {product.feature_image ? (
-            <CardImage
-              source={{
-                uri: URL + product.feature_image.medium,
-              }}
-            />
-          ) : (
-              <CardNotImage
-                source={{
-                  uri:
-                    'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                }}
-              />
-            )}
+          <FastImage
+            style={styles.productImage}
+            source={{
+              uri: !isEmpty(product.feature_image)
+                ? URL + product.feature_image
+                : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+              priority: FastImage.priority.normal,
+            }}
+            resizeMode={FastImage.resizeMode.contain}
+          />
         </CardImageWrapper>
         <CardBody>
-          <AText>
-            <AText
-              lineThrough={product.pricing.sellprice ? true : false}
-              medium={product.pricing.sellprice ? false : true}
-              heavy={product.pricing.sellprice ? false : true}
-              color={product.pricing.sellprice ? '#7b7b7b' : '#000000'}>
-              ${product.pricing.price.toFixed(2)}
-            </AText>
-            {product.pricing.sellprice ? (
-              <AText heavy color="#DB3022">
-                {'  '}${product.pricing.sellprice.toFixed(2)}
-              </AText>
-            ) : null}
-          </AText>
+          <ProductPriceText
+            fontsizesmall={true}
+            DontshowPercentage={true}
+            fontColor={'#DB3022'}
+            Pricing={product.pricing}
+          />
+
           <AText small bold color="#000">
             {product.name.length > 20
               ? product.name.substring(0, 20) + '...'
@@ -57,7 +49,9 @@ const ProductCard = props => {
     </>
   );
 };
-
+const styles = StyleSheet.create({
+  productImage: { flex: 1, resizeMode: 'cover' },
+});
 const Card = styled.TouchableOpacity`
   width: 100%;
   background: #f2f0f0;
@@ -87,7 +81,7 @@ const CardNotImage = styled.Image`
 `;
 
 const CardBody = styled.View`
-  padding: 15px 5px;
+  padding: 10px 5px;
 `;
 
 export default ProductCard;

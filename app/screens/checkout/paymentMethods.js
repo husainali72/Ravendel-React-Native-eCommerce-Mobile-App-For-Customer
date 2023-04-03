@@ -1,16 +1,21 @@
 import React from 'react';
 import { AText, AButton } from '../../theme-components';
 import styled from 'styled-components/native';
-import { RadioButton, Text } from 'react-native-paper';
+import { RadioButton } from 'react-native-paper';
 import PaypalImage from '../../assets/images/paypal.png';
 import CreditCardImage from '../../assets/images/credit-card.png';
 import CashondelieveryImage from '../../assets/images/cash-on-delievery.png';
+import { formatCurrency } from '../../utils/helper';
+import { useSelector } from 'react-redux';
 
 const PaymentMethodScreen = ({ navigation, route }) => {
   const shippingValue = route.params.shippingValue;
   var cartAmount = route.params.cartAmount;
   var cartProducts = route.params.cartProducts;
+  var couponCode = route.params.couponCode;
   const [paymentMethod, setPaymentMethod] = React.useState('cash');
+  const { currencyOptions, currencySymbol } = useSelector(state => state.settings);
+  const { couponDiscount } = useSelector(state => state.cart);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -19,7 +24,7 @@ const PaymentMethodScreen = ({ navigation, route }) => {
       headerTintColor: '#000',
       headerRight: () => (
         <AText bold pr="10px">
-          ${cartAmount}
+          {formatCurrency(cartAmount-couponDiscount, currencyOptions, currencySymbol)}
         </AText>
       ),
     });
@@ -58,6 +63,7 @@ const PaymentMethodScreen = ({ navigation, route }) => {
           cartAmount: cartAmount,
           shippingValue: shippingValue,
           cartProducts: cartProducts,
+          couponCode: couponCode,
         })}
       />
     </>

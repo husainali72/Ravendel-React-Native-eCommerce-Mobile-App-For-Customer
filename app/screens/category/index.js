@@ -1,22 +1,27 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useRef, useState} from 'react';
-import {AText, ARow, ACol, AppLoader} from '../../theme-components';
-import {useSelector, useDispatch} from 'react-redux';
-import {catProductAction} from '../../store/action/productAction';
-import {ProductCard} from '../components';
+import React, { useEffect, useRef, useState } from 'react';
+import { AText, ARow, ACol, AppLoader, AHeader } from '../../theme-components';
+import { useSelector, useDispatch } from 'react-redux';
+import { catProductAction } from '../../store/action';
+import { CAT_PRODUCTS_CLEAR } from '../../store/action/productAction';
+import { ProductCard } from '../components';
 import styled from 'styled-components/native';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { isEmpty } from '../../utils/helper';
+import { useIsFocused } from '@react-navigation/native';
+import { Text } from 'react-native';
 
-const CategoryScreen = ({route, navigation}) => {
+const CategoryScreen = ({ route, navigation }) => {
   const singleCatId = route.params.singleCategory.url;
-  const categoryDispatch = useDispatch();
+  const CategoryTitle = route.params.singleCategory.name;
+  const dispatch = useDispatch();
   const singleCateogry = useSelector(
-    state => state.products.singleCategoryDetails,
+    (state) => state.products.singleCategoryDetails,
   );
-  const loading = useSelector(state => state.products.loading);
+  const loading = useSelector((state) => state.products.loading);
   const refRBSheet = useRef();
   const [sortBy, setSortBy] = useState('low-high');
-
+  const isFocused = useIsFocused();
   useEffect(() => {
     navigation.setOptions({
       title: singleCateogry.name,
@@ -26,36 +31,51 @@ const CategoryScreen = ({route, navigation}) => {
   }, [singleCateogry]);
 
   useEffect(() => {
-    categoryDispatch(catProductAction(singleCatId));
-  }, [singleCatId]);
+    if (isFocused) {
+      dispatch(catProductAction(singleCatId));
+    } else {
+      dispatch({
+        type: CAT_PRODUCTS_CLEAR,
+      });
+    }
+  }, [isFocused, singleCatId]);
 
-  const changeSortBy = sortName => {
+  const changeSortBy = (sortName) => {
     setSortBy(sortName);
     refRBSheet.current.close();
   };
-
   return (
     <>
       {loading ? <AppLoader /> : null}
+      <AHeader
+        title={CategoryTitle ?? 'Category'}
+        navigation={navigation}
+        back
+      />
       <Wrapper>
         <ARow row wrap>
-          {singleCateogry.products && singleCateogry.products.length ? (
-            singleCateogry.products.map(product => {
-              return (
-                <ACol col={2} key={product.id}>
-                  <ProductCard
-                    productDetail={product}
-                    navigationChild={navigation}
+          {!isEmpty(singleCateogry) && (
+            <>
+              {singleCateogry.data.products &&
+              singleCateogry.data.products.length ? (
+                singleCateogry.data.products.map((product) => {
+                  return (
+                    <ACol col={2} key={product.id}>
+                      <ProductCard
+                        productDetail={product}
+                        navigationChild={navigation}
+                      />
+                    </ACol>
+                  );
+                })
+              ) : (
+                <NotFoundWrapper>
+                  <NotFoundImage
+                    source={require('../../assets/images/no-product-fonds.webp')}
                   />
-                </ACol>
-              );
-            })
-          ) : (
-            <NotFoundWrapper>
-              <NotFoundImage
-                source={require('../../assets/images/no-product-fonds.webp')}
-              />
-            </NotFoundWrapper>
+                </NotFoundWrapper>
+              )}
+            </>
           )}
         </ARow>
       </Wrapper>
@@ -144,7 +164,7 @@ const FittlerRow = styled.View`
   align-items: center;
 `;
 const FittlerAction = styled.TouchableOpacity`
-  padding: 10px;
+  padding: 0px;
 `;
 const Wrapper = styled.ScrollView`
   flex: 1;

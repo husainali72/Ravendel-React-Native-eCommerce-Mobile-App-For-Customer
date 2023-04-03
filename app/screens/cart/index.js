@@ -5,66 +5,106 @@ import {
   AHeader,
   AppLoader,
   AButton,
+  ARow,
 } from '../../theme-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { productsAction } from '../../store/action/productAction';
 import {
-  removeCartItemAction,
+  productsAction,
+  removeFromCartAction,
+  updateCartAction,
+  applyCouponAction,
   checkStorageAction,
-} from '../../store/action/cartAction';
-import { isEmpty } from '../../utils/helper';
+} from '../../store/action';
+import { formatCurrency, getToken, isEmpty } from '../../utils/helper';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import URL from '../../utils/baseurl';
-import AsyncStorage from '@react-native-community/async-storage';
+import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions, useIsFocused } from '@react-navigation/native';
+import { REMOVE_ALL_CART_PRODUCT, UPDATE_CART_PRODUCT } from '../../store/action/checkoutAction';
+import { Modal } from 'react-native';
+import { COUPON_REMOVED, REMOVE_ITEM_IN_CART } from '../../store/action/cartAction';
+import { ProductPriceText } from '../components';
+
 
 const CartScreen = ({ navigation }) => {
-  const checkStorage = useDispatch();
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     title: 'Cart',
+  //     headerTransparent: false,
+  //     headerTintColor: '#000',
+  //     headerRight: () => {
+  //       !isEmpty(cartItems) && cartItems.length > 0 &&
+  //         <AText bold pr="10px">
+  //           <AButton
+  //             title={
+  //               (<MaterialIcons name="cart-remove" size={22} />)
+  //             }
+  //             onPress={() => clearCart()}
+  //           />
+  //         </AText>
+  //     }
+
+
+  //   });
+  // }, [navigation]);
+  const { userDetails, isLoggin } = useSelector(state => state.customer);
   const cartItems = useSelector(state => state.cart.products);
-  const products = useSelector(state => state.products.products);
-  const allProductsFecth = useDispatch();
-  const removeItem = useDispatch();
+  const { cartId, couponDiscount, loading } = useSelector(state => state.cart);
+  const { Loading, products } = useSelector(state => state.products);
+  const loadingproduct = useSelector(state => state.products.loading);
+  const { currencyOptions, currencySymbol } = useSelector(state => state.settings);
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
   const [cartProducts, setCartProduct] = useState([]);
-  const Loading = useSelector(state => state.products.loading);
   const [subtotal, setSubTotal] = useState(0);
   const [delievery, setDelievery] = useState(0);
+  const [coupontotal, setCouponTotal] = useState(0);
+  const [couponModal, setCouponModal] = useState(false);
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponCode, setCouponCode] = useState('')
+
 
   useEffect(() => {
-    navigation.addListener('focus', () => {
-      checkStorage(checkStorageAction());
-    });
-  }, [navigation]);
+    dispatch(productsAction());
+    fetchCart();
+  }, [isFocused]);
 
-  useEffect(() => {
-    if (cartItems !== null) {
-      ListProducts();
+
+  const fetchCart = () => {
+    if (isEmpty(userDetails)) {
+      dispatch(checkStorageAction());
+    } else {
+      dispatch(checkStorageAction(userDetails._id));
     }
-  }, [cartItems]);
+    ListProducts()
+  }
 
   useEffect(() => {
     ListProducts();
-  }, [products]);
+  }, [products, cartItems]);
 
   useEffect(() => {
     cartSubTotal();
-  }, [cartProducts]);
+  }, [cartProducts, couponDiscount]);
 
   const ListProducts = () => {
     if (!isEmpty(products)) {
+      setCartProduct([])
       var filteredProducts = [];
-      if (cartItems !== null && cartItems.length > 0) {
+      if (!isEmpty(cartItems) && cartItems.length > 0) {
         cartItems.map(item => {
           products.filter(product => {
-            if (product.id === item.id) {
-              product.cartQty = item.cartQty;
-              filteredProducts.push(product);
+            if (product._id === item.product_id) {
+              filteredProducts.push({ ...product, cartQty: item.qty });
             }
           });
         });
       }
-      setCartProduct(filteredProducts);
+      setCartProduct([...filteredProducts])
     } else {
-      allProductsFecth(productsAction());
+      dispatch(productsAction());
     }
   };
 
@@ -81,53 +121,177 @@ const CartScreen = ({ navigation }) => {
         }
       });
     }
+    if (!isEmpty(couponDiscount) && couponDiscount > 0) {
+      setCouponApplied(true)
+      let subto = subtotalVar - couponDiscount
+      if (subto < 0) {
+        setCouponTotal(0)
+      } else {
+        setCouponTotal(subtotalVar - couponDiscount)
+      }
+
+    }
     setSubTotal(subtotalVar);
   };
 
-  const removeCartItem = removedItem => {
+  const removeCartItem = async removedItem => {
     removedItem.cart = false;
-    let filteredProduct = cartProducts.filter(item => item !== removedItem);
-    let filterCartItem = cartItems.filter(item => item.id !== removedItem.id);
-    setCartProduct(filteredProduct);
-    removeItem(removeCartItemAction(filterCartItem));
-  };
-
-  const increaseItemQty = async item => {
-    cartItems.map(cart => {
-      if (cart.id === item.id) {
-        cart.cartQty = cart.cartQty + 1;
-      }
-    });
+    let filteredProduct = cartProducts.filter(item => item._id !== removedItem._id);
+    let filterCartItem = cartItems.filter(item => item.product_id !== removedItem._id);
     try {
-      await AsyncStorage.setItem('cartproducts', JSON.stringify(cartItems));
+      if (cartProducts.length > 1) {
+        if (isLoggin) {
+          const cartData = {
+            id: cartId,
+            product_id: removedItem._id,
+          }
+          dispatch(removeFromCartAction(cartData, userDetails._id))
+        }
+        else {
+          await AsyncStorage.setItem('cartproducts', JSON.stringify(filterCartItem));
+        }
+      } else {
+        clearCart();
+      }
+      setCartProduct(filteredProduct);
+      dispatch({
+        type: REMOVE_ITEM_IN_CART,
+        payload: filterCartItem,
+      });
       ListProducts();
     } catch (error) {
       console.log('Something went Wrong!!!!');
     }
+  };
+  const increaseItemQty = async item => {
+    var cartitem = []
+    cartItems.map(cart => {
+      if (cart.product_id === item._id) {
+        cartitem.push({
+          product_id: cart.product_id,
+          product_title: cart.product_title,
+          qty: cart.qty + 1
+        })
+      } else {
+        cartitem.push(cart)
+      }
+    });
+    if (isLoggin) {
+      var cartpro = []
+      cartitem.map(cart => {
+        cartpro.push({
+          "product_id": cart.product_id,
+          "product_image": cart.product_image,
+          "product_title": cart.product_title,
+          "qty": cart.qty,
+        })
+      })
+      var cartData = {
+        id: cartId,
+        products: cartpro,
+      }
+      dispatch(updateCartAction(cartData, userDetails._id))
+    } else {
+      try {
+        await AsyncStorage.setItem('cartproducts', JSON.stringify(cartitem));
+      } catch (error) {
+        console.log('Something went Wrong!!!!');
+      }
+    }
+    dispatch({
+      type: UPDATE_CART_PRODUCT,
+      payload: cartitem,
+    });
   };
 
   const decreaseItemQty = async item => {
     if (item.cartQty <= 1) {
       return;
     }
+    var cartitem = []
     cartItems.map(cart => {
-      if (cart.id === item.id) {
-        cart.cartQty = cart.cartQty - 1;
+      if (cart.product_id === item._id) {
+        cartitem.push({
+          product_id: cart.product_id,
+          product_title: cart.product_title,
+          qty: cart.qty - 1
+        })
+      } else {
+        cartitem.push(cart)
       }
-    });
-    try {
-      await AsyncStorage.setItem('cartproducts', JSON.stringify(cartItems));
-      ListProducts();
-    } catch (error) {
-      console.log('Something went Wrong!!!!');
+    })
+    if (isLoggin) {
+      var cartpro = []
+      cartitem.map(cart => {
+        cartpro.push({
+          "product_id": cart.product_id,
+          "product_image": cart.product_image,
+          "product_title": cart.product_title,
+          "qty": cart.qty,
+        })
+      })
+      var cartData = {
+        id: cartId,
+        products: cartpro,
+      }
+      dispatch(updateCartAction(cartData, userDetails._id))
+    } else {
+      try {
+        await AsyncStorage.setItem('cartproducts', JSON.stringify(cartitem));
+      } catch (error) {
+        console.log('Something went Wrong!!!!');
+      }
     }
+    dispatch({
+      type: UPDATE_CART_PRODUCT,
+      payload: cartitem,
+    });
   };
+  const clearCart = async () => {
+    dispatch({
+      type: REMOVE_ALL_CART_PRODUCT
+    })
+    if (isLoggin) {
+      const cartData = {
+        id: cartId,
+        products: [],
+      }
+      dispatch(updateCartAction(cartData, userDetails._id))
+    }
 
+    ListProducts();
+
+  }
+  const ApplyCoupon = () => {
+    let cartpro = []
+    cartItems.map(cart => {
+      cartpro.push({
+        "product_id": cart.product_id,
+        "total": cart.total,
+        "qty": cart.qty,
+      })
+    })
+    const payload = {
+      "coupon_code": couponCode,
+      cart: cartpro
+    }
+    setCouponModal(false)
+    dispatch(applyCouponAction(payload))
+  }
+
+  const removeCoupon = () => {
+    dispatch({
+      type: COUPON_REMOVED
+    })
+    setCouponApplied(false)
+    setCouponCode('')
+    setCouponTotal(0)
+  }
   return (
     <>
-      {Loading ? <AppLoader /> : null}
+      {loadingproduct || loading ? <AppLoader /> : null}
       <AHeader title="Cart" />
-      <AContainer>
+      <ItemContainer>
         <>
           {cartProducts && cartProducts.length ? (
             <>
@@ -135,128 +299,218 @@ const CartScreen = ({ navigation }) => {
                 <ItemWrapper
                   key={product.id}
                   onPress={() =>
-                    navigation.navigate('Categories', {
-                      screen: 'SingleProduct',
-                      initial: false,
-                      params: { productID: product.id },
-                    })
+                    navigation.dispatch(
+                      CommonActions.reset({
+                        index: 0,
+                        routes: [{
+                          name: 'CateGories',
+                          state: {
+                            routes: [
+                              {
+                                name: 'SingleProduct',
+                                params: { 'productID': product._id },
+                              },
+                            ],
+                          }
+                        }]
+                      })
+                    )
                   }>
-                  {product.feature_image ? (
-                    <ItemImage
-                      source={{
-                        uri: URL + product.feature_image.medium,
-                      }}
-                    />
-                  ) : (
-                      <ItemImage
-                        source={{
-                          uri:
-                            'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                        }}
-                      />
-                    )}
-
+                  <ItemImage
+                    source={{
+                      uri: !isEmpty(product.feature_image) ? URL + product.feature_image.medium : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+                    }}
+                  />
                   <ItemDescription>
                     <AText medium heavy>
                       {product.name.length > 20
                         ? product.name.substring(0, 20) + '...'
                         : product.name}
                     </AText>
-                    <AttributedWrapper>
-                      <AText small light>
-                        Color:{' '}
-                        <AText small heavy>
-                          Black
-                        </AText>
-                      </AText>
-
-                      <AText small light ml="10px">
-                        Size:{' '}
-                        <AText small heavy>
-                          L
-                        </AText>
-                      </AText>
-                    </AttributedWrapper>
-
                     <PriceQtyWrapper>
                       <QtyWrapper>
-                        <QtyButton onPress={() => decreaseItemQty(product)}>
+                        <QtyButton onPress={() => {  product.cartQty === 1 ? removeCartItem(product) : decreaseItemQty(product) }}>
                           <AText color="#fff">
-                            <Icon name="minus" />
+                            <Icon name="minus" size={12} />
                           </AText>
                         </QtyButton>
-                        <AText medium bold ml="7px" mr="7px">
+                        <AText center medium bold ml="10px" mr="10px">
                           {product.cartQty}
                         </AText>
                         <QtyButton onPress={() => increaseItemQty(product)}>
                           <AText color="#fff">
-                            <Icon name="plus" />
+                            <Icon name="plus" size={12} />
                           </AText>
                         </QtyButton>
                       </QtyWrapper>
-                      <PriceWrapper>
-                        <AText
-                          right
-                          lineThrough={product.pricing.sellprice ? true : false}
-                          small={product.pricing.sellprice ? true : false}
-                          heavy={product.pricing.sellprice ? false : true}
-                          color={
-                            product.pricing.sellprice ? '#7b7b7b' : '#000000'
-                          }>
-                          ${(product.pricing.price * product.cartQty).toFixed(2)}
-                        </AText>
-                        {product.pricing.sellprice ? (
-                          <AText heavy color="#DB3022" right>
-                            ${(product.pricing.sellprice * product.cartQty).toFixed(2)}
-                          </AText>
-                        ) : null}
-                      </PriceWrapper>
+                      <ProductPriceText
+                        fontsizesmall={true}
+                        Pricing={product.pricing}
+                        DontshowPercentage={true}
+                        showInMulipleLine={'column-reverse'}
+                        fontColor={'#DB3022'}
+                      />
                     </PriceQtyWrapper>
                   </ItemDescription>
                   <RemoveItem onPress={() => removeCartItem(product)}>
                     <AText color="#fff">
-                      <Icon name="close" size={10} />
+                      <Icon name="close" size={12} />
                     </AText>
                   </RemoveItem>
                 </ItemWrapper>
               ))}
-            </> 
+            </>
           ) : (
-              <EmptyWrapper>
-                <AText heavy large center mb="10px">
-                  Your cart is currently empty.
-                </AText>
-                <AButton
-                  title="Shop Now"
-                  onPress={() => navigation.navigate('Categories')}
-                />
-              </EmptyWrapper>
-            )}
+            <EmptyWrapper>
+              <AText heavy large center mb="10px">
+                Your cart is currently empty.
+              </AText>
+              <AButton
+                title="Shop Now"
+                onPress={() => navigation.navigate('CateGories')}
+              />
+            </EmptyWrapper>
+          )}
         </>
-      </AContainer>
+      </ItemContainer>
 
       {cartProducts && cartProducts.length ? (
-        <CheckoutWrapper>
-          <PriceTotal>
-            <AText medium>{cartProducts.length} Items</AText>
-            <AText medium heavy>
-              ${subtotal + delievery}
-            </AText>
-          </PriceTotal>
-          <AButton
-            title="Proceed to Checkout"
-            block
-            onPress={() => navigation.navigate('Shipping', {
-              cartAmount: subtotal,
-              cartProducts: cartProducts,
-            })}
-          />
-        </CheckoutWrapper>
+        <>
+          <CouponWrapper
+            onPress={() => couponApplied ? removeCoupon() : (setCouponCode(''), setCouponModal(true))}
+          >
+            <ARow row>
+              <MaterialIcons name="brightness-percent" size={25} />
+              {couponApplied ?
+                <AText left ml='7px' mt={-5} medium>Coupon applied {couponCode} {`\n`}
+                  <AText left small color={'#009A68'}>Coupon saving {formatCurrency(couponDiscount, currencyOptions, currencySymbol)}</AText>
+                </AText>
+                : <AText ml='5px' center medium>Apply Coupon</AText>
+              }
+            </ARow>
+            <AText medium heavy>{couponApplied ? 'Remove' : 'Select'}</AText>
+          </CouponWrapper>
+          <CheckoutWrapper>
+            <PriceTotal>
+              <AText medium>{cartProducts.length} Items</AText>
+              <PriceWrapper>
+                <AText
+                  right
+                  lineThrough={couponApplied}
+                  small={couponApplied}
+                  heavy={!couponApplied}
+                  color={
+                    couponApplied ? '#7b7b7b' : '#000000'
+                  }>{formatCurrency(subtotal + delievery, currencyOptions, currencySymbol)}
+                </AText>
+                {couponApplied ? (
+                  <AText medium heavy>
+                    {formatCurrency(coupontotal, currencyOptions, currencySymbol)}
+                  </AText>
+                ) : null}
+              </PriceWrapper>
+            </PriceTotal>
+            <AButton
+              title="Proceed to Checkout"
+              block
+              onPress={() => {
+                !isEmpty(cartId) ? navigation.navigate('Shipping', {
+                  cartAmount: subtotal,
+                  cartProducts: cartProducts,
+                  couponCode: couponCode
+                }) : navigation.navigate('AccountWrapper', {
+                  screen: 'Login',
+                  initial: false
+                })
+              }}
+            />
+          </CheckoutWrapper>
+        </>
       ) : null}
+      {/*---------- Add coupon Modal---------- */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={couponModal}
+        animationInTiming={1500}>
+        {/* <ModalWrapper /> */}
+        <ModalConatiner>
+          <ModalHeader>
+            <AText center medium heavy>
+              Apply Coupon
+            </AText>
+            <ModalClose onPress={() => setCouponModal(false)}>
+              <Icon name="close" size={15} color="#000" />
+            </ModalClose>
+          </ModalHeader>
+          <ModalBody>
+            <AInputFeild
+              type="text"
+              value={couponCode}
+              onChangeText={(text) => setCouponCode(text)}
+              placeholder="Please enter a valid coupon code"
+            />
+            {couponApplied &&
+              <AText>Coupan Applied successfully</AText>}
+
+            <AButton
+              onPress={() => ApplyCoupon()}
+              round
+              block
+              title="Submit"
+            />
+          </ModalBody>
+        </ModalConatiner>
+      </Modal>
     </>
   );
 };
-
+const ItemContainer = styled.ScrollView`
+  flex: 0.75;
+  padding-bottom:20px;
+  background-color: #fff;
+`;
+const ModalConatiner = styled.ScrollView`
+  background: #f7f7f7;
+  height: 350px;
+  flex: 1;
+  flex-direction: column;
+  border-top-right-radius: 25px;
+  border-top-left-radius: 25px;
+  box-shadow: 15px 5px 15px #000;
+  elevation: 15;
+`;
+const ModalClose = styled.TouchableOpacity`
+  background: #fff;
+  width: 25px;
+  height: 25px;
+  border-radius: 25px;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  align-items: center;
+  justify-content: center;
+`;
+const ModalHeader = styled.View`
+  height: 50px;
+  background: #dadada;
+  border-top-right-radius: 25px;
+  border-top-left-radius: 25px;
+  justify-content: center;
+`;
+const ModalBody = styled.View`
+  padding: 20px;
+  height: 100%;
+  position: relative;
+`;
+const AInputFeild = styled.TextInput`
+  border-color: gray;
+  border-bottom-width: 1px;
+  width: 100%;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  padding: 10px;
+`;
 const PriceTotal = styled.View`
   flex: 1;
   flex-direction: row;
@@ -296,9 +550,9 @@ const ItemWrapper = styled.TouchableOpacity`
 const RemoveItem = styled.TouchableOpacity`
   padding: 4px;
   background: rgba(0, 0, 0, 0.5);
-  width: 18px;
-  height: 18px;
-  border-radius: 18px;
+  width: 25px;
+  height: 25px;
+  border-radius: 20px;
   justify-content: center;
   align-items: center;
   margin-right: 3px;
@@ -325,18 +579,36 @@ const PriceQtyWrapper = styled.View`
   margin-top: 5px;
 `;
 const QtyWrapper = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+    flex-direction: row;
+    margin:10px 5px;
+    justify-content: space-between;
+    align-items: center;
+    height:25px;
+    overflown:hidden;
+    border-radius:15px;
+    background: #fff;
+
 `;
 const QtyButton = styled.TouchableOpacity`
-  padding: 5px;
-  background: #000;
-  width: 20px;
-  height: 20px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
+    background: #72787E;
+    height: 100%;
+    width:25px;
+    border-radius: 5px;
+    justify-content: center;
+    align-items: center;
 `;
+const CouponWrapper = styled.TouchableOpacity`
+  position: absolute;
+  bottom: 100;
+  left: 0;
+  right: 0;
+  background: #eee;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  flex-direction: row;
+  padding: 10px;
+`;
+
 
 export default CartScreen;

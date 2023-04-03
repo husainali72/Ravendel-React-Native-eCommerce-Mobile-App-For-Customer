@@ -1,10 +1,10 @@
 import React from 'react';
 import { AContainer, AHeader } from '../../theme-components';
 
-const SaveCardScreen = () => {
+const SaveCardScreen = ({navigation}) => {
   return (
     <>
-      <AHeader title="Saved Cards" back />
+      <AHeader  navigation={navigation} title="Saved Cards" back />
       <AContainer />
     </>
   );

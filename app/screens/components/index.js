@@ -1,3 +1,8 @@
 import ProductCard from './productCard';
-
-export {ProductCard};
+import ProductPriceText from './productPrice';
+import AdressForm from './AddressForm';
+export {
+    ProductCard,
+    ProductPriceText,
+    AdressForm
+};

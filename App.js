@@ -12,12 +12,13 @@ import { Provider } from 'react-redux';
 import { ApolloProvider } from '@apollo/react-hooks';
 import APclient from './app/Client';
 import { NavigationContainer } from '@react-navigation/native';
-import Navigation from './app/navigation';
+// import Navigation from './app/navigation';
+import DrawerNavigator from './app/navigation/DrawerNavigator';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
-XMLHttpRequest = GLOBAL.originalXMLHttpRequest
-  ? GLOBAL.originalXMLHttpRequest
-  : GLOBAL.XMLHttpRequest;
+// XMLHttpRequest = GLOBAL.originalXMLHttpRequest
+//   ? GLOBAL.originalXMLHttpRequest
+//   : GLOBAL.XMLHttpRequest;
 
 const theme = {
   ...DefaultTheme,
@@ -36,7 +37,7 @@ const App = () => {
         <ApolloProvider client={APclient}>
           <PaperProvider theme={theme}>
             <NavigationContainer>
-              <Navigation />
+              <DrawerNavigator />
             </NavigationContainer>
           </PaperProvider>
         </ApolloProvider>

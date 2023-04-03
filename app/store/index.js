@@ -6,8 +6,8 @@ const initialState = {};
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   MasterReducer,
-  initialState,
-  composeEnhancers(applyMiddleware(thunk))
+  // initialState,
+  applyMiddleware(thunk)
 );
 
 export default store;
