@@ -1,13 +1,13 @@
 import React from 'react';
 import { AText, AButton } from '../../theme-components';
-import LinearGradient from 'react-native-linear-gradient';
+// import LinearGradient from 'react-native-linear-gradient';
 import styled from 'styled-components/native';
 
 const ForgotPasswordScreen = ({ navigation }) => {
   return (
     <>
       <LoginContainer>
-        <LinearGradient
+        {/* <LinearGradient
           // colors={['#EB3349', '#F45C43']}
           colors={['#eee', '#eee']}
           // eslint-disable-next-line react-native/no-inline-styles
@@ -16,21 +16,21 @@ const ForgotPasswordScreen = ({ navigation }) => {
             width: '100%',
             justifyContent: 'center',
             alignItems: 'center',
-          }}>
-          <LoginInner>
+          }}> */}
+        <LoginInner>
           <AText uppercase color="#000" center mb="20px" large>
-              Forgot Password
+            Forgot Password
+          </AText>
+          <InputWrapper>
+            <AText type="email" color="#eee" mb="5px">
+              Email
             </AText>
-            <InputWrapper>
-              <AText type="email" color="#eee" mb="5px">
-                Email
-              </AText>
-              <CustomInput autoCapitalize="none" />
-            </InputWrapper>
+            <CustomInput autoCapitalize="none" />
+          </InputWrapper>
 
-            <AButton title="Send Email" block bgColor="#fff" color="#000" />
-          </LoginInner>
-        </LinearGradient>
+          <AButton title="Send Email" block bgColor="#fff" color="#000" />
+        </LoginInner>
+        {/* </LinearGradient> */}
       </LoginContainer>
     </>
   );

@@ -6,6 +6,8 @@ import URL from '../../../utils/baseurl';
 import FastImage from 'react-native-fast-image';
 import { isEmpty } from '../../../utils/helper';
 import { ProductPriceText } from '../../components';
+import { APP_PRIMARY_COLOR, APP_SECONDARY_COLOR } from '../../../utils/config';
+import LinearGradient from 'react-native-linear-gradient';
 
 const HomeComponentShowViews = ({ dataItems, navigatetonext }) => {
   const CategoryShowView = React.memo(() => {
@@ -29,7 +31,18 @@ const HomeComponentShowViews = ({ dataItems, navigatetonext }) => {
         onPress={() => {
           navigatetonext(item);
         }}>
-        <CardImageWrapper>
+        <LinearGradient
+          // colors={['#4c669f', '#3b5998', '#192f6a']}
+          colors={['#088178', '#0cc9bb']}
+          style={{
+            flex: 1,
+            width: '100%',
+            height: 146,
+            borderRadius: 10,
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}>
           <FastImage
             style={styles.productImage}
             source={{
@@ -40,8 +53,8 @@ const HomeComponentShowViews = ({ dataItems, navigatetonext }) => {
             }}
             resizeMode={FastImage.resizeMode.cover}
           />
-        </CardImageWrapper>
-        <CardBody>
+        </LinearGradient>
+        {/* <CardBody>
           <ProductPriceText fontsizesmall={true} Pricing={item.pricing} />
 
           <AText small bold color="#000">
@@ -49,7 +62,7 @@ const HomeComponentShowViews = ({ dataItems, navigatetonext }) => {
               ? item.name.substring(0, 20) + '...'
               : item.name}
           </AText>
-        </CardBody>
+        </CardBody> */}
       </Card>
     );
   };
@@ -60,13 +73,13 @@ const HomeComponentShowViews = ({ dataItems, navigatetonext }) => {
   );
 };
 const styles = StyleSheet.create({
-  productImage: { width: '100%', height: '100%' },
+  productImage: { width: 100, height: 100, resizeMode: 'contain' },
 });
 const Card = styled.TouchableOpacity`
-    width:200px;
+    width:120px;
     margin:10px;
     background: #fff;
-    padding: 5px;
+    padding: 0px;
     border-radius: 10px;
     shadow-color: #000;
     shadow-offset: {
@@ -80,8 +93,11 @@ const Card = styled.TouchableOpacity`
 
 const CardImageWrapper = styled.View`
   width: 100%;
-  height: 200px;
+  height: 146px;
   border-radius: 10px;
+  background-color: ${APP_PRIMARY_COLOR};
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 `;
 const CardBody = styled.View`

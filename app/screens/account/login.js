@@ -1,102 +1,102 @@
 import React from 'react';
-import { AText, AButton, AppLoader } from '../../theme-components';
-import LinearGradient from 'react-native-linear-gradient';
+import {
+  AText,
+  AButton,
+  AppLoader,
+  ARow,
+  TextInput,
+} from '../../theme-components';
+// import LinearGradient from 'react-native-linear-gradient';
 import styled from 'styled-components/native';
-import { Formik } from 'formik';
+import { useFormik } from 'formik';
 import { loginValidationSchema } from '../checkout/validationSchema';
 import { useDispatch, useSelector } from 'react-redux';
 import { LoginAction } from '../../store/action';
-
+import { TouchableOpacity, View } from 'react-native';
+import { APP_SECONDARY_COLOR } from '../../utils/config';
 const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const loading = useSelector(state => state.login.loading);
+  const loading = useSelector((state) => state.login.loading);
   const sendValues = (values) => {
-    dispatch(LoginAction(values.email, values.password, navigation))
-  }
+    dispatch(LoginAction(values.email, values.password, navigation));
+  };
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: loginValidationSchema,
+    onSubmit: (values, { setSubmitting, resetForm }) => {
+      setSubmitting(false);
+      sendValues(values);
+      resetForm({ values: '' });
+    },
+  });
   return (
     <>
       {loading ? <AppLoader /> : null}
-      <LoginContainer>
-        <LinearGradient
-          colors={['#eee', '#eee']}
-          style={{
-            flex: 1,
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <LoginInner>
-            <AText uppercase color="#000" center mb="20px" large>
-              Sign IN
-            </AText>
-            <Formik
-              initialValues={{
-                email: "",
-                password: "",
-              }}
-              validationSchema={loginValidationSchema}
-              onSubmit={(values, { setSubmitting, resetForm }) => {
-                setSubmitting(false);
-                sendValues(values);
-
-              }}
-            >
-              {({
-                submitForm,
-                isSubmitting,
-                touched,
-                errors,
-                setFieldValue,
-                values,
-                handleChange,
-              }) => (
-                <>
-                  <InputWrapper>
-                    <AText mb="5px">Email</AText>
-                    <CustomInput
-                      onChangeText={(text) => setFieldValue("email", text)}
-                      autoCapitalize="none" />
-                    {touched.email && errors.email && (
-                      <AText color="red" xtrasmall>{errors.email}</AText>
-                    )}
-                  </InputWrapper>
-                  <InputWrapper>
-                    <AText mb="5px">Password</AText>
-                    <CustomInput
-                      onChangeText={(text) => setFieldValue("password", text)}
-                      secureTextEntry={true} />
-                    {touched.password && errors.password && (
-                      <AText color="red" xtrasmall>{errors.password}</AText>
-                    )}
-                  </InputWrapper>
-                  <AButton
-                    onPress={submitForm}
-                    title="Sign In"
-                    block />
-                </>
-              )}
-            </Formik>
-            <FormBottom>
-              <FormLink
-                onPress={() =>
-                  navigation.navigate('Signup', {
-                    initial: false,
-                  })
-                }>
-                <AText>Join Us</AText>
-              </FormLink>
-              <FormLink
-                onPress={() =>
-                  navigation.navigate('ForgotPassword', {
-                    initial: false,
-                  })
-                }>
-                <AText>Forgot Password?</AText>
-              </FormLink>
-            </FormBottom>
-          </LoginInner>
-        </LinearGradient>
-      </LoginContainer>
+      <ARow mb="10px" mt="30px">
+        <TextInput
+          padding={0}
+          onchange={formik.handleChange('email')}
+          bw={0}
+          pb={10}
+          onerror={false}
+          placeholder={'Enter Email'}
+          value={formik.values.email}
+          placeholdercolor={'#ABA7A7'}
+          inputBgColor="transparent"
+        />
+        {formik.errors.email && formik.touched.email ? (
+          <AText xtrasmall ml={'10px'} color={'red'} pb={5}>
+            {formik.errors.email}
+          </AText>
+        ) : null}
+      </ARow>
+      <ARow>
+        <TextInput
+          iconColor={'#9F9F9F'}
+          bw={0}
+          placeholder={'Enter Password'}
+          padding={0}
+          pb={10}
+          onerror={false}
+          secureTextEntry={true}
+          icon={'eye-off'}
+          value={formik.values.password}
+          onchange={formik.handleChange('password')}
+          hookuse
+          placeholdercolor={'#ABA7A7'}
+          inputBgColor="transparent"
+        />
+        {formik.errors.password && formik.touched.password ? (
+          <AText xtrasmall ml={'10px'} color={'red'} pb={5}>
+            {formik.errors.password}
+          </AText>
+        ) : null}
+      </ARow>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+        }}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={{ marginTop: 5 }}
+          onPress={() => navigation.navigate('ResetPassword')}>
+          <AText pl="12px" bold xtrasmall color={'#ABA7A7'}>
+            Forgot password?
+          </AText>
+        </TouchableOpacity>
+      </View>
+      <AButton
+        mt={'74px'}
+        title={'Log in'}
+        round
+        heavy
+        onPress={formik.handleSubmit}
+      />
     </>
   );
 };

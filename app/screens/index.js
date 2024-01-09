@@ -1,4 +1,5 @@
 import HomeScreen from './home';
+import Temp from './home/temp';
 import CartScreen from './cart';
 import CategoriesScreen from './categories';
 import AccountScreen from './account';
@@ -16,9 +17,10 @@ import ForgotPasswordScreen from './account/forgotPassword';
 import ShippingScreen from './checkout/shipping';
 import PaymentMethodScreen from './checkout/paymentMethods';
 import CheckoutScreen from './checkout/checkout';
-import OrderDetailScreen from './account/orderHistoryDetail'
+import OrderDetailScreen from './account/orderHistoryDetail';
 import EditProfileScreen from './account/editProfile';
 import ChangePasswordScreen from './account/changePassword';
+import UserEntry from './account/loginsignup';
 export {
   HomeScreen,
   CartScreen,
@@ -41,4 +43,6 @@ export {
   OrderDetailScreen,
   EditProfileScreen,
   ChangePasswordScreen,
+  UserEntry,
+  Temp,
 };

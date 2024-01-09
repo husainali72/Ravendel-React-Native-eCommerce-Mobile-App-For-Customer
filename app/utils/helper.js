@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === "production") {
   baseURL = "http://localhost:8000";
 }*/
 
-export const baseUrl = 'http://192.168.1.12:8000';
+export const baseUrl = 'http://192.168.1.31:8000';
 // export const baseUrl = 'http://localhost:8000';
 // export const baseUrl = 'https://ravendel-backend.hbwebsol.com';
 

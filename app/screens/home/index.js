@@ -6,12 +6,14 @@ import {
   ACol,
   AHeader,
   AppLoader,
+  TextInput,
 } from '../../theme-components';
 import styled from 'styled-components/native';
 import { useSelector, useDispatch } from 'react-redux';
 import URL from '../../utils/baseurl';
 import {
   downloadImageFromS3,
+  getToken,
   getValue,
   isEmpty,
   unflatten,
@@ -31,12 +33,33 @@ import {
 import HomeCategoryShowViews from './Components.js/CategoryShow';
 import HomeComponentShowViews from './Components.js/HomeComponentShowViews';
 import SwiperFlatList from 'react-native-swiper-flatlist';
-import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  Image,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { brandAction } from '../../store/action/settingAction';
+import HomeBrandViews from './Components.js/BrandShow';
+import { APP_PRIMARY_COLOR, APP_SECONDARY_COLOR } from '../../utils/config';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Feather';
+import Categories from './Components.js/CategoriesList';
+import ImageSlider from './Components.js/CustomSlider';
+import CardContainer from './Components.js/RandomCard';
+import { ALREADY_HAS_LOGIN } from '../../store/action/loginAction';
+import { USER_ALREADY_HAS_LOGIN } from '../../store/action/customerAction';
 
 const HomeScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
   // var allCategories = useSelector(state => state.products.allCategories);
+  function handlePress() {
+    navigation.openDrawer();
+  }
   const allCategoriesWithChild = useSelector(
     (state) => state.products.categories.data,
   );
@@ -44,6 +67,7 @@ const HomeScreen = ({ navigation }) => {
   const cartItems = useSelector((state) => state.cart.products);
   const userDetails = useSelector((state) => state.customer.userDetails);
   const catLoading = useSelector((state) => state.products.loading);
+  const loginState = useSelector((state) => state.login);
   const {
     currencyOptions,
     homeslider,
@@ -52,19 +76,52 @@ const HomeScreen = ({ navigation }) => {
     recentAddedProduct,
     saleProduct,
     ProductByCategory,
+    brands,
     appTitle,
   } = useSelector((state) => state.settings);
+  console.log('prod', recentAddedProduct, 'hooo');
   const primaryColor = '#000';
   const settingLoading = useSelector((state) => state.settings.loading);
+
   const [allCategories, setAllCategories] = useState([]);
+  const [inpvalue, setInpvalue] = useState('');
+  const checkUserLoggedIn = async () => {
+    try {
+      const token = await getToken();
+      const userdata = await getValue('userDetails');
+      // console.log(token, userdata, 'ttk');
+      // const role = await AsyncStorage.getItem('role');
+
+      if (token !== null) {
+        // console.log('yes logged in on master screen');
+        var loginDetails = {
+          user_token: token,
+        };
+        var userloginDetails = {
+          userDetails: JSON.parse(userdata),
+        };
+        dispatch({ type: ALREADY_HAS_LOGIN, payload: loginDetails });
+        dispatch({ type: USER_ALREADY_HAS_LOGIN, payload: userloginDetails });
+      }
+    } catch (e) {
+      // Error
+    }
+  };
+
+  //Custom Functions
+  const handleinpiut = (e) => {
+    setInpvalue(e);
+  };
 
   useEffect(() => {
     dispatch(AppSettingAction());
     // dispatch(AllCategoriesAction(null));
     dispatch(categoriesAction());
   }, [isFocused]);
-  // console.log('hdata', homeData);
+
   useEffect(() => {
+    dispatch(brandAction());
+    console.log(homeData, 'homedaata');
     if (!isEmpty(homeData)) {
       const featuredProduct = homeData.filter(
         (section) => section.label === 'Featured Product',
@@ -85,6 +142,8 @@ const HomeScreen = ({ navigation }) => {
       if (featuredProduct.visible) {
         dispatch(featureDataAction());
       }
+      // if (featuredProduct.visible) {
+      // }
       if (recentProduct.visible) {
         dispatch(recentaddedproductAction());
       }
@@ -110,6 +169,12 @@ const HomeScreen = ({ navigation }) => {
       setAllCategories(data);
     }
   }, [allCategoriesWithChild]);
+
+  useEffect(() => {
+    if (!loginState.login) {
+      checkUserLoggedIn();
+    }
+  }, [loginState]);
 
   // useEffect(() => {
   //   if (isFocused) {
@@ -168,11 +233,11 @@ const HomeScreen = ({ navigation }) => {
 
   const navigateNextScreen = (category) => {
     var navigateTo = '';
-    if (category.children.length < 1) {
-      navigateTo = 'Category';
-    } else {
-      navigateTo = 'SubCategories';
-    }
+    // if (category.children.length < 1) {
+    //   navigateTo = 'Category';
+    // } else {
+    navigateTo = 'SubCategories';
+    // }
 
     var nestedCategory = [];
     if (!isEmpty(category.children)) {
@@ -187,55 +252,89 @@ const HomeScreen = ({ navigation }) => {
   return (
     <>
       {settingLoading && catLoading ? <AppLoader /> : null}
-      {/* {!isEmpty(appTitle)
-        ? */}
-      {/* <AHeader title={isEmpty(appTitle) ? 'Ravendel' : appTitle} /> */}
-      {/* :
-
-        <HeaderLogoWrapper>
-          <HeaderLogo
-            source={{uri:themeSettings.logo}}>
-          </HeaderLogo>
-        </HeaderLogoWrapper>
-      } */}
-      <AContainer withoutPadding nestedScrollEnabled={true}>
-        <ARow wrap row>
-          {!isEmpty(homeslider) ? (
-            <SwiperFlatList
-              autoplay
-              autoplayDelay={2}
-              autoplayLoop
-              // index={2}
-              showPagination
-              paginationDefaultColor="maroon"
-              paginationActiveColor="cyan"
-              paginationStyle={{
-                width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: 'auto',
-              }}
-              data={homeslider}
-              renderItem={({ item }) => (
-                <View style={[styles.child]}>
-                  <Image
-                    style={styles.image}
-                    source={{
-                      uri: URL + item.image,
-                    }}
-                  />
-                </View>
-              )}
-            />
-          ) : null}
+      <StatusBar backgroundColor={APP_PRIMARY_COLOR} />
+      <View style={styles.headerstyle}>
+        <TouchableOpacity style={{ marginTop: 10 }} onPress={handlePress}>
+          <View style={{ ...styles.barstyle, width: 35 }}></View>
+          <View style={{ ...styles.barstyle, width: 25 }}></View>
+        </TouchableOpacity>
+        <View style={{ ...styles.profileimgstyle, elevation: 5 }}>
+          <Image
+            style={styles.profileimgstyle}
+            source={require('../../assets/images/man.png')}
+          />
+        </View>
+        <ARow mt={'10px'} row alignItems="center" position="relative">
+          <Icon
+            style={styles.iconstyle}
+            name={'search'}
+            size={15}
+            color={'black'}
+          />
+          <TextInput
+            height={30}
+            bc={'#E0E0E0'}
+            value={inpvalue}
+            onchange={handleinpiut}
+            padding={0}
+            pl={35}
+            inputBgColor={'#e4ffff'}
+            fs={12}
+            placeholder={'Search'}
+            placeholdercolor={'black'}
+            br={30}
+          />
         </ARow>
-        {!isEmpty(allCategories) && (
+      </View>
+      <View
+        style={{ padding: 10, backgroundColor: APP_SECONDARY_COLOR }}></View>
+      <AContainer withoutPadding nestedScrollEnabled={true}>
+        <Categories
+          navigation
+          navigateNextScreen={(item) => {
+            navigateNextScreen(item);
+          }}
+          allCategories={allCategories}
+        />
+        <ARow mb="20px" wrap row>
+          <ACol col={1}>
+            <PopularPicksWrapper>
+              <PopularPicksImage
+                source={require('../../assets/images/section.jpg')}
+              />
+            </PopularPicksWrapper>
+          </ACol>
+        </ARow>
+        {!isEmpty(recentAddedProduct) && (
+          <ImageSlider
+            dataItems={recentAddedProduct}
+            navigatetonext={(item) => {
+              navigation.navigate('CateGories', {
+                screen: 'SingleProduct',
+                initial: false,
+                params: { productID: item._id },
+              });
+            }}
+          />
+        )}
+        <ARow wrap row></ARow>
+
+        <ARow mb="20px" wrap row>
+          <ACol col={1}>
+            <PopularPicksWrapper>
+              <PopularPicksImage
+                source={require('../../assets/images/section.jpg')}
+              />
+            </PopularPicksWrapper>
+          </ACol>
+        </ARow>
+        {!isEmpty(brands) && (
           <SectionView>
             <AText uppercase heavy mb={'20px'} center color={primaryColor}>
-              Shop by Category
+              Fatured Brands
             </AText>
-            <HomeCategoryShowViews
-              allCategories={allCategories}
+            <HomeBrandViews
+              allbrands={brands}
               navigation
               navigateNextScreen={(item) => {
                 navigateNextScreen(item);
@@ -263,15 +362,6 @@ const HomeScreen = ({ navigation }) => {
           </>
         )}
 
-        <ARow wrap row>
-          <ACol col={1}>
-            <PopularPicksWrapper>
-              <PopularPicksImage
-                source={require('../../assets/images/section.jpg')}
-              />
-            </PopularPicksWrapper>
-          </ACol>
-        </ARow>
         {!isEmpty(recentAddedProduct) && (
           <>
             <SectionView>
@@ -296,11 +386,11 @@ const HomeScreen = ({ navigation }) => {
           <AText uppercase heavy center color={primaryColor}>
             POPULAR PICKS
           </AText>
-          <ARow wrap row>
+          <ARow>
             <ACol col={1}>
               <PopularPicksWrapper>
                 <PopularPicksImage
-                  source={require('../../assets/images/popular_picks.webp')}
+                  source={require('../../assets/images/summer_sale_60.webp')}
                 />
               </PopularPicksWrapper>
             </ACol>
@@ -310,22 +400,7 @@ const HomeScreen = ({ navigation }) => {
         {!isEmpty(saleProduct) && (
           <>
             <SectionView>
-              <ARow>
-                <ACol col={1}>
-                  <PopularPicksWrapper>
-                    <PopularPicksImage
-                      source={require('../../assets/images/summer_sale_60.webp')}
-                    />
-                  </PopularPicksWrapper>
-                </ACol>
-              </ARow>
-            </SectionView>
-
-            <SectionView>
-              <AText uppercase heavy center color={primaryColor}>
-                OFFERS
-              </AText>
-              <HomeComponentShowViews
+              <CardContainer
                 dataItems={saleProduct}
                 navigatetonext={(item) => {
                   navigation.navigate('CateGories', {
@@ -335,6 +410,17 @@ const HomeScreen = ({ navigation }) => {
                   });
                 }}
               />
+
+              {/* <HomeComponentShowViews
+                dataItems={saleProduct}
+                navigatetonext={(item) => {
+                  navigation.navigate('CateGories', {
+                    screen: 'SingleProduct',
+                    initial: false,
+                    params: { productID: item._id },
+                  });
+                }}
+              /> */}
             </SectionView>
           </>
         )}
@@ -384,14 +470,15 @@ const SectionView = styled.View`
   border-color: #ddd;
 `;
 const PopularPicksWrapper = styled.TouchableOpacity`
-  height: 300px;
+  height: 168px;
   width: 100%;
+  margin-top: 30px;
 `;
 
 const PopularPicksImage = styled.Image`
   width: 100%;
   height: 100%;
-  resize-mode: cover;
+  resize-mode: stretch;
 `;
 const HeaderLogo = styled.Image`
   resize-mode: contain;
@@ -414,5 +501,28 @@ const styles = StyleSheet.create({
   child: { width, justifyContent: 'center' },
   image: { width: Dimensions.width, height: 300, resizeMode: 'contain' },
   text: { fontSize: width * 0.5, textAlign: 'center' },
+  headerstyle: {
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    backgroundColor: '#d8fefe',
+    height: 90,
+    paddingHorizontal: 30,
+    paddingTop: 20,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  barstyle: {
+    height: 4,
+    backgroundColor: 'black',
+    marginBottom: 5,
+    borderRadius: 5,
+  },
+  iconstyle: {
+    marginRight: 5,
+    position: 'absolute',
+    left: 10,
+    zIndex: 2,
+  },
+  profileimgstyle: { height: 30, width: 35, borderRadius: 35 },
 });
 export default HomeScreen;

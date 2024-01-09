@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { Dimensions, Modal } from 'react-native';
+import { Dimensions, Modal, View } from 'react-native';
 import { AText } from '.';
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -15,15 +15,24 @@ const AView = styled.View`
 `;
 const ALoader = styled.ActivityIndicator``;
 
-
 const AppLoader = () => {
   return (
-    <Modal transparent={true} animationType={'none'}>
+    <View
+      style={{
+        backgroundColor: 'white',
+        flex: 1,
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        zIndex: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
       <AView>
         <ALoader size="large" color="#fff" />
         {/* <AText>Success is loading. Keep patience!!!</AText> */}
       </AView>
-    </Modal>
+    </View>
   );
 };
 

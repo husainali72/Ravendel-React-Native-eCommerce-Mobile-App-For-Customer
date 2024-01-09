@@ -3,7 +3,7 @@ import { StatusBar, StyleSheet } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { AContainer, AHeader, AText } from '../../theme-components';
+import { AContainer, AHeader, AText, ZHeader } from '../../theme-components';
 import { isEmpty } from '../../utils/helper';
 import man from '../../assets/images/man.png';
 import woman from '../../assets/images/woman.png';
@@ -11,18 +11,32 @@ import question from '../../assets/images/question.png';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ProfileScreen = ({ navigation }) => {
-  const userDetails = useSelector(state => state.customer.userDetails);
+  const userDetails = useSelector((state) => state.customer.userDetails);
   return (
     <>
-      <AHeader navigation={navigation} title="Profile" headerColor={'#312f2d'} back />
+      <ZHeader
+        navigation={navigation}
+        title="Profile"
+        headerColor={'#312f2d'}
+        back
+      />
       <UpperCurve />
       <ProfileView>
         <ImageWrapper>
           <ProfileImage
-            source={isEmpty(userDetails.gender) ? question : userDetails.gender == 'female' ? woman : man} />
+            source={
+              isEmpty(userDetails.gender)
+                ? question
+                : userDetails.gender == 'female'
+                ? woman
+                : man
+            }
+          />
         </ImageWrapper>
         <Header onPress={() => navigation.navigate('EditProfile')}>
-          <AText bold centeR uppercase medium>{userDetails.first_name} {userDetails.last_name}</AText>
+          <AText bold centeR uppercase medium>
+            {userDetails.first_name} {userDetails.last_name}
+          </AText>
           <Icon name="edit" size={18} style={styles.editIcon} />
         </Header>
       </ProfileView>
@@ -30,47 +44,60 @@ const ProfileScreen = ({ navigation }) => {
       <ItemWrapper>
         <ItemDescription>
           <ProfileDetailWrapper>
-            <AText mr='90px' heavy>Name</AText>
-            <AText medium mr="15px">:</AText>
-            <AText capitalize>{userDetails.first_name} {userDetails.last_name}</AText>
+            <AText mr="90px" heavy>
+              Name
+            </AText>
+            <AText medium mr="15px">
+              :
+            </AText>
+            <AText capitalize>
+              {userDetails.first_name} {userDetails.last_name}
+            </AText>
           </ProfileDetailWrapper>
 
-          {!isEmpty(userDetails.phone) &&
+          {!isEmpty(userDetails.phone) && (
             <ProfileDetailWrapper>
-              <AText  mr='28px' heavy>Phone Number</AText>
-              <AText medium mr="15px">:</AText>
+              <AText mr="28px" heavy>
+                Phone Number
+              </AText>
+              <AText medium mr="15px">
+                :
+              </AText>
               <AText>{userDetails.phone}</AText>
             </ProfileDetailWrapper>
-          }
+          )}
           <ProfileDetailWrapper>
-            <AText  mr='90px' heavy>Email</AText>
-            <AText medium mr="15px">:</AText>
+            <AText mr="90px" heavy>
+              Email
+            </AText>
+            <AText medium mr="15px">
+              :
+            </AText>
             <AText>{userDetails.email}</AText>
           </ProfileDetailWrapper>
         </ItemDescription>
       </ItemWrapper>
-
     </>
   );
 };
 const styles = StyleSheet.create({
   editIcon: {
     marginTop: 3,
-     marginHorizontal: 9, 
-     alignSelf: 'center'
-  }
-})
+    marginHorizontal: 9,
+    alignSelf: 'center',
+  },
+});
 const ProfileDetailWrapper = styled.View`
-  flex-direction:row;
-  width:100%;
-  align-self:center;
+  flex-direction: row;
+  width: 100%;
+  align-self: center;
   align-items: center;
-  padding:15px;
-  border-bottom-width:1px;
+  padding: 15px;
+  border-bottom-width: 1px;
 `;
 const Header = styled.TouchableOpacity`
-  flex-direction:row;
-  align-self:center;
+  flex-direction: row;
+  align-self: center;
   align-items: center;
   justify-content: center;
 `;
@@ -89,33 +116,33 @@ const ImageWrapper = styled.View`
 
 `;
 const ItemWrapper = styled.View`
-    flex: 1;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 100px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    background: #f7f7f7;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid #f7f7f7;
-    box-shadow: 0 0 5px #eee;
-    elevation: 1;
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 100px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background: #f7f7f7;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #f7f7f7;
+  box-shadow: 0 0 5px #eee;
+  elevation: 1;
 `;
 
 const ItemDescription = styled.View`
-    flex: 1;
-    padding: 10px;
+  flex: 1;
+  padding: 10px;
 `;
 
 const UpperCurve = styled.View`
-  height:30%;
-  width:100%;
-  background:#312f2d;
-  border-bottom-left-radius:30px;
-  border-bottom-right-radius:30px;
-  align-self:center;
-  `;
+  height: 30%;
+  width: 100%;
+  background: #312f2d;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  align-self: center;
+`;
 const ProfileView = styled.View`
   height:30%;
   width:90%;
@@ -138,4 +165,3 @@ const ProfileView = styled.View`
  `;
 
 export default ProfileScreen;
-

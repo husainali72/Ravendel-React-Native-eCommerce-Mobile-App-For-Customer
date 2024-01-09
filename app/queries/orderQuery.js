@@ -188,6 +188,7 @@ const ORDER_HISTORY = gql`
         tax_amount
         discount_amount
         grand_total
+        order_number
       }
       message {
         message

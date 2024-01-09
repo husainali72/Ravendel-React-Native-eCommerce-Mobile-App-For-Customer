@@ -1,18 +1,22 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
 import { Appbar, Text } from 'react-native-paper';
+import { APP_PRIMARY_COLOR } from '../utils/config';
 
-const AHeader = props => {
+const AHeader = ({ navigation, headerColor, back, title }) => {
   return (
     <>
-      <StatusBar backgroundColor="#000" />
-      <Appbar style={{ backgroundColor: props.headerColor ? props.headerColor : '#fff' }}>
-        {props.back ? (
-          <Appbar.BackAction onPress={() => props.navigation.goBack()} />
+      <StatusBar backgroundColor={APP_PRIMARY_COLOR} />
+      <Appbar
+        style={{
+          backgroundColor: headerColor ? headerColor : 'transparent',
+        }}>
+        {back ? (
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
         ) : null}
         <Appbar.Content
-          title={props.title}
-          style={{ alignItems: props.back ? 'flex-start' : 'center' }}
+          title={title}
+          style={{ alignItems: back ? 'flex-start' : 'center' }}
         />
       </Appbar>
     </>

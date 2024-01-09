@@ -47,11 +47,11 @@ const CategoryScreen = ({ route, navigation }) => {
   return (
     <>
       {loading ? <AppLoader /> : null}
-      <AHeader
+      {/* <AHeader
         title={CategoryTitle ?? 'Category'}
         navigation={navigation}
         back
-      />
+      /> */}
       <Wrapper>
         <ARow row wrap>
           {!isEmpty(singleCateogry) && (

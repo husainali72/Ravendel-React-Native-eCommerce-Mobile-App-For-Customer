@@ -1,124 +1,41 @@
 import { gql, useQuery } from '@apollo/client';
 
-
 const GET_PRODUCTS = gql`
-query  {
-products {
-    data {
-      _id
-      name
-      categoryId {
-        id
+  query {
+    products {
+      data {
+        _id
         name
+        categoryId {
+          id
+          name
+        }
+        url
+        sku
+        description
+        quantity
+        pricing
+        feature_image
+        gallery_image
+        meta
+        shipping
+        tax_class
+        status
+        featured_product
+        product_type
+        custom_field
+        date
+        updated
+        short_description
       }
-      url
-      sku
-      description
-      quantity
-      pricing
-      feature_image
-      gallery_image
-      meta
-      shipping
-      tax_class
-      status
-      featured_product
-      product_type
-      custom_field
-      date
-      updated
-      short_description
     }
   }
-}
 `;
 
 const GET_PRODUCT = gql`
-query ($id:ID!) {
-  product(id: $id) {
-    data {
-      _id
-      name
-      url
-      sku
-      description
-      quantity
-      pricing
-      feature_image
-      gallery_image
-      meta
-      shipping
-      tax_class
-      status
-      featured_product
-      product_type
-      custom_field
-      date
-      updated
-      categoryId {
-        id
-        name
-  
-      }
-      short_description
-      variant
-
-    }
-  }
-}
-`;
-
-const GET_CATEGORIES = gql`
-query {
-  productCategories {
-    data {
-            id
-            name
-            parentId
-            date
-            updated
-            url
-           image
-    }
-  }
-  }
-`;
-
-const GET_ALL_CATEGORIES = gql`
-  query($fillter: customObject) {
-    productCategoriesByFilter(filter: $fillter) {
-      id
-      name
-      parentId
-      url
-      description
-      image
-      child_cat {
-        id
-        name
-        parentId
-      }
-      meta
-      date
-      updated
-    }
-  }
-`;
-
-const GET_CAT_PRODUCTS = gql`
-  query($url: String!) {
-    productsbycaturl(cat_url: $url) {
+  query ($id: ID!) {
+    product(id: $id) {
       data {
-      id
-      name
-      parentId
-      url
-      description
-      image
-      meta
-      date
-      updated
-      products {
         _id
         name
         url
@@ -141,14 +58,96 @@ const GET_CAT_PRODUCTS = gql`
           id
           name
         }
+        short_description
+        variant
+        rating
       }
     }
   }
+`;
+
+const GET_CATEGORIES = gql`
+  query {
+    productCategories {
+      data {
+        id
+        name
+        parentId
+        date
+        updated
+        url
+        image
+      }
+    }
+  }
+`;
+
+const GET_ALL_CATEGORIES = gql`
+  query ($fillter: customObject) {
+    productCategoriesByFilter(filter: $fillter) {
+      id
+      name
+      parentId
+      url
+      description
+      image
+      child_cat {
+        id
+        name
+        parentId
+      }
+      meta
+      date
+      updated
+    }
+  }
+`;
+
+const GET_CAT_PRODUCTS = gql`
+  query ($url: String!) {
+    productsbycaturl(cat_url: $url) {
+      data {
+        id
+        name
+        parentId
+        url
+        description
+        image
+        meta
+        date
+        updated
+        products {
+          _id
+          name
+          url
+          sku
+          description
+          quantity
+          pricing
+          feature_image
+          gallery_image
+          meta
+          shipping
+          tax_class
+          status
+          featured_product
+          product_type
+          custom_field
+          date
+          updated
+          rating
+          categoryId {
+            id
+            name
+          }
+        }
+      }
+    }
   }
 `;
 
 const GET_PRODUCT_REVIEWS = gql`
-  query($product_id: ID!) {
+  query ($product_id: ID!) {
     productwisereview(product_id: $product_id) {
       data {
         title
@@ -168,7 +167,7 @@ const GET_PRODUCT_REVIEWS = gql`
 `;
 
 const ADD_REVIEW = gql`
-  mutation(
+  mutation (
     $title: String
     $customer_id: String
     $product_id: String
@@ -192,85 +191,107 @@ const ADD_REVIEW = gql`
   }
 `;
 
-const SALE_PRODUCT=gql`
-query{
-  onSaleProducts {
-    _id
-    name
-    feature_image
-    pricing
-    url
-    categoryId {
-      id
+const SALE_PRODUCT = gql`
+  query {
+    onSaleProducts {
+      _id
       name
+      feature_image
+      pricing
+      url
+      categoryId {
+        id
+        name
+      }
+      quantity
+      featured_product
+      status
+      variant
     }
-    quantity
-    featured_product
-    status
-    variant
   }
-}
 `;
 
-const RECENT_PRODUCT =gql`
-query{
-  recentproducts {
-    _id
-    name
-    feature_image
-    pricing
-    url
-    categoryId {
-      id
+const RECENT_PRODUCT = gql`
+  query {
+    recentproducts {
+      _id
       name
+      feature_image
+      pricing
+      url
+      categoryId {
+        id
+        name
+      }
+      quantity
+      featured_product
+      status
+      variant
     }
-    quantity
-    featured_product
-    status
-    variant
   }
-}
-
 `;
 
-const PRODUCT_BY_A_CATEGORY= gql`
-query ($id: ID!) {
-  productsbycatid(cat_id: $id) {
-    _id
-    name
-    feature_image
-    pricing
-    url
-    categoryId {
-      id
-      name
+const GET_BRANDS_QUERY = gql`
+  query {
+    brands {
+      data {
+        id
+        name
+        url
+        brand_logo
+        meta {
+          title
+          description
+          keywords
+        }
+        date
+        updated
+      }
+      message {
+        message
+        success
+      }
     }
-    quantity
-    featured_product
-    status
-    variant
   }
-}
 `;
-const FEATURE_CATEGORY= gql`
-query{
-  featureproducts {
-    _id
-    name
-    feature_image
-    pricing
-    url
-    categoryId {
-      id
-      name
-    }
-    quantity
-    featured_product
-    status
-    variant
-  }
-}
 
+const PRODUCT_BY_A_CATEGORY = gql`
+  query ($id: ID!) {
+    productsbycatid(cat_id: $id) {
+      _id
+      name
+      feature_image
+      pricing
+      url
+      categoryId {
+        id
+        name
+      }
+      quantity
+      featured_product
+      status
+      variant
+    }
+  }
+`;
+const FEATURE_CATEGORY = gql`
+  query {
+    featureproducts {
+      _id
+      name
+      feature_image
+      pricing
+      url
+      categoryId {
+        id
+        name
+      }
+      quantity
+      featured_product
+      status
+      variant
+    }
+  }
 `;
 
 export {
@@ -284,5 +305,6 @@ export {
   SALE_PRODUCT,
   RECENT_PRODUCT,
   PRODUCT_BY_A_CATEGORY,
-  FEATURE_CATEGORY
+  FEATURE_CATEGORY,
+  GET_BRANDS_QUERY,
 };

@@ -9,8 +9,9 @@ import {
   StyleSheet,
 } from 'react-native';
 import URL from '../../utils/baseurl';
-import ImageView from 'react-native-image-view';
+// import ImageView from 'react-native-image-view';
 import FastImage from 'react-native-fast-image';
+import ImageView from 'react-native-image-viewing';
 
 const { width } = Dimensions.get('window');
 const height = 297;
@@ -20,7 +21,6 @@ const GalleryImagesSlider = (props) => {
   const [previewImages, setPreviewImages] = useState([]);
   const [preview, setPreview] = useState(false);
   const [active, setActive] = useState(0);
-
   useEffect(() => {
     setSliderImages(props.images);
   }, [props.images]);
@@ -29,12 +29,9 @@ const GalleryImagesSlider = (props) => {
     var previewImageArr = [];
     if (SliderImages) {
       SliderImages.map((img) => {
-        var object = {
-          source: {
-            uri: URL + img.original,
-          },
-        };
-        previewImageArr.push(object);
+        previewImageArr.push({
+          uri: URL + img,
+        });
       });
     }
     setPreviewImages(previewImageArr);
@@ -71,7 +68,7 @@ const GalleryImagesSlider = (props) => {
                     uri: URL + image,
                     priority: FastImage.priority.normal,
                   }}
-                  resizeMode={FastImage.resizeMode.contain}
+                  resizeMode={FastImage.resizeMode.cover}
                 />
               </TouchableOpacity>
             ))
@@ -79,7 +76,7 @@ const GalleryImagesSlider = (props) => {
             <Text>Nothing</Text>
           )}
         </ScrollView>
-        <View style={styles.dots}>
+        {/* <View style={styles.dots}>
           {SliderImages.map((image, index) => (
             <Text
               key={index}
@@ -87,28 +84,28 @@ const GalleryImagesSlider = (props) => {
               ⬤
             </Text>
           ))}
-        </View>
+        </View> */}
       </View>
       <ImageView
         images={previewImages}
         imageIndex={active}
-        isVisible={preview}
-        onClose={() => setPreview(!preview)}
+        visible={preview}
+        onRequestClose={() => setPreview(false)}
       />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { width, height },
-  scroll: { width, height },
-  slideImage: { width, height, resizeMode: 'cover' },
-  dots: {
-    flexDirection: 'row',
-    position: 'absolute',
-    bottom: 0,
-    alignSelf: 'center',
-  },
+  container: { width, height: '100%' },
+  scroll: { width, height: '100%' },
+  slideImage: { width, height: '100%' },
+  // dots: {
+  //   flexDirection: 'row',
+  //   position: 'absolute',
+  //   bottom: 0,
+  //   alignSelf: 'center',
+  // },
   dot: { color: '#888', margin: 3, fontSize: 10 },
   activeDot: { color: '#EB3349', margin: 3, fontSize: 10 },
 });

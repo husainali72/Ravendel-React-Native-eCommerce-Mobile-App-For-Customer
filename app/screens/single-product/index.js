@@ -9,12 +9,20 @@ import {
 } from '../../store/action';
 import { PRODUCT_CLEAR } from '../../store/action/productAction';
 import { useSelector, useDispatch } from 'react-redux';
-import { AText, ARow, ACol, AppLoader, AButton } from '../../theme-components';
+import {
+  AText,
+  ARow,
+  ACol,
+  AppLoader,
+  AButton,
+  AHeader,
+} from '../../theme-components';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AIcon from 'react-native-vector-icons/AntDesign';
 import GalleryImagesSlider from './galleryImages';
 import HTMLView from 'react-native-htmlview';
-import { Modal } from 'react-native';
+import { Modal, ScrollView, StyleSheet } from 'react-native';
 import StarRating from 'react-native-star-rating';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isEmpty } from '../../utils/helper';
@@ -25,6 +33,7 @@ import { View } from 'react-native-animatable';
 import moment from 'moment';
 import { reviewValidationSchema } from '../checkout/validationSchema';
 import { Formik } from 'formik';
+import { FontStyle } from '../../utils/config';
 
 var reviewObject = {
   title: '',
@@ -62,9 +71,6 @@ const SingleProductScreen = ({ navigation, route }) => {
   const { cartId } = useSelector((state) => state.cart);
   const [singleProductLoading, setSingleProductLoading] = useState(true);
   const [cartQuantity, setCartQuantity] = useState(1);
-  console.log('sp', SingleProduct);
-  console.log('tkn', user_token);
-  console.log('cartstock', manage_stock, cartItems, cartId);
   useEffect(() => {
     navigation.addListener('focus', () => {
       setReview({
@@ -155,6 +161,8 @@ const SingleProductScreen = ({ navigation, route }) => {
             },
           ],
         };
+        console.log(cartId);
+        return;
         dispatch(addCartAction(cartData));
       } else {
         const cartData = {
@@ -195,10 +203,8 @@ const SingleProductScreen = ({ navigation, route }) => {
     }
 
     if (itemInCart) {
-      console.log('itemincart');
       return true;
     }
-    console.log('itemnotincart', hasCartProducts, products, itemInCart);
     if (hasCartProducts !== null) {
       setItemInCart(true);
       products.push({
@@ -225,66 +231,123 @@ const SingleProductScreen = ({ navigation, route }) => {
 
       {!isEmpty(SingleProduct) ? (
         <>
-          <MainConatiner>
+          <View style={{ flex: 1, overflow: 'visible' }}>
+            <View style={styles.header}>
+              <AIcon
+                onPress={() => navigation.goBack()}
+                name="arrowleft"
+                size={25}
+              />
+              <Icon name="heart-o" color={'red'} size={20} />
+            </View>
             {/* ===============Featured Images============= */}
             <GallerySliderWrapper>
               <GalleryImagesSlider images={sliderImages} />
             </GallerySliderWrapper>
-            <InnerConatiner>
+            <ScrollView
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 30 }}
+              style={styles.infostyle}>
               {/* ===============Product Price============= */}
               <ProductPriceText Pricing={SingleProduct.pricing} />
 
               {/* ===============Product Name============= */}
-              <ProductName>
-                <AText medium bold>
-                  {SingleProduct.name}
-                </AText>
-              </ProductName>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <ProductName>
+                  <AText big color={'black'} fonts={FontStyle.semiBold}>
+                    {SingleProduct.name}
+                  </AText>
+                  <View style={styles.starstyle}>
+                    <StarRating
+                      starStyle={{
+                        marginRight: 10,
+                      }}
+                      disabled={true}
+                      maxStars={5}
+                      rating={SingleProduct.rating}
+                      fullStarColor={'#FFDB20'}
+                      emptyStarColor={'gray'}
+                      starSize={14}
+                    />
+                    <AText
+                      color={'black'}
+                      fonts={
+                        FontStyle.semiBold
+                      }>{`(${SingleProduct.rating} rating)`}</AText>
+                  </View>
+                  <AText
+                    mt="5px"
+                    big
+                    fonts={FontStyle.semiBold}
+                    color={'black'}>
+                    $ {SingleProduct.pricing.price + '.00'}
+                  </AText>
+                </ProductName>
+                <View style={{ width: '45%' }}>
+                  <AText
+                    right
+                    small
+                    color={SingleProduct.quantity > 0 ? '#1FAD08' : 'red'}
+                    fonts={FontStyle.fontBold}>
+                    {SingleProduct.quantity > 0
+                      ? 'Available in stock'
+                      : 'Out of stock'}
+                  </AText>
+                </View>
+              </View>
+
+              {/* ================ Product short description================== */}
+              {!isEmpty(SingleProduct.short_description) && (
+                <>
+                  <AText fonts={FontStyle.semiBold} mb="5px" large>
+                    About
+                  </AText>
+                  <HTMLView value={SingleProduct.short_description} />
+                  <HTMLView value={SingleProduct.description} />
+                </>
+              )}
+              <AText mt={'5px'} mb={'20px'} bold>
+                SKU:{SingleProduct.sku}
+              </AText>
               {/* ==================Product Quantity============================ */}
               {((!isEmpty(SingleProduct.quantity) &&
                 SingleProduct.quantity > 0) ||
                 !manage_stock) && (
-                <QtyWrapper>
-                  <QtyButton
-                    onPress={() => {
-                      cartQuantity > 1 && setCartQuantity(cartQuantity - 1);
-                    }}>
-                    <AText color="#fff">
-                      <Icon name="minus" />
-                    </AText>
-                  </QtyButton>
-                  <AText medium bold ml="7px" mr="7px">
-                    {cartQuantity}
+                <>
+                  <AText fonts={FontStyle.semiBold} large>
+                    Quantity
                   </AText>
-                  <QtyButton
-                    onPress={() => {
-                      ((!isEmpty(SingleProduct.quantity) &&
-                        cartQuantity < SingleProduct.quantity) ||
-                        !manage_stock) &&
-                        setCartQuantity(cartQuantity + 1);
-                    }}>
-                    <AText color="#fff">
-                      <Icon name="plus" />
+                  <QtyWrapper>
+                    <QtyButton
+                      onPress={() => {
+                        cartQuantity > 1 && setCartQuantity(cartQuantity - 1);
+                      }}>
+                      <AText color="#72787e">
+                        <AIcon name="minuscircleo" />
+                      </AText>
+                    </QtyButton>
+                    <AText medium bold ml="7px" mr="7px">
+                      {cartQuantity}
                     </AText>
-                  </QtyButton>
-                </QtyWrapper>
-              )}
-              {/* ================ Product short description================== */}
-              {!isEmpty(SingleProduct.short_description) && (
-                <HTMLView value={SingleProduct.short_description} />
-              )}
-              <AText mt={'5px'} mb={'5px'} bold>
-                SKU:{SingleProduct.sku}
-              </AText>
-              {manage_stock && (
-                <AText
-                  capitalize
-                  color={SingleProduct.quantity > 0 ? '#00827B' : '#DB3022'}
-                  mt={'5px'}
-                  mb={'5px'}
-                  bold>
-                  {SingleProduct.quantity > 0 ? 'IN Stock' : 'out of stock'}
-                </AText>
+                    <QtyButton
+                      onPress={() => {
+                        ((!isEmpty(SingleProduct.quantity) &&
+                          cartQuantity < SingleProduct.quantity) ||
+                          !manage_stock) &&
+                          setCartQuantity(cartQuantity + 1);
+                      }}>
+                      <AText color="#72787e">
+                        <AIcon name="pluscircleo" />
+                      </AText>
+                    </QtyButton>
+                  </QtyWrapper>
+                </>
               )}
               {/* ========================Custom Field================================ */}
               {!isEmpty(SingleProduct.custom_field) &&
@@ -311,7 +374,7 @@ const SingleProductScreen = ({ navigation, route }) => {
                 )}
 
               {/* ===============Product Description============= */}
-              {SingleProduct.description ? (
+              {/* {SingleProduct.description ? (
                 <CollapseWrapper>
                   <CollapseTitle
                     onPress={() =>
@@ -336,7 +399,7 @@ const SingleProductScreen = ({ navigation, route }) => {
                     </>
                   </CollapseContainer>
                 </CollapseWrapper>
-              ) : null}
+              ) : null} */}
 
               {/* ===============Product Reviews============= */}
               <CollapseWrapper>
@@ -404,27 +467,28 @@ const SingleProductScreen = ({ navigation, route }) => {
                   </>
                 </CollapseContainer>
               </CollapseWrapper>
-            </InnerConatiner>
-          </MainConatiner>
+              <AddToCartWrapper>
+                {(!isEmpty(SingleProduct.quantity) &&
+                  SingleProduct.quantity > 0) ||
+                !manage_stock ? (
+                  <AButton
+                    title={itemInCart ? 'Added' : 'Add to Cart'}
+                    round
+                    onPress={() => addToCart()}
+                  />
+                ) : (
+                  <AButton
+                    title={'Out of Stock'}
+                    block
+                    round
+                    // onPress={() => addToCart()}
+                  />
+                )}
+              </AddToCartWrapper>
+            </ScrollView>
+          </View>
 
           {/* ===============Add To Cart============= */}
-
-          <AddToCartWrapper>
-            {(!isEmpty(SingleProduct.quantity) && SingleProduct.quantity > 0) ||
-            !manage_stock ? (
-              <AButton
-                title={itemInCart ? 'Added' : 'Add to Cart'}
-                block
-                onPress={() => addToCart()}
-              />
-            ) : (
-              <AButton
-                title={'Out of Stock'}
-                block
-                // onPress={() => addToCart()}
-              />
-            )}
-          </AddToCartWrapper>
         </>
       ) : (
         !singleProductLoading ||
@@ -534,23 +598,21 @@ const SingleProductScreen = ({ navigation, route }) => {
 const QtyWrapper = styled.View`
   height: 30px;
   overflown: hidden;
-  border-radius: 15px;
   width: 110px;
   margin: 10px 0px;
-  background: #e9e9e9;
-  border-radius: 20px;
+  background: white;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  border-width: 0.5px;
 `;
 const QtyButton = styled.TouchableOpacity`
-  background: #72787e;
+  background: #fff;
   height: 100%;
   width: 28px;
-  border-radius: 5px;
   justify-content: center;
   align-items: center;
-  padding: 5px;
+  padding: 0px;
 `;
 const CustomWrapper = styled.View`
   margin: 5px 0 0px 0;
@@ -622,22 +684,32 @@ const WriteReview = styled.TouchableOpacity`
   padding: 6px;
 `;
 const MainConatiner = styled.ScrollView`
-  background-color: #fff;
-  flex: 0.9;
+  background-color: pink;
+  flex: 1;
 `;
-const InnerConatiner = styled.View`
-  padding: 10px;
+const InnerConatiner = styled.ScrollView`
+  z-index: 10;
+  bottom: 0;
+  position: absolute;
+  border-top-left-radius: 30;
+  border-top-right-radius: 30;
+  background-color: white;
+  padding-bottom: 30px;
+  padding-horizontal: 30px;
+  padding-top: 20px;
+  width: 100%;
   flex: 1;
 `;
 const GallerySliderWrapper = styled.View`
-  height: 300px;
-  background: #f7f7f7;
-  border-bottom-color: #000;
-  border-bottom-width: 0.5px;
+  height: 60%;
+  background: white;
+  //   border-bottom-color: #000;
+  //   border-bottom-width: 0.5px;
 `;
 const ProductPrice = styled.View``;
 const ProductName = styled.View`
   padding: 10px 0;
+  width: 55%;
 `;
 const CollapseWrapper = styled.View`
   flex: 1;
@@ -661,12 +733,10 @@ const CollapseIcon = styled.Text`
   align-self: flex-end;
 `;
 const AddToCartWrapper = styled.View`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #eee;
+  background: transparent;
   padding-top: 5px;
+  width: 70%;
+  align-self: center;
 `;
 const ReviewWrapper = styled.View`
   background: #fff;
@@ -702,5 +772,38 @@ const NotFoundImage = styled.Image`
   width: null;
   height: null;
 `;
-
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    position: 'absolute',
+    width: '100%',
+    justifyContent: 'space-between',
+    left: 0,
+    right: 0,
+    marginTop: 10,
+    paddingHorizontal: 30,
+    zIndex: 10,
+  },
+  infostyle: {
+    zIndex: 10,
+    bottom: 0,
+    position: 'absolute',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    backgroundColor: 'white',
+    paddingBottom: 30,
+    paddingHorizontal: 30,
+    paddingTop: 20,
+    width: '100%',
+    flex: 1,
+    height: '45%',
+    elevation: 6,
+  },
+  starstyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+});
 export default SingleProductScreen;

@@ -140,7 +140,7 @@ export default (state = initialState, action) => {
     case CAT_PRODUCTS_CLEAR:
       return {
         ...state,
-        singleCategoryDetails:[],
+        singleCategoryDetails: [],
         loading: false,
         success: true,
       };

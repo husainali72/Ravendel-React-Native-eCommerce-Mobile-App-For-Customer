@@ -15,6 +15,7 @@ import { NavigationContainer } from '@react-navigation/native';
 // import Navigation from './app/navigation';
 import DrawerNavigator from './app/navigation/DrawerNavigator';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { LogBox } from 'react-native';
 
 // XMLHttpRequest = GLOBAL.originalXMLHttpRequest
 //   ? GLOBAL.originalXMLHttpRequest
@@ -29,8 +30,8 @@ const theme = {
     accent: '#000',
   },
 };
-
 const App = () => {
+  LogBox.ignoreLogs(['Node of type rule not supported as an inline style']);
   return (
     <>
       <Provider store={store}>
