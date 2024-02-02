@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AText, MainLayout } from '../../theme-components';
+import { AText, AppLoader, MainLayout } from '../../theme-components';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import LoginScreen from './login';
 import SignupScreen from './signup';
@@ -15,13 +15,22 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSelector } from 'react-redux';
+import { Splash } from '..';
 const Tab = createMaterialTopTabNavigator();
 
 const UserEntry = ({ navigation }) => {
   const [activetab, setActivetab] = useState('Login');
+  const loading = useSelector((state) => state.login.loading);
   const handleactivetab = (tabname) => {
     tabname === 'Login' ? setActivetab('Login') : setActivetab('Signup');
   };
+  // if (loading) {
+  //   return <AppLoader />;
+  // }
+  if (loading) {
+    return <Splash />;
+  }
   return (
     <MainLayout>
       <ImageBackground
@@ -68,6 +77,7 @@ const UserEntry = ({ navigation }) => {
             <SignupScreen navigation={navigation} />
           )}
         </View>
+        <View style={{ marginBottom: 20 }}></View>
       </ImageBackground>
     </MainLayout>
   );

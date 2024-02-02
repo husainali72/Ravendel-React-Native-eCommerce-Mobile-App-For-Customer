@@ -16,7 +16,6 @@ import {
 import DropDownPicker from 'react-native-dropdown-picker';
 import { countryArray } from '../../utils/CountryData';
 import { AdressForm } from '../components';
-import LinearGradient from 'react-native-linear-gradient';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import {
   APP_PRIMARY_COLOR,
@@ -24,6 +23,7 @@ import {
   FontStyle,
   GREYTEXT,
 } from '../../utils/config';
+import Colors from '../../constants/Colors';
 const CheckoutScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
@@ -48,9 +48,9 @@ const CheckoutScreen = ({ navigation, route }) => {
     pincode: '',
     _id: '',
   });
-  var cartAmount = route.params.cartAmount;
-  var cartProducts = route.params.cartProducts;
-  var couponCode = route.params.couponCode;
+  var cartAmount = route?.params?.cartAmount;
+  var cartProducts = route?.params?.cartProducts;
+  var couponCode = route?.params?.couponCode;
   const { currencyOptions, currencySymbol } = useSelector(
     (state) => state.settings,
   );
@@ -94,9 +94,9 @@ const CheckoutScreen = ({ navigation, route }) => {
       dispatch(userDetailsfetch(userDetails._id));
     }
   }, [isFocused]);
-  const defaddress = userDetails.address_book.filter(
-    ({ _id }) => _id === addressDefault,
-  );
+  const defaddress = !isEmpty(userDetails)
+    ? userDetails.address_book.filter(({ _id }) => _id === addressDefault)
+    : [];
   const onSubmit = (values) => {
     if (isEmpty(initialFormValues._id)) {
       const payload = {
@@ -181,9 +181,7 @@ const CheckoutScreen = ({ navigation, route }) => {
         </>
       ) : (
         <>
-          <LinearGradient
-            colors={[APP_SECONDARY_COLOR, 'white']}
-            style={styles.container}>
+          <View style={styles.container}>
             <ZHeader navigation={navigation} name="Checkout" />
             <View style={styles.container2}>
               <View style={styles.step}>
@@ -315,7 +313,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                 title="Next"
               />
             </ScrollView>
-          </LinearGradient>
+          </View>
         </>
       )}
     </>
@@ -327,6 +325,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // paddingTop: 40,
     paddingBottom: 20,
+    backgroundColor: Colors.whiteColor,
     // paddingHorizontal: 30,
   },
   container2: {

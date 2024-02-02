@@ -21,6 +21,8 @@ import OrderDetailScreen from './account/orderHistoryDetail';
 import EditProfileScreen from './account/editProfile';
 import ChangePasswordScreen from './account/changePassword';
 import UserEntry from './account/loginsignup';
+import Splash from './splash';
+import Shop from './shop';
 export {
   HomeScreen,
   CartScreen,
@@ -45,4 +47,6 @@ export {
   ChangePasswordScreen,
   UserEntry,
   Temp,
+  Splash,
+  Shop,
 };

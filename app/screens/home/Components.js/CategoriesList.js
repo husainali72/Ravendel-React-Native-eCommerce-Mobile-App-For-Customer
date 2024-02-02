@@ -48,7 +48,7 @@ function CategoryItem({ category, navigateNextScreen }) {
       onPress={() => navigateNextScreen(category)}
       activeOpacity={0.5}
       style={styles.categoryItem}>
-      {console.log(URL + category.image, 'imm')}
+      {/* {console.log(URL + category.image, 'imm')} */}
       <Image
         source={{
           uri: !isEmpty(category.image)

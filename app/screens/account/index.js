@@ -10,7 +10,6 @@ import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { LogOut } from '../../store/reducers/loginReducer';
-import LinearGradient from 'react-native-linear-gradient';
 import {
   APP_PRIMARY_COLOR,
   APP_SECONDARY_COLOR,
@@ -20,6 +19,9 @@ import AIcon from 'react-native-vector-icons/AntDesign';
 import FIcon from 'react-native-vector-icons/Feather';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { GREYTEXT } from '../../utils/config';
+import Colors from '../../constants/Colors';
+import Header from '../components/Header';
+import Styles from '../../Theme';
 
 const AccountScreen = ({ navigation }) => {
   const isLoggin = useSelector((state) => state.customer.isLoggin);
@@ -30,12 +32,8 @@ const AccountScreen = ({ navigation }) => {
   };
   return (
     <>
-      {/* <AHeader title="Account" /> */}
-      <LinearGradient
-        colors={[APP_SECONDARY_COLOR, 'white']}
-        style={{ flex: 1 }}>
-        <ZHeader navigation={navigation} name={'My Account'} />
-
+      <View style={Styles.mainContainer}>
+        <Header navigation={navigation} title={'My Account'} />
         {isLoggin ? (
           <>
             <View
@@ -213,7 +211,7 @@ const AccountScreen = ({ navigation }) => {
             </AppInfo>
           </AppFooter>
         </UserSection>
-      </LinearGradient>
+      </View>
     </>
   );
 };

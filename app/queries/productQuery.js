@@ -9,7 +9,9 @@ const GET_PRODUCTS = gql`
         categoryId {
           id
           name
+          __typename
         }
+        rating
         url
         sku
         description
@@ -19,24 +21,40 @@ const GET_PRODUCTS = gql`
         gallery_image
         meta
         shipping
-        tax_class
+        taxClass
         status
         featured_product
         product_type
         custom_field
+        attribute
+        attribute_master {
+          id
+          name
+          attribute_values
+          createdAt
+          updatedAt
+        }
         date
         updated
         short_description
+        __typename
       }
+      message {
+        success
+        message
+        __typename
+      }
+      __typename
     }
   }
 `;
 
 const GET_PRODUCT = gql`
-  query ($id: ID!) {
-    product(id: $id) {
+  query ($url: String!) {
+    productbyurl(url: $url) {
       data {
         _id
+        rating
         name
         url
         sku
@@ -44,24 +62,54 @@ const GET_PRODUCT = gql`
         quantity
         pricing
         feature_image
+        brand {
+          id
+          name
+        }
         gallery_image
         meta
         shipping
-        tax_class
+        taxClass
         status
         featured_product
         product_type
         custom_field
         date
         updated
+        attribute
+        attribute_master {
+          id
+          name
+          attribute_values
+          createdAt
+          updatedAt
+        }
         categoryId {
           id
           name
+          __typename
+        }
+        variation_master {
+          id
+          productId
+          combination
+          quantity
+          sku
+          image
+          pricing
+          createdAt
+          updatedAt
         }
         short_description
         variant
-        rating
+        __typename
       }
+      message {
+        message
+        success
+        __typename
+      }
+      __typename
     }
   }
 `;
@@ -100,6 +148,48 @@ const GET_ALL_CATEGORIES = gql`
       date
       updated
     }
+  }
+`;
+
+export const GET_FILTEREDPRODUCTS = gql`
+  query ($filter: customObject) {
+    filteredProducts(filter: $filter) {
+      ...ProductTile
+      __typename
+    }
+  }
+
+  fragment ProductTile on Product {
+    _id
+    name
+    url
+    pricing
+    quantity
+    rating
+    feature_image
+    status
+    brand {
+      id
+      name
+      __typename
+    }
+    attribute_master {
+      id
+      name
+      attribute_values
+      createdAt
+      updatedAt
+    }
+    categoryId {
+      id
+      name
+      __typename
+    }
+    attribute
+
+    shipping
+    taxClass
+    __typename
   }
 `;
 
@@ -147,20 +237,29 @@ const GET_CAT_PRODUCTS = gql`
 `;
 
 const GET_PRODUCT_REVIEWS = gql`
-  query ($product_id: ID!) {
-    productwisereview(product_id: $product_id) {
+  query ($id: ID!) {
+    productwisereview(productId: $id) {
       data {
+        id
         title
-        customer_id {
+        customerId {
           id
-          first_name
+          firstName
+        }
+        productId {
+          _id
+          name
         }
         email
         review
         rating
+        status
         date
         updated
-        status
+      }
+      message {
+        message
+        success
       }
     }
   }
@@ -292,6 +391,30 @@ const FEATURE_CATEGORY = gql`
       variant
     }
   }
+`;
+
+const ATTRIBUTE_TILE = gql`
+  fragment AttributeTile on productAttribute {
+    id
+    name
+    values
+    date
+    updated
+  }
+`;
+export const GET_ATTRIBUTES = gql`
+  {
+    productAttributes {
+      data {
+        ...AttributeTile
+      }
+      message {
+        message
+        success
+      }
+    }
+  }
+  ${ATTRIBUTE_TILE}
 `;
 
 export {

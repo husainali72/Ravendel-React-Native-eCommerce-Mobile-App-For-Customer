@@ -32,9 +32,10 @@ import {
   REMOVE_ITEM_IN_CART,
 } from '../../store/action/cartAction';
 import { ProductPriceText } from '../components';
-import LinearGradient from 'react-native-linear-gradient';
 import { APP_SECONDARY_COLOR, FontStyle } from '../../utils/config';
 import AIcon from 'react-native-vector-icons/AntDesign';
+import Colors from '../../constants/Colors';
+import Header from '../components/Header';
 
 const CartScreen = ({ navigation }) => {
   // React.useLayoutEffect(() => {
@@ -302,13 +303,8 @@ const CartScreen = ({ navigation }) => {
   return (
     <>
       {loadingproduct || loading ? <AppLoader /> : null}
-      <View style={styles.header}>
-        <AIcon name="arrowleft" size={25} />
-        <Icon name="trash" color={'red'} size={20} />
-      </View>
-      <LinearGradient
-        colors={[APP_SECONDARY_COLOR, 'white']}
-        style={styles.container}>
+      <Header navigation={navigation} title={'My Cart'} />
+      <View style={styles.container}>
         <>
           {cartProducts && cartProducts.length ? (
             <>
@@ -327,7 +323,10 @@ const CartScreen = ({ navigation }) => {
                               routes: [
                                 {
                                   name: 'SingleProduct',
-                                  params: { productID: product._id },
+                                  params: {
+                                    productID: product._id,
+                                    productUrl: product.url,
+                                  },
                                 },
                               ],
                             },
@@ -365,8 +364,8 @@ const CartScreen = ({ navigation }) => {
                           <AText color="#fff">
                             <AIcon
                               color={'#72787e'}
-                              name="minuscircleo"
-                              size={12}
+                              name="minussquare"
+                              size={16}
                             />
                           </AText>
                         </QtyButton>
@@ -377,8 +376,8 @@ const CartScreen = ({ navigation }) => {
                           <AText color="#fff">
                             <AIcon
                               color={'#72787e'}
-                              name="pluscircleo"
-                              size={12}
+                              name="plussquare"
+                              size={16}
                             />
                           </AText>
                         </QtyButton>
@@ -399,6 +398,41 @@ const CartScreen = ({ navigation }) => {
                   </RemoveItem>
                 </TouchableOpacity>
               ))}
+              {cartProducts && cartProducts.length > 0 ? (
+                <View
+                  style={{
+                    marginTop: 10,
+                    marginBottom: 26,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginHorizontal: 8,
+                  }}>
+                  <AText color="gray" small fonts={FontStyle.semiBold}>
+                    {cartProducts.length}{' '}
+                    {cartProducts.length > 1 ? 'Items' : 'Item'} in your cart
+                  </AText>
+                  <AText color="gray" small fonts={FontStyle.semiBold}>
+                    Clear
+                  </AText>
+                </View>
+              ) : null}
+              <AInputFeild
+                type="text"
+                value={couponCode}
+                onChangeText={(text) => setCouponCode(text)}
+                placeholder="Enter coupon code"
+              />
+              {couponApplied && <AText>Coupon Applied successfully</AText>}
+              <View style={{ width: '40%', alignSelf: 'flex-end' }}>
+                <AButton
+                  onPress={() => ApplyCoupon()}
+                  round
+                  block
+                  title="Apply Coupon"
+                  small
+                  semi
+                />
+              </View>
             </>
           ) : (
             <EmptyWrapper>
@@ -413,7 +447,7 @@ const CartScreen = ({ navigation }) => {
           )}
           {cartProducts && cartProducts.length ? (
             <>
-              <CouponWrapper
+              {/* <CouponWrapper
                 onPress={() =>
                   couponApplied
                     ? removeCoupon()
@@ -442,10 +476,38 @@ const CartScreen = ({ navigation }) => {
                 <AText medium heavy>
                   {couponApplied ? 'Remove' : 'Select'}
                 </AText>
-              </CouponWrapper>
+              </CouponWrapper> */}
               <CheckoutWrapper>
-                <PriceTotal>
-                  <AText medium>{cartProducts.length} Items</AText>
+                <View style={{ width: '100%', marginBottom: 25 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <AText fonts={FontStyle.semiBold}>Items</AText>
+                    <AText color="gray">$1139.99</AText>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      borderBottomWidth: 0.5,
+                      paddingBottom: 15,
+                    }}>
+                    <AText fonts={FontStyle.semiBold}>Discount</AText>
+                    <AText color="gray">7%</AText>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: 5,
+                    }}>
+                    <AText fonts={FontStyle.semiBold}>Grand Total</AText>
+                    <AText color="gray">$914.00</AText>
+                  </View>
+                </View>
+                {/* <PriceTotal>
                   <PriceWrapper>
                     <AText
                       right
@@ -469,7 +531,7 @@ const CartScreen = ({ navigation }) => {
                       </AText>
                     ) : null}
                   </PriceWrapper>
-                </PriceTotal>
+                </PriceTotal> */}
                 <AButton
                   title="Proceed to Checkout"
                   round
@@ -483,7 +545,7 @@ const CartScreen = ({ navigation }) => {
                           couponCode: couponCode,
                         })
                       : navigation.navigate('AccountWrapper', {
-                          screen: 'Login',
+                          screen: 'LoginSignUp',
                           initial: false,
                         });
                   }}
@@ -492,7 +554,7 @@ const CartScreen = ({ navigation }) => {
             </>
           ) : null}
         </>
-      </LinearGradient>
+      </View>
 
       {/*---------- Add coupon Modal---------- */}
       <Modal
@@ -503,20 +565,24 @@ const CartScreen = ({ navigation }) => {
         {/* <ModalWrapper /> */}
         <ModalConatiner>
           <ModalHeader>
-            <AText center medium heavy>
-              Apply Coupon
-            </AText>
-            <ModalClose>
+            <View style={{ width: '80%' }}>
+              <AText center medium heavy>
+                Apply Coupon
+              </AText>
+            </View>
+            {/* <ModalClose> */}
+            <View style={{ width: '5%' }}>
               <Icon
                 onPress={() => {
                   setCouponModal(false);
-                  alert('iii');
                 }}
                 name="close"
-                size={15}
+                size={22}
                 color="#000"
+                style={{ textAlign: 'right' }}
               />
-            </ModalClose>
+            </View>
+            {/* </ModalClose> */}
           </ModalHeader>
           <ModalBody>
             <AInputFeild
@@ -566,6 +632,8 @@ const ModalHeader = styled.View`
   border-top-right-radius: 25px;
   border-top-left-radius: 25px;
   justify-content: center;
+  align-items: center;
+  flex-direction: row;
 `;
 const ModalBody = styled.View`
   padding: 20px;
@@ -651,19 +719,20 @@ const PriceQtyWrapper = styled.View`
   margin-top: 5px;
 `;
 const QtyWrapper = styled.View`
-  flex-direction: column;
-  margin: 10px 5px;
-  justify-content: space-between;
-  align-items: center;
-  height: 25px;
+  height: 30px;
   overflown: hidden;
-  border-radius: 15px;
-  background: #fff;
+  // width: 110px;
+  margin: 10px 0px;
+  background: white;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  // border-width: 0.5px;
 `;
 const QtyButton = styled.TouchableOpacity`
   background: white;
   height: 100%;
-  width: 25px;
+  // width: 25px;
   border-radius: 5px;
   justify-content: center;
   align-items: center;
@@ -686,6 +755,7 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 20,
     paddingHorizontal: 30,
+    backgroundColor: Colors.whiteColor,
   },
   header: {
     flexDirection: 'row',

@@ -161,3 +161,9 @@ export const formatCurrency = (amt, currencyOptions, currencySymbol) => {
     return `$${amount}`;
   }
 };
+
+export function capitalizeFirstLetter(string) {
+  if (string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+}

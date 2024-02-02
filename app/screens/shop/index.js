@@ -15,7 +15,7 @@ import URL from '../../utils/baseurl';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CommonActions, useIsFocused } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
-import { capitalizeFirstLetter, isEmpty } from '../../utils/helper';
+import { isEmpty } from '../../utils/helper';
 import {
   FlatList,
   ImageBackground,
@@ -39,6 +39,8 @@ import StarRating from 'react-native-star-rating';
 import LinearGradient from 'react-native-linear-gradient';
 import { CAT_PRODUCTS_CLEAR } from '../../store/action/productAction';
 import Colors from '../../constants/Colors';
+import Styles from '../../Theme';
+import Header from '../components/Header';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
@@ -52,6 +54,7 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     (state) => state.products.singleCategoryDetails,
   );
 
+  // console.log(singleCat, singleCatChildern, 'single cateee ');
   const [categorydata, setCategorydata] = useState(null);
   const [optionSelect, setOptionSelect] = useState(['All']);
   const [withChild, setWithChild] = useState([]);
@@ -145,6 +148,7 @@ const SubCategoriesScreen = ({ navigation, route }) => {
   }, [singleCateogry]);
 
   useEffect(() => {
+    console.log('heyy runnin again');
     if (isFocused && singleCat) {
       let filter = {
         category: singleCat.id,
@@ -161,23 +165,23 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         },
         search: '',
       };
-      dispatch(catProductAction(filter, true));
-    } else {
-      console.log('out of foucus runn');
+      dispatch(catProductAction(filter));
+    }
+    // else {
+    //   console.log('out of foucus runn');
+    //   dispatch({
+    //     type: CAT_PRODUCTS_CLEAR,
+    //   });
+    // }
+  }, [isFocused]);
+
+  useEffect(() => {
+    return () => {
       dispatch({
         type: CAT_PRODUCTS_CLEAR,
       });
-    }
-  }, [isFocused]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     console.log('out of foucus runn 2');
-  //     dispatch({
-  //       type: CAT_PRODUCTS_CLEAR,
-  //     });
-  //   };
-  // }, []);
+    };
+  }, []);
 
   useEffect(() => {
     console.log(selectedCat);
@@ -198,11 +202,55 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         search: '',
       };
       console.log(filter, 'filter single id');
-      dispatch(catProductAction(filter, true));
+      dispatch(catProductAction(filter));
     } else {
-      dispatch(catProductAction(singleCat?.id, true));
+      dispatch(catProductAction(singleCat?.id));
     }
   }, [selectedCat]);
+
+  // const HeaderContent = () => (
+  //   <ARow
+  //     ml="30px"
+  //     mr="30px"
+  //     mt={'50px'}
+  //     row
+  //     justifyContent="space-between"
+  //     alignItems="center"
+  //     position="relative">
+  //     <View style={{ width: '65%', justifyContent: 'center' }}>
+  //       <Icon
+  //         style={styles.iconstyle}
+  //         name={'search'}
+  //         size={15}
+  //         color={'black'}
+  //       />
+  //       <TextInput
+  //         height={30}
+  //         bc={'#E0E0E0'}
+  //         value={inpvalue}
+  //         onchange={handleinpiut}
+  //         padding={0}
+  //         pl={35}
+  //         inputBgColor={'#e4ffff'}
+  //         fs={12}
+  //         placeholder={'Search'}
+  //         placeholdercolor={'black'}
+  //         br={30}
+  //       />
+  //     </View>
+  //     <View style={styles.filterstyle}>
+  //       <AIcon
+  //         onPress={() => handlesearch()}
+  //         name={'filter'}
+  //         size={20}
+  //         color={'black'}
+  //       />
+  //       <AText color="black" ml="10px">
+  //         Filter
+  //       </AText>
+  //     </View>
+  //   </ARow>
+  // );
 
   function renderItem({ item }) {
     return (
@@ -285,136 +333,133 @@ const SubCategoriesScreen = ({ navigation, route }) => {
   }
 
   return (
-    <>
-      <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
-        <View style={styles.header}>
-          <AIcon
-            onPress={() => navigation.navigate('Home')}
-            name="arrowleft"
-            size={22}
-          />
+    <View style={Styles.mainContainer}>
+      <Header navigation={navigation} title={'Shop'} />
+      {/* <View style={styles.header}>
+          <TouchableOpacity style={{ marginTop: 10 }} onPress={handlePress}>
+            <View style={Styles.bar1}></View>
+            <View style={Styles.bar2}></View>
+          </TouchableOpacity>
           <AText fonts={FontStyle.semiBold} ml="20px">
-            {capitalizeFirstLetter(singleCat.url)}
+            Shop
+          </AText>
+        </View> */}
+      <ARow
+        ml="30px"
+        mr="30px"
+        mt={'50px'}
+        row
+        justifyContent="space-between"
+        alignItems="center"
+        position="relative">
+        <View style={{ width: '65%', justifyContent: 'center' }}>
+          <Icon
+            style={styles.iconstyle}
+            name={'search'}
+            size={15}
+            color={'black'}
+          />
+          <TextInput
+            height={30}
+            bc={'#E0E0E0'}
+            value={inpvalue}
+            onchange={handleinpiut}
+            padding={0}
+            pl={35}
+            inputBgColor={Colors.whiteColor}
+            fs={12}
+            placeholder={'Search'}
+            placeholdercolor={'black'}
+            br={30}
+          />
+        </View>
+        <View style={styles.filterstyle}>
+          <AIcon
+            onPress={() => handlesearch()}
+            name={'filter'}
+            size={20}
+            color={'black'}
+          />
+          <AText color="black" ml="10px">
+            Filter
           </AText>
         </View>
-        <ARow
-          ml="30px"
-          mr="30px"
-          mt={'50px'}
-          row
-          justifyContent="space-between"
-          alignItems="center"
-          position="relative">
-          <View style={{ width: '65%', justifyContent: 'center' }}>
-            <Icon
-              style={styles.iconstyle}
-              name={'search'}
-              size={15}
-              color={'black'}
-            />
-            <TextInput
-              height={30}
-              bc={'#E0E0E0'}
-              value={inpvalue}
-              onchange={handleinpiut}
-              padding={0}
-              pl={35}
-              inputBgColor={Colors.whiteColor}
-              fs={12}
-              placeholder={'Search'}
-              placeholdercolor={'black'}
-              br={30}
-            />
-          </View>
-          <View style={styles.filterstyle}>
-            <AIcon
-              onPress={() => handlesearch()}
-              name={'filter'}
-              size={20}
-              color={'black'}
-            />
-            <AText color="black" ml="10px">
-              Filter
+      </ARow>
+      {/* <HeaderContent /> */}
+      <View style={{ paddingHorizontal: 30 }}>
+        <ScrollView
+          contentContainerStyle={{
+            marginTop: 20,
+            flexDirection: 'row',
+            alignItems: 'space-between',
+            justifyContent: 'space-between',
+          }}
+          scrollEnabled={true}
+          keyboardShouldPersistTaps="always"
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}>
+          <AButton
+            semi
+            mr="8px"
+            title={'All'}
+            onPress={() => handleselectedCat('All', null)}
+            bgColor={'All' == selectedCat ? APP_PRIMARY_COLOR : 'transparent'}
+            color={'All' == selectedCat ? 'white' : 'black'}
+            round
+            minor={windowWidth < 330 ? true : false}
+            small={windowWidth < 400 && windowWidth > 330 ? true : false}
+            extramedium={windowWidth > 400 ? true : false}
+            xtrasmall
+            borderColor={'transparent'}
+          />
+          {/* {console.log(withChild, 'wothchaild')} */}
+          {withChild.map((item) => (
+            <>
+              <AButton
+                semi
+                mr="8px"
+                key={item.id}
+                title={item.name}
+                onPress={() => handleselectedCat(item.url, item.id)}
+                bgColor={
+                  item.url == selectedCat ? APP_PRIMARY_COLOR : 'transparent'
+                }
+                color={item.url == selectedCat ? 'white' : 'black'}
+                round
+                minor={windowWidth < 330 ? true : false}
+                small={windowWidth < 400 && windowWidth > 330 ? true : false}
+                extramedium={windowWidth > 400 ? true : false}
+                xtrasmall
+                borderColor={'transparent'}
+              />
+            </>
+          ))}
+        </ScrollView>
+      </View>
+      {/* {console.log(categorydata, 'catteee data')} */}
+      <FlatList
+        numColumns={2}
+        data={categorydata}
+        snapToAlignment="center"
+        keyExtractor={(item) => item._id}
+        renderItem={renderItem}
+        columnWrapperStyle={{ justifyContent: 'space-between' }}
+        contentContainerStyle={{
+          marginTop: 10,
+          flexDirection: 'column',
+          margin: 'auto',
+          marginHorizontal: 30,
+        }}
+        ListEmptyComponent={() => (
+          <View>
+            <AText style={{ fontSize: 16, alignSelf: 'center', color: 'grey' }}>
+              No Records Found
             </AText>
           </View>
-        </ARow>
-        {/* <HeaderContent /> */}
-        <View style={{ paddingHorizontal: 30 }}>
-          <ScrollView
-            contentContainerStyle={{
-              marginTop: 20,
-              flexDirection: 'row',
-              alignItems: 'space-between',
-              justifyContent: 'space-between',
-            }}
-            scrollEnabled={true}
-            keyboardShouldPersistTaps="always"
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}>
-            <AButton
-              semi
-              mr="8px"
-              title={'All'}
-              onPress={() => handleselectedCat('All', null)}
-              bgColor={'All' == selectedCat ? APP_PRIMARY_COLOR : 'transparent'}
-              color={'All' == selectedCat ? 'white' : 'black'}
-              round
-              minor={windowWidth < 330 ? true : false}
-              small={windowWidth < 400 && windowWidth > 330 ? true : false}
-              extramedium={windowWidth > 400 ? true : false}
-              xtrasmall
-              borderColor={'transparent'}
-            />
-            {/* {console.log(withChild, 'wothchaild')} */}
-            {withChild.map((item) => (
-              <>
-                <AButton
-                  semi
-                  mr="8px"
-                  key={item.id}
-                  title={item.name}
-                  onPress={() => handleselectedCat(item.url, item.id)}
-                  bgColor={
-                    item.url == selectedCat ? APP_PRIMARY_COLOR : 'transparent'
-                  }
-                  color={item.url == selectedCat ? 'white' : 'black'}
-                  round
-                  minor={windowWidth < 330 ? true : false}
-                  small={windowWidth < 400 && windowWidth > 330 ? true : false}
-                  extramedium={windowWidth > 400 ? true : false}
-                  xtrasmall
-                  borderColor={'transparent'}
-                />
-              </>
-            ))}
-          </ScrollView>
-        </View>
-        {/* {console.log(categorydata, 'catteee data')} */}
-        <FlatList
-          numColumns={2}
-          data={categorydata}
-          snapToAlignment="center"
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
-          contentContainerStyle={{
-            marginTop: 10,
-            flexDirection: 'column',
-            margin: 'auto',
-            marginHorizontal: 30,
-          }}
-          ListEmptyComponent={() => (
-            <View>
-              <AText
-                style={{ fontSize: 16, alignSelf: 'center', color: 'grey' }}>
-                No Records Found
-              </AText>
-            </View>
-          )}
-        />
-        {/* {withChild.length ? menuListing(withChild) : null} */}
-      </View>
-    </>
+        )}
+      />
+      {/* {withChild.length ? menuListing(withChild) : null} */}
+    </View>
   );
 };
 const styles = StyleSheet.create({

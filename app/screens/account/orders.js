@@ -19,11 +19,12 @@ import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import URL from '../../utils/baseurl';
 import { useIsFocused } from '@react-navigation/native';
-import { Modal, StyleSheet } from 'react-native';
+import { Modal, StyleSheet, View } from 'react-native';
 import moment from 'moment';
-import LinearGradient from 'react-native-linear-gradient';
 import { APP_PRIMARY_COLOR, APP_SECONDARY_COLOR } from '../../utils/config';
 import { ScrollView } from 'react-native-gesture-handler';
+import Colors from '../../constants/Colors';
+import Header from '../components/Header';
 
 const OrderScreen = ({ navigation }) => {
   const { userDetails, isLoggin } = useSelector((state) => state.customer);
@@ -56,10 +57,8 @@ const OrderScreen = ({ navigation }) => {
   return (
     <>
       {loadingproduct || loading ? <AppLoader /> : null}
-      <LinearGradient
-        colors={[APP_SECONDARY_COLOR, 'white']}
-        style={styles.container}>
-        <ZHeader navigation={navigation} name="Orders" back />
+      <View style={styles.container}>
+        <Header navigation={navigation} title="Orders" />
         <ScrollView>
           <>
             {cartProducts && cartProducts.length ? (
@@ -186,7 +185,7 @@ const OrderScreen = ({ navigation }) => {
             )}
           </>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </>
   );
 };
@@ -255,6 +254,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // paddingTop: 40,
     paddingBottom: 20,
+    backgroundColor: Colors.whiteColor,
     // paddingHorizontal: 30,
   },
 });

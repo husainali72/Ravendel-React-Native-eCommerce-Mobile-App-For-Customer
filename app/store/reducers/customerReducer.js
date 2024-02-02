@@ -34,7 +34,7 @@ export default (state = initialState, action) => {
     case USER:
       return {
         ...state,
-        userDetails: action.payload.userDetails,
+        userDetails: action.payload,
         isLoggin: true,
       };
     case USER_ALREADY_HAS_LOGIN:

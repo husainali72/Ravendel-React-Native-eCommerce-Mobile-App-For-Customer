@@ -6,17 +6,15 @@ import {
   ARow,
   TextInput,
 } from '../../theme-components';
-// import LinearGradient from 'react-native-linear-gradient';
-import styled from 'styled-components/native';
 import { useFormik } from 'formik';
 import { loginValidationSchema } from '../checkout/validationSchema';
 import { useDispatch, useSelector } from 'react-redux';
 import { LoginAction } from '../../store/action';
 import { TouchableOpacity, View } from 'react-native';
-import { APP_SECONDARY_COLOR } from '../../utils/config';
+import { APP_PRIMARY_COLOR } from '../../utils/config';
 const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const loading = useSelector((state) => state.login.loading);
+
   const sendValues = (values) => {
     dispatch(LoginAction(values.email, values.password, navigation));
   };
@@ -30,14 +28,14 @@ const LoginScreen = ({ navigation }) => {
     onSubmit: (values, { setSubmitting, resetForm }) => {
       setSubmitting(false);
       sendValues(values);
-      resetForm({ values: '' });
+      // resetForm({ values: '' });
     },
   });
   return (
     <>
-      {loading ? <AppLoader /> : null}
       <ARow mb="10px" mt="30px">
         <TextInput
+          color={'#000'}
           padding={0}
           onchange={formik.handleChange('email')}
           bw={0}
@@ -56,6 +54,7 @@ const LoginScreen = ({ navigation }) => {
       </ARow>
       <ARow>
         <TextInput
+          color={'#000'}
           iconColor={'#9F9F9F'}
           bw={0}
           placeholder={'Enter Password'}
@@ -100,34 +99,5 @@ const LoginScreen = ({ navigation }) => {
     </>
   );
 };
-
-const LoginContainer = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-`;
-const LoginInner = styled.View`
-  width: 90%;
-  padding: 20px;
-`;
-
-const CustomInput = styled.TextInput`
-  height: 40px;
-  background: rgba(0, 0, 0, 0.2);
-  color: #000;
-  border-radius: 5px;
-`;
-const InputWrapper = styled.View`
-  margin-bottom: 15px;
-  padding: 0 5px;
-`;
-const FormBottom = styled.View`
-  margin-top: 5px;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-`;
-const FormLink = styled.TouchableOpacity``;
 
 export default LoginScreen;

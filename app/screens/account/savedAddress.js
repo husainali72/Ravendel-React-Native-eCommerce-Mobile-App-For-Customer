@@ -23,9 +23,9 @@ import {
 } from '../../store/action';
 import { AdressForm } from '../components';
 import { APP_SECONDARY_COLOR, FontStyle, GREYTEXT } from '../../utils/config';
-import LinearGradient from 'react-native-linear-gradient';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import Header from '../../theme-components/SimpleHeader';
+import Colors from '../../constants/Colors';
 
 const SavedAddressScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -178,9 +178,7 @@ const SavedAddressScreen = ({ navigation, route }) => {
       ) : (
         <>
           {/* <AHeader navigation={navigation} title="Saved Addresses" back /> */}
-          <LinearGradient
-            colors={[APP_SECONDARY_COLOR, 'white']}
-            style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
             <ZHeader navigation={navigation} name={'My Account'} />
 
             <ScrollView
@@ -246,7 +244,7 @@ const SavedAddressScreen = ({ navigation, route }) => {
                 ))}
               </AddressWrapper>
             </ScrollView>
-          </LinearGradient>
+          </View>
         </>
       )}
       {/* </CheckouWrapper> */}

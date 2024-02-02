@@ -22,7 +22,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import GalleryImagesSlider from './galleryImages';
 import HTMLView from 'react-native-htmlview';
-import { Modal, ScrollView, StyleSheet } from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  Modal,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 import StarRating from 'react-native-star-rating';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isEmpty } from '../../utils/helper';
@@ -34,6 +40,7 @@ import moment from 'moment';
 import { reviewValidationSchema } from '../checkout/validationSchema';
 import { Formik } from 'formik';
 import { FontStyle } from '../../utils/config';
+import Colors from '../../constants/Colors';
 
 var reviewObject = {
   title: '',
@@ -45,6 +52,8 @@ var reviewObject = {
   product_id: '',
 };
 
+const { height: windowHeight, width: windowWidth } = Dimensions.get('window');
+
 const SingleProductScreen = ({ navigation, route }) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -53,6 +62,7 @@ const SingleProductScreen = ({ navigation, route }) => {
   }, [navigation]);
 
   const ProductId = route.params.productID;
+  const ProductUrl = route.params.productUrl;
   const [review, setReview] = useState(reviewObject);
   const SingleProduct = useSelector((state) => state.products.product);
   const { user_token } = useSelector((state) => state.login);
@@ -70,6 +80,9 @@ const SingleProductScreen = ({ navigation, route }) => {
   const [itemInCart, setItemInCart] = useState(false);
   const { cartId } = useSelector((state) => state.cart);
   const [singleProductLoading, setSingleProductLoading] = useState(true);
+  // const [scrollViewHeight, setScrollViewHeight] = useState('45%');
+  const [scrollY] = useState(new Animated.Value(0));
+
   const [cartQuantity, setCartQuantity] = useState(1);
   useEffect(() => {
     navigation.addListener('focus', () => {
@@ -80,7 +93,8 @@ const SingleProductScreen = ({ navigation, route }) => {
         email: userDetails.email,
       });
       setSingleProductLoading(true);
-      dispatch(productAction(ProductId));
+      console.log(ProductUrl, 'pro id');
+      dispatch(productAction(ProductUrl));
       dispatch(productReviewsAction(ProductId));
       setSingleProductLoading(false);
     });
@@ -225,6 +239,27 @@ const SingleProductScreen = ({ navigation, route }) => {
       ]);
     }
   };
+
+  // const handleScroll = (event) => {
+  //   const offsetY = event.nativeEvent.contentOffset.y;
+  //   console.log(offsetY, 'oooo');
+  //   // Adjust the height based on the scroll offset
+  //   const newHeight = offsetY > 0 ? '85%' : '45%';
+  //   console.log(newHeight, 'pppplll');
+  //   setScrollViewHeight(newHeight);
+  // };
+
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    { useNativeDriver: false }, // Set to true if using reanimated
+  );
+
+  const scrollViewHeight = scrollY.interpolate({
+    inputRange: [0, windowHeight * 0.5],
+    outputRange: [windowHeight * 0.5, windowHeight],
+    extrapolate: 'clamp',
+  });
+  console.log(scrollViewHeight, 'ssc');
   return (
     <>
       {singleProductLoading || Loading ? <AppLoader /> : null}
@@ -238,17 +273,26 @@ const SingleProductScreen = ({ navigation, route }) => {
                 name="arrowleft"
                 size={25}
               />
-              <Icon name="heart-o" color={'red'} size={20} />
+              {/* <Icon name="heart-o" color={'red'} size={20} /> */}
             </View>
             {/* ===============Featured Images============= */}
             <GallerySliderWrapper>
               <GalleryImagesSlider images={sliderImages} />
             </GallerySliderWrapper>
-            <ScrollView
+            <Animated.ScrollView
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                {
+                  useNativeDriver: false,
+                },
+              )}
+              scrollEventThrottle={16}
               scrollEnabled={true}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 30 }}
-              style={styles.infostyle}>
+              contentContainerStyle={{
+                paddingBottom: 30,
+              }}
+              style={{ ...styles.infostyle, height: scrollViewHeight }}>
               {/* ===============Product Price============= */}
               <ProductPriceText Pricing={SingleProduct.pricing} />
 
@@ -299,6 +343,40 @@ const SingleProductScreen = ({ navigation, route }) => {
                       ? 'Available in stock'
                       : 'Out of stock'}
                   </AText>
+                  {((!isEmpty(SingleProduct.quantity) &&
+                    SingleProduct.quantity > 0) ||
+                    !manage_stock) && (
+                    <>
+                      {/* <AText fonts={FontStyle.semiBold} large>
+                        Quantity
+                      </AText> */}
+                      <QtyWrapper>
+                        <QtyButton
+                          onPress={() => {
+                            cartQuantity > 1 &&
+                              setCartQuantity(cartQuantity - 1);
+                          }}>
+                          <AText color="#72787e">
+                            <AIcon size={16} name="minussquare" />
+                          </AText>
+                        </QtyButton>
+                        <AText medium bold ml="7px" mr="7px">
+                          {cartQuantity}
+                        </AText>
+                        <QtyButton
+                          onPress={() => {
+                            ((!isEmpty(SingleProduct.quantity) &&
+                              cartQuantity < SingleProduct.quantity) ||
+                              !manage_stock) &&
+                              setCartQuantity(cartQuantity + 1);
+                          }}>
+                          <AText color="#72787e">
+                            <AIcon size={16} name="plussquare" />
+                          </AText>
+                        </QtyButton>
+                      </QtyWrapper>
+                    </>
+                  )}
                 </View>
               </View>
 
@@ -316,39 +394,7 @@ const SingleProductScreen = ({ navigation, route }) => {
                 SKU:{SingleProduct.sku}
               </AText>
               {/* ==================Product Quantity============================ */}
-              {((!isEmpty(SingleProduct.quantity) &&
-                SingleProduct.quantity > 0) ||
-                !manage_stock) && (
-                <>
-                  <AText fonts={FontStyle.semiBold} large>
-                    Quantity
-                  </AText>
-                  <QtyWrapper>
-                    <QtyButton
-                      onPress={() => {
-                        cartQuantity > 1 && setCartQuantity(cartQuantity - 1);
-                      }}>
-                      <AText color="#72787e">
-                        <AIcon name="minuscircleo" />
-                      </AText>
-                    </QtyButton>
-                    <AText medium bold ml="7px" mr="7px">
-                      {cartQuantity}
-                    </AText>
-                    <QtyButton
-                      onPress={() => {
-                        ((!isEmpty(SingleProduct.quantity) &&
-                          cartQuantity < SingleProduct.quantity) ||
-                          !manage_stock) &&
-                          setCartQuantity(cartQuantity + 1);
-                      }}>
-                      <AText color="#72787e">
-                        <AIcon name="pluscircleo" />
-                      </AText>
-                    </QtyButton>
-                  </QtyWrapper>
-                </>
-              )}
+
               {/* ========================Custom Field================================ */}
               {!isEmpty(SingleProduct.custom_field) &&
                 SingleProduct.custom_field.length > 0 && (
@@ -373,34 +419,6 @@ const SingleProductScreen = ({ navigation, route }) => {
                   </CollapseWrapper>
                 )}
 
-              {/* ===============Product Description============= */}
-              {/* {SingleProduct.description ? (
-                <CollapseWrapper>
-                  <CollapseTitle
-                    onPress={() =>
-                      setDescriptionCollapse(!descriptionCollapse)
-                    }>
-                    <AText bold>Description</AText>
-                    <CollapseIcon>
-                      {descriptionCollapse ? (
-                        <Icon name="chevron-up" color="#000" />
-                      ) : (
-                        <Icon name="chevron-down" color="#000" />
-                      )}
-                    </CollapseIcon>
-                  </CollapseTitle>
-                  <CollapseContainer
-                    // eslint-disable-next-line react-native/no-inline-styles
-                    style={{
-                      display: descriptionCollapse ? 'flex' : 'none',
-                    }}>
-                    <>
-                      <HTMLView value={SingleProduct.description} />
-                    </>
-                  </CollapseContainer>
-                </CollapseWrapper>
-              ) : null} */}
-
               {/* ===============Product Reviews============= */}
               <CollapseWrapper>
                 <CollapseTitle
@@ -419,12 +437,30 @@ const SingleProductScreen = ({ navigation, route }) => {
                   style={{
                     display: reviewcollapse ? 'flex' : 'none',
                   }}>
-                  {isLoggin && (
-                    <WriteReview onPress={() => setWriteReviewPop(true)}>
-                      <AText color="#eb3349" right>
-                        Write your Review
-                      </AText>
-                    </WriteReview>
+                  {true && (
+                    <>
+                      <View
+                        style={{
+                          width: '40%',
+                          alignSelf: 'flex-end',
+                          marginBottom: 10,
+                        }}>
+                        <AButton
+                          title={'Add a review'}
+                          round
+                          onPress={() =>
+                            isLoggin
+                              ? setWriteReviewPop(true)
+                              : navigation.navigate('AccountWrapper', {
+                                  screen: 'LoginSignUp',
+                                  initial: false,
+                                })
+                          }
+                          small
+                          semi
+                        />
+                      </View>
+                    </>
                   )}
                   <>
                     {ReviewProduct &&
@@ -446,7 +482,7 @@ const SingleProductScreen = ({ navigation, route }) => {
                                 </AText>
                               </Reviewrating>
                               <AText bold center>
-                                {singleReview.customer_id.first_name}
+                                {singleReview.customerId.firstName}
                               </AText>
                             </ReveiwHeading>
                             <AText small>
@@ -460,9 +496,17 @@ const SingleProductScreen = ({ navigation, route }) => {
                         </ReviewWrapper>
                       ))
                     ) : (
-                      <AText small center>
-                        There are no reviews yet. Be the first one to write one.
-                      </AText>
+                      <>
+                        <AText
+                          bbc={Colors.blackColor}
+                          bbw={'0.5px'}
+                          pb="8px"
+                          small
+                          center>
+                          There are no reviews yet. Be the first one to write
+                          one.
+                        </AText>
+                      </>
                     )}
                   </>
                 </CollapseContainer>
@@ -485,7 +529,7 @@ const SingleProductScreen = ({ navigation, route }) => {
                   />
                 )}
               </AddToCartWrapper>
-            </ScrollView>
+            </Animated.ScrollView>
           </View>
 
           {/* ===============Add To Cart============= */}
@@ -512,7 +556,9 @@ const SingleProductScreen = ({ navigation, route }) => {
             <AText center medium heavy>
               Write a Review
             </AText>
-            <ModalClose onPress={() => setWriteReviewPop(false)}>
+            <ModalClose
+              style={{ zIndex: 20 }}
+              onPress={() => setWriteReviewPop(false)}>
               <Icon name="close" size={15} color="#000" />
             </ModalClose>
           </ModalHeader>
@@ -546,9 +592,9 @@ const SingleProductScreen = ({ navigation, route }) => {
                     </AText>
                   )}
                   <ATextarea
-                    multiline
                     value={values.review}
-                    rows="4"
+                    numberOfLines={5}
+                    multiline={true}
                     onChangeText={handleChange('review')}
                     placeholder="Review"
                     textAlignVertical="top"
@@ -598,13 +644,13 @@ const SingleProductScreen = ({ navigation, route }) => {
 const QtyWrapper = styled.View`
   height: 30px;
   overflown: hidden;
-  width: 110px;
+  // width: 110px;
   margin: 10px 0px;
   background: white;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  border-width: 0.5px;
+  // border-width: 0.5px;
 `;
 const QtyButton = styled.TouchableOpacity`
   background: #fff;
@@ -636,6 +682,7 @@ const ModalConatiner = styled.ScrollView`
   border-top-left-radius: 25px;
   box-shadow: 15px 5px 15px #000;
   elevation: 15;
+  z-index: 1;
 `;
 const ModalClose = styled.TouchableOpacity`
   background: #fff;
@@ -703,8 +750,6 @@ const InnerConatiner = styled.ScrollView`
 const GallerySliderWrapper = styled.View`
   height: 60%;
   background: white;
-  //   border-bottom-color: #000;
-  //   border-bottom-width: 0.5px;
 `;
 const ProductPrice = styled.View``;
 const ProductName = styled.View`
@@ -715,7 +760,7 @@ const CollapseWrapper = styled.View`
   flex: 1;
 `;
 const CollapseContainer = styled.View`
-  background-color: #f7f7f7;
+  background-color: ${Colors.whiteColor};
   padding: 10px 10px 20px 10px;
   border-radius: 15px;
 `;
@@ -796,7 +841,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     width: '100%',
     flex: 1,
-    height: '45%',
     elevation: 6,
   },
   starstyle: {

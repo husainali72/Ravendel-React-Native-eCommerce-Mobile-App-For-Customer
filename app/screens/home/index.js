@@ -52,6 +52,9 @@ import ImageSlider from './Components.js/CustomSlider';
 import CardContainer from './Components.js/RandomCard';
 import { ALREADY_HAS_LOGIN } from '../../store/action/loginAction';
 import { USER_ALREADY_HAS_LOGIN } from '../../store/action/customerAction';
+import Colors from '../../constants/Colors';
+import Header from '../components/Header';
+import Styles from '../../Theme';
 
 const HomeScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
@@ -79,7 +82,7 @@ const HomeScreen = ({ navigation }) => {
     brands,
     appTitle,
   } = useSelector((state) => state.settings);
-  console.log('prod', recentAddedProduct, 'hooo');
+  // console.log('prod', recentAddedProduct, 'hooo');
   const primaryColor = '#000';
   const settingLoading = useSelector((state) => state.settings.loading);
 
@@ -121,7 +124,7 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(brandAction());
-    console.log(homeData, 'homedaata');
+    // console.log(homeData, 'homedaata');
     if (!isEmpty(homeData)) {
       const featuredProduct = homeData.filter(
         (section) => section.label === 'Featured Product',
@@ -243,27 +246,35 @@ const HomeScreen = ({ navigation }) => {
     if (!isEmpty(category.children)) {
       nestedCategory = category.children;
     }
+    // console.log(JSON.stringify(category), 'this category going in subcategory');
     navigation.navigate('CateGories', {
       screen: navigateTo,
       initial: false,
       params: { singleCategory: category, withChildern: nestedCategory },
     });
   };
+  console.log(settingLoading, ' ---- ', catLoading);
   return (
-    <>
+    <View style={Styles.mainContainer}>
       {settingLoading && catLoading ? <AppLoader /> : null}
       <StatusBar backgroundColor={APP_PRIMARY_COLOR} />
-      <View style={styles.headerstyle}>
-        <TouchableOpacity style={{ marginTop: 10 }} onPress={handlePress}>
+      <Header showProfileIcon navigation={navigation} title={''} />
+      <View style={styles.searchstyle}>
+        {/* <TouchableOpacity style={{ marginTop: 10 }} onPress={handlePress}>
           <View style={{ ...styles.barstyle, width: 35 }}></View>
           <View style={{ ...styles.barstyle, width: 25 }}></View>
         </TouchableOpacity>
-        <View style={{ ...styles.profileimgstyle, elevation: 5 }}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() =>
+            navigation.navigate('AccountWrapper', { screen: 'Accounts' })
+          }
+          style={{ ...styles.profileimgstyle, elevation: 5 }}>
           <Image
             style={styles.profileimgstyle}
             source={require('../../assets/images/man.png')}
           />
-        </View>
+        </TouchableOpacity> */}
         <ARow mt={'10px'} row alignItems="center" position="relative">
           <Icon
             style={styles.iconstyle}
@@ -278,7 +289,7 @@ const HomeScreen = ({ navigation }) => {
             onchange={handleinpiut}
             padding={0}
             pl={35}
-            inputBgColor={'#e4ffff'}
+            inputBgColor={Colors.whiteColor}
             fs={12}
             placeholder={'Search'}
             placeholdercolor={'black'}
@@ -286,8 +297,7 @@ const HomeScreen = ({ navigation }) => {
           />
         </ARow>
       </View>
-      <View
-        style={{ padding: 10, backgroundColor: APP_SECONDARY_COLOR }}></View>
+      <View style={{ padding: 10, backgroundColor: Colors.whiteColor }}></View>
       <AContainer withoutPadding nestedScrollEnabled={true}>
         <Categories
           navigation
@@ -312,7 +322,7 @@ const HomeScreen = ({ navigation }) => {
               navigation.navigate('CateGories', {
                 screen: 'SingleProduct',
                 initial: false,
-                params: { productID: item._id },
+                params: { productID: item._id, productUrl: item.url },
               });
             }}
           />
@@ -455,7 +465,7 @@ const HomeScreen = ({ navigation }) => {
           </>
         )}
       </AContainer>
-    </>
+    </View>
   );
 };
 
@@ -501,14 +511,15 @@ const styles = StyleSheet.create({
   child: { width, justifyContent: 'center' },
   image: { width: Dimensions.width, height: 300, resizeMode: 'contain' },
   text: { fontSize: width * 0.5, textAlign: 'center' },
-  headerstyle: {
+  searchstyle: {
     flexWrap: 'wrap',
     flexDirection: 'row',
-    backgroundColor: '#d8fefe',
+    backgroundColor: Colors.whiteColor,
     height: 90,
+    marginTop: 30,
     paddingHorizontal: 30,
     paddingTop: 20,
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   barstyle: {

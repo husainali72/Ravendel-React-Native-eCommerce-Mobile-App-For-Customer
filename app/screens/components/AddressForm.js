@@ -7,8 +7,8 @@ import { Modal, StyleSheet, View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { countryArray } from '../../utils/CountryData';
 import { validationSchema } from '../checkout/validationSchema';
-import LinearGradient from 'react-native-linear-gradient';
 import { APP_SECONDARY_COLOR, FontStyle } from '../../utils/config';
+import Colors from '../../constants/Colors';
 const AdressForm = ({
   initialFormValues,
   addForm,
@@ -52,9 +52,7 @@ const AdressForm = ({
         transparent={true}
         visible={true}
         animationInTiming={1500}>
-        <LinearGradient
-          colors={[APP_SECONDARY_COLOR, 'white']}
-          style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
           <ZHeader navigation={navigation} name={'Add New Address'} />
           <CheckouWrapper
             nestedScrollEnabled={true}
@@ -232,7 +230,7 @@ const AdressForm = ({
               </BottomSpacer>
             </Fragment>
           </CheckouWrapper>
-        </LinearGradient>
+        </View>
       </Modal>
     </>
   );

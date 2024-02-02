@@ -16,13 +16,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { editCustomerAction } from '../../store/action';
 import { Formik, useFormik } from 'formik';
 import { editProfileValidationSchema } from '../checkout/validationSchema';
-import LinearGradient from 'react-native-linear-gradient';
 import { APP_SECONDARY_COLOR, FontStyle, GREYTEXT } from '../../utils/config';
 import AIcon from 'react-native-vector-icons/AntDesign';
+import Colors from '../../constants/Colors';
 
 const EditProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.customer.userDetails);
+  console.log(userData, 'udata');
   const [genderArr, setGenderArr] = useState([
     { id: 1, type: 'male' },
     { id: 2, type: 'female' },
@@ -45,8 +46,8 @@ const EditProfileScreen = ({ navigation }) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      first_name: userData.first_name,
-      last_name: userData.last_name,
+      first_name: userData.firstName,
+      last_name: userData.lastName,
       email: userData.email,
       phone: userData.phone,
       address: userData.address,
@@ -73,9 +74,7 @@ const EditProfileScreen = ({ navigation }) => {
 
   return (
     <>
-      <LinearGradient
-        colors={[APP_SECONDARY_COLOR, 'white']}
-        style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
         <ZHeader name="My Account" navigation={navigation} />
         {/* <UpperCurve /> */}
 
@@ -153,7 +152,7 @@ const EditProfileScreen = ({ navigation }) => {
             title="Save Changes"
           />
         </View>
-      </LinearGradient>
+      </View>
     </>
   );
 };

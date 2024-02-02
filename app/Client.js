@@ -12,8 +12,8 @@ import { getToken, isEmpty } from './utils/helper';
 
 const httpLink = createHttpLink({
   // uri:`https://ravendel.herokuapp.com/graphql`,
-  // uri: `http://192.168.1.31:8000/graphql`,
-  uri: `https://demo1.ravendel.io/graphql`,
+  uri: `https://demo1-ravendel.hbwebsol.com/graphql`,
+  // uri: `https://demo1.ravendel.io/graphql`,
 });
 const authMiddleware = new ApolloLink(async (operation, forward) => {
   const token = await getToken();

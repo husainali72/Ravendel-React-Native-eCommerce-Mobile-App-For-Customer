@@ -138,6 +138,7 @@ export default (state = initialState, action) => {
         success: true,
       };
     case CAT_PRODUCTS_CLEAR:
+      console.log('clear products');
       return {
         ...state,
         singleCategoryDetails: [],

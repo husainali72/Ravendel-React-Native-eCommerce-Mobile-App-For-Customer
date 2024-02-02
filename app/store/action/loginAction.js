@@ -32,11 +32,11 @@ export const LoginAction =
       type: CART_EMPTY,
     });
     // .then(async (response) => {
-    const response = await PostFetchWithoutToken(`customers/login`, {
+    const response = await PostFetchWithoutToken(`apis/customers/login`, {
       email: email,
       password: password,
     });
-
+    console.log(response, 'reponse data signin');
     try {
       let data = response.data;
       if (!isEmpty(response.data.success) && response.data.success) {
@@ -71,7 +71,7 @@ export const LoginAction =
         });
         dispatch({
           type: ALERT_ERROR,
-          payload: response.data.message || 'Invalid Password',
+          payload: 'Invalid Email or Password',
         });
       }
     } catch (error) {
@@ -196,6 +196,7 @@ export const registerAction = (payload, navigation) => async (dispatch) => {
   });
   const response = await mutation(ADD_CUSTOMER, payload);
   // .then((response) => {
+  console.log(response);
   try {
     if (
       !isEmpty(response.data.addCustomer) &&

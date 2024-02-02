@@ -6,6 +6,7 @@ import {
   GET_PRODUCT_REVIEWS,
   ADD_REVIEW,
   GET_ALL_CATEGORIES,
+  GET_FILTEREDPRODUCTS,
 } from '../../queries/productQuery';
 import { isEmpty } from '../../utils/helper';
 import { mutation, query } from '../../utils/service';
@@ -39,16 +40,18 @@ export const productAction = (id) => async (dispatch) => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  const response = await query(GET_PRODUCT, { id: id });
   // .then((response) => {
   try {
-    if (!isEmpty(response.data.product)) {
+    const response = await query(GET_PRODUCT, { url: id });
+    console.log(response, 'rsspospso');
+    if (!isEmpty(response.data.productbyurl)) {
       return dispatch({
         type: PRODUCT_SUCCESS,
-        payload: response.data.product.data,
+        payload: response.data.productbyurl.data,
       });
     }
   } catch (error) {
+    console.log('erro in PA');
     dispatch({
       type: PRODUCT_FAIL,
     });
@@ -83,20 +86,39 @@ export const categoriesAction = () => async (dispatch) => {
   }
 };
 
-export const catProductAction = (url) => async (dispatch) => {
+export const catProductAction = (filter, isFilter) => async (dispatch) => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  const response = await query(GET_CAT_PRODUCTS, { url: url });
+  // const response = await query(GET_CAT_PRODUCTS, { url: url });
+  // console.log(response, 'respo');
   // .then((response) => {
   try {
-    if (!isEmpty(response.data.productsbycaturl)) {
-      return dispatch({
-        type: CAT_PRODUCTS,
-        payload: response.data.productsbycaturl,
-      });
+    let response;
+    if (!isFilter) {
+      console.log('this one');
+      response = await query(GET_PRODUCTS);
+    } else {
+      console.log('this two');
+      response = await query(GET_FILTEREDPRODUCTS, { filter: filter });
     }
+    console.log(response, 'response cat data');
+    // if (!isEmpty(response.data.filteredProducts)) {
+    return dispatch({
+      type: CAT_PRODUCTS,
+      payload: response.data.filteredProducts ?? response.data.products.data,
+    });
+    // } else {
+    //   dispatch({
+    //     type: PRODUCT_FAIL,
+    //   });
+    //   return dispatch({
+    //     type: CAT_PRODUCTS,
+    //     payload: [],
+    //   });
+    // }
   } catch (error) {
+    console.log(error, 'error when fetching proucts');
     dispatch({
       type: PRODUCT_FAIL,
     });
@@ -144,9 +166,11 @@ export const productReviewsAction = (id) => async (dispatch) => {
   dispatch({
     type: PRODUCT_LOADING,
   });
-  const response = await query(GET_PRODUCT_REVIEWS, { product_id: id });
   // .then((response) => {
   try {
+    const response = await query(GET_PRODUCT_REVIEWS, {
+      id: id,
+    });
     if (isEmpty(response.data.productwise_Review)) {
       return dispatch({
         type: PRODUCT_REVIEWS,
@@ -154,6 +178,7 @@ export const productReviewsAction = (id) => async (dispatch) => {
       });
     }
   } catch (error) {
+    console.log('erro in PRA');
     dispatch({
       type: PRODUCT_FAIL,
     });

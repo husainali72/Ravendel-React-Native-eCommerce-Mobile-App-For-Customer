@@ -48,7 +48,10 @@ export const signupValidationSchema = yup.object().shape({
     .matches(phoneReg, 'Phone number is not valid')
     .label('Mobile No.')
     .required(),
-  policy: yup.string().nullable().required(),
+  policy: yup
+    .boolean()
+    .oneOf([true], 'Please accept terms and policy')
+    .required('Please accept terms and policy'),
 });
 export const editProfileValidationSchema = yup.object().shape({
   first_name: yup.string().label('First Name').min(4).required(),
@@ -62,11 +65,8 @@ export const editProfileValidationSchema = yup.object().shape({
 });
 export const loginValidationSchema = yup.object().shape({
   email: yup.string().label('Email').email().required(),
-  password: yup
-    .string()
-    .label('Password')
-    .required()
-    .min(2, 'Seems a bit short...'),
+  password: yup.string().label('Password').required(),
+  // .min(2, 'Seems a bit short...'),
 });
 export const reviewValidationSchema = yup.object().shape({
   title: yup.string().label('Title').required(),

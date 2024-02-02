@@ -40,10 +40,13 @@ import {
   SingleProductScreen,
   SubCategoriesScreen,
   UserEntry,
+  Splash,
+  Shop,
 } from '../screens';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AText } from '../theme-components';
 import ShippingMethodScreen from '../screens/checkout/ShippingMethodScreen';
+import Colors from '../constants/Colors';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -65,8 +68,8 @@ const AccountStack = () => {
       <Stack.Screen name="Orders" component={OrderScreen} />
       <Stack.Screen name="RecentlyViewed" component={RecentlyViewScreen} />
       <Stack.Screen name="SaveCards" component={SaveCardScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
+      {/* <Stack.Screen name="Login" component={LoginScreen} /> */}
+      {/* <Stack.Screen name="Signup" component={SignupScreen} /> */}
       <Stack.Screen name="LoginSignUp" component={UserEntry} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
@@ -100,7 +103,7 @@ const CartStack = () => {
 const CategoriesStack = () => {
   return (
     <Stack.Navigator
-      initialRouteName="SubCategories"
+      initialRouteName="Shop"
       detachInactiveScreens={true}
       screenOptions={{
         headerShown: false,
@@ -114,7 +117,13 @@ const CategoriesStack = () => {
         component={CategoriesScreen}
       /> */}
       <Stack.Screen
+        name="Shop"
+        initialParams={{ singleCategory: null, withChildern: null }}
+        component={Shop}
+      />
+      <Stack.Screen
         name="SubCategories"
+        initialParams={{ singleCategory: null, withChildern: null }}
         // options={({ navigation }) => ({
         //   title: 'Home',
         //   headerStyle: {
@@ -136,6 +145,7 @@ const CategoriesStack = () => {
         // })}
         component={SubCategoriesScreen}
       />
+
       {/* <Stack.Screen
         name="Category"
         options={{ headerShown: false }}
@@ -153,9 +163,10 @@ const CategoriesStack = () => {
 const DrawerNavigator = () => {
   const DrawerHeaderContent = (props) => {
     return (
-      <DrawerContentScrollView contentContainerStyle={{ flex: 1 }}>
+      <DrawerContentScrollView
+        contentContainerStyle={{ flex: 1, backgroundColor: APP_PRIMARY_COLOR }}>
         <ImageBackground
-          source={require('../assets/images/loginscreen.png')}
+          source={require('../assets/images/drawer.png')}
           style={styles.backgroundImage}>
           <View style={styles.drawerHeader}>
             <Text style={styles.drawerHeaderText}>Ravendel</Text>
@@ -168,7 +179,7 @@ const DrawerNavigator = () => {
               mb="5px"
               color="#ABA7A7"
               fonts={FontStyle.fontBold}>
-              © 2023 copyright:Ravendel
+              © 2024 copyright:Ravendel
             </AText>
           </ScrollView>
         </ImageBackground>
@@ -179,6 +190,7 @@ const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
       screenOptions={{
+        unmountOnBlur: true,
         drawerStyle: {
           backgroundColor: '#fff',
         },
@@ -194,7 +206,18 @@ const DrawerNavigator = () => {
         },
         drawerInactiveTintColor: '#ABA7A7',
       }}
+      initialRouteName="Splash"
       drawerContent={DrawerHeaderContent}>
+      {/* <Drawer.Screen
+        name={'Splash'}
+        component={Splash}
+        options={{
+          drawerStyle: {
+            backgroundColor: '#1c6765',
+          },
+          drawerLabel: '',
+        }}
+      /> */}
       <Drawer.Screen
         name={'Home'}
         component={HomeScreen}
@@ -212,6 +235,7 @@ const DrawerNavigator = () => {
         name={'CateGories'}
         component={CategoriesStack}
         options={{
+          unmountOnBlur: true,
           drawerLabel: 'Shop',
           drawerIcon: ({ focused, size, color }) => (
             <Feather name="shopping-bag" color={color} size={size} />
@@ -238,7 +262,7 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name={'MyWishlist'}
         component={CartScreen}
         options={{
@@ -247,11 +271,12 @@ const DrawerNavigator = () => {
             <Feather name="tag" color={color} size={size} />
           ),
         }}
-      />
+      /> */}
       <Drawer.Screen
         name={'AccountWrapper'}
         component={AccountStack}
         options={{
+          unmountOnBlur: false,
           drawerLabel: 'My Account',
           drawerIcon: ({ focused, size, color }) => (
             <Feather name="user" color={color} size={size} />
@@ -295,30 +320,12 @@ const styles = StyleSheet.create({
   headerLeft: {
     marginLeft: 15,
   },
-  headerTitle: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '500',
-  },
-  headerRight: {
-    marginRight: 15,
-  },
+
   // drawer content
   drawerLabel: {
     fontSize: 14,
   },
-  drawerLabelFocused: {
-    fontSize: 14,
-    color: '#551E18',
-    fontWeight: '500',
-  },
-  drawerItem: {
-    height: 50,
-    justifyContent: 'center',
-  },
-  drawerItemFocused: {
-    backgroundColor: '#ba9490',
-  },
+
   backgroundImage: {
     flex: 1,
     resizeMode: 'cover',
@@ -329,7 +336,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   drawerHeaderText: {
-    color: 'white',
+    color: Colors.whiteColor,
     fontSize: 27,
     fontWeight: 'bold',
   },

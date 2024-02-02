@@ -8,25 +8,35 @@ import {
   TextInput,
   RadioButton,
 } from '../../theme-components';
-// import LinearGradient from 'react-native-linear-gradient';
-import styled from 'styled-components/native';
-import { Formik, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import { signupValidationSchema } from '../checkout/validationSchema';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerAction } from '../../store/action';
+import { Checkbox } from 'react-native-paper';
+import { Linking, Text, TouchableOpacity, View } from 'react-native';
 
 const SignupScreen = ({ navigation }) => {
-  const loading = useSelector((state) => state.login.loading);
+  // const loading = useSelector((state) => state.login.loading);
 
   const dispatch = useDispatch();
+  const openLink = () => {
+    const url = 'https://demo1-ravendel.hbwebsol.com/abouts/terms&condition';
+
+    // Use Linking to open the URL
+    Linking.openURL(url).catch((err) =>
+      console.error('An error occurred', err),
+    );
+  };
+
   const sendValues = (values) => {
     const registerValue = {
-      first_name: values.firstname,
-      last_name: values.lastname,
+      firstName: values.firstname,
+      lastName: values.lastname,
       email: values.email,
       password: values.password,
       phone: values.mobile,
-      role: 'user',
+      company: values.company,
+      // role: 'user',
     };
     dispatch(registerAction(registerValue, navigation));
   };
@@ -38,6 +48,7 @@ const SignupScreen = ({ navigation }) => {
       email: '',
       mobile: '',
       password: '',
+      company: '',
       confirm_password: '',
       policy: '',
     },
@@ -50,8 +61,8 @@ const SignupScreen = ({ navigation }) => {
   });
   return (
     <>
-      {loading ? <AppLoader /> : null}
       <TextInput
+        color={'#000'}
         mt={30}
         padding={0}
         onchange={formik.handleChange('firstname')}
@@ -70,6 +81,7 @@ const SignupScreen = ({ navigation }) => {
       )}
 
       <TextInput
+        color={'#000'}
         mt={10}
         padding={0}
         onchange={formik.handleChange('lastname')}
@@ -88,6 +100,7 @@ const SignupScreen = ({ navigation }) => {
       )}
 
       <TextInput
+        color={'#000'}
         mt={10}
         padding={0}
         onchange={formik.handleChange('email')}
@@ -106,8 +119,10 @@ const SignupScreen = ({ navigation }) => {
       )}
 
       <TextInput
+        color={'#000'}
         mt={10}
         padding={0}
+        keyboardtype={'numeric'}
         onchange={formik.handleChange('mobile')}
         bw={0}
         pb={10}
@@ -122,8 +137,26 @@ const SignupScreen = ({ navigation }) => {
           {formik.errors.mobile}
         </AText>
       )}
-
       <TextInput
+        color={'#000'}
+        mt={10}
+        padding={0}
+        onchange={formik.handleChange('company')}
+        bw={0}
+        pb={10}
+        onerror={false}
+        placeholder={'Enter Company'}
+        value={formik.values.company}
+        placeholdercolor={'#ABA7A7'}
+        inputBgColor="transparent"
+      />
+      {formik.touched.company && formik.errors.company && (
+        <AText color="red" xtrasmall>
+          {formik.errors.company}
+        </AText>
+      )}
+      <TextInput
+        color={'#000'}
         mt={10}
         padding={0}
         onchange={formik.handleChange('password')}
@@ -142,6 +175,7 @@ const SignupScreen = ({ navigation }) => {
       )}
 
       <TextInput
+        color={'#000'}
         mt={10}
         padding={0}
         onchange={formik.handleChange('confirm_password')}
@@ -158,13 +192,38 @@ const SignupScreen = ({ navigation }) => {
           {formik.errors.confirm_password}
         </AText>
       )}
-      <RadioButton
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {Platform.OS === 'ios' ? (
+          <View
+            style={{
+              borderColor: 'black',
+              borderWidth: 1,
+              width: 22,
+              height: 22,
+              backgroundColor: 'transparent',
+              position: 'absolute',
+              left: 7,
+            }}
+          />
+        ) : null}
+        {console.log(formik.values.policy, 'policy')}
+        <Checkbox
+          status={formik.values.policy ? 'checked' : 'unchecked'}
+          onPress={() => formik.setFieldValue('policy', !formik.values.policy)}
+        />
+        <TouchableOpacity activeOpacity={0.5} onPress={() => openLink()}>
+          <AText lineThrough small color="#9F9F9F">
+            I agree to terms and policy
+          </AText>
+        </TouchableOpacity>
+      </View>
+      {/* <RadioButton
         ml={10}
         mt={5}
         data={[{ key: true, text: 'I agree to terms and Policy' }]}
         fieldname="policy"
         onchange={formik.setFieldValue}
-      />
+      /> */}
       {formik.touched.policy && formik.errors.policy && (
         <AText color="red" xtrasmall>
           {formik.errors.policy}
@@ -180,32 +239,5 @@ const SignupScreen = ({ navigation }) => {
     </>
   );
 };
-
-const LoginContainer = styled.ScrollView`
-  flex: 1;
-`;
-const LoginInner = styled.View`
-  width: 90%;
-  padding: 20px;
-`;
-
-const CustomInput = styled.TextInput`
-  height: 40px;
-  background: rgba(0, 0, 0, 0.2);
-  color: #000;
-  border-radius: 5px;
-`;
-const InputWrapper = styled.View`
-  margin-bottom: 15px;
-  padding: 0 5px;
-`;
-const FormBottom = styled.View`
-  margin-top: 5px;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-`;
-const FormLink = styled.TouchableOpacity``;
 
 export default SignupScreen;

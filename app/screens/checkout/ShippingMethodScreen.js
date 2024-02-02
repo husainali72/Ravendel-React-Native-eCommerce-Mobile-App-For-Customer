@@ -16,10 +16,10 @@ import {
   FontStyle,
   GREYTEXT,
 } from '../../utils/config';
-import LinearGradient from 'react-native-linear-gradient';
 import { useIsFocused } from '@react-navigation/native';
 import { addAddressAction } from '../../store/action';
 import { AdressForm } from '../components';
+import Colors from '../../constants/Colors';
 
 const ShippingMethodScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -129,9 +129,7 @@ const ShippingMethodScreen = ({ navigation, route }) => {
           />
         </>
       ) : (
-        <LinearGradient
-          colors={[APP_SECONDARY_COLOR, 'white']}
-          style={styles.container}>
+        <View style={styles.container}>
           <ZHeader navigation={navigation} name="Checkout" />
           <View style={styles.container2}>
             <View style={styles.step}>
@@ -243,7 +241,7 @@ const ShippingMethodScreen = ({ navigation, route }) => {
               />
             </View>
           </View>
-        </LinearGradient>
+        </View>
       )}
     </>
   );
@@ -276,6 +274,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // paddingTop: 40,
     paddingBottom: 20,
+    backgroundColor: Colors.whiteColor,
     // paddingHorizontal: 30,
   },
   activedot: {

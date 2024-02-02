@@ -16,7 +16,6 @@ import { useEffect } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { formatCurrency, isEmpty } from '../../utils/helper';
 import { ProductPriceText } from '../components';
-import LinearGradient from 'react-native-linear-gradient';
 
 import {
   APP_PRIMARY_COLOR,
@@ -24,6 +23,7 @@ import {
   FontStyle,
   GREYTEXT,
 } from '../../utils/config';
+import Colors from '../../constants/Colors';
 
 const CheckoutScreen = ({ navigation, route }) => {
   var shippingValue = route.params.shippingValue;
@@ -140,9 +140,7 @@ const CheckoutScreen = ({ navigation, route }) => {
   };
   return (
     <>
-      <LinearGradient
-        colors={[APP_SECONDARY_COLOR, 'white']}
-        style={styles.container}>
+      <View style={styles.container}>
         <ScrollView>
           <ZHeader navigation={navigation} name="Checkout" />
           <View style={styles.container2}>
@@ -375,7 +373,7 @@ const CheckoutScreen = ({ navigation, route }) => {
             />
           </View>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </>
   );
 };
@@ -453,6 +451,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // paddingTop: 40,
     paddingBottom: 20,
+    backgroundColor: Colors.whiteColor,
     // paddingHorizontal: 30,
   },
   activedot: {

@@ -14,6 +14,7 @@ export const AppSettingAction = () => async (dispatch) => {
   //   type: SETTING_LOADING,
   // });
   const response = await query(GET_APP_SETTING);
+  // console.log(response, 'rrsp');
   try {
     if (!isEmpty(response.data.getSettings)) {
       var currencyOptions = response.data.getSettings.store.currency_options;
@@ -127,7 +128,7 @@ export const productOnSaleAction = () => async (dispatch) => {
     type: SETTING_LOADING,
   });
   const response = await query(SALE_PRODUCT);
-  console.log(response, 'product on sale');
+  // console.log(response, 'product on sale');
   // .then((response) => {
   try {
     if (!isEmpty(response.data.onSaleProducts)) {

@@ -23,9 +23,7 @@ import {
   shippedStatuscolor,
 } from '../../utils/helper';
 import { StyleSheet } from 'react-native';
-import { ProductPriceText } from '../components';
-import LinearGradient from 'react-native-linear-gradient';
-import { APP_SECONDARY_COLOR } from '../../utils/config';
+import Colors from '../../constants/Colors';
 
 const OrderDetailScreen = ({ navigation, route }) => {
   const fontColor = '#7C7C7C';
@@ -115,9 +113,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
     <>
       {loadingproduct || loading ? <AppLoader /> : null}
       {/* <AHeader title="Cart" /> */}
-      <LinearGradient
-        colors={[APP_SECONDARY_COLOR, 'white']}
-        style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
         <ZHeader navigation={navigation} name="Order Detail" />
         <AContainer>
           <OrderDetailHeader>
@@ -297,7 +293,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
             </PriceWrapper>
           </ShippingDetails>
         </AContainer>
-      </LinearGradient>
+      </View>
     </>
   );
 };

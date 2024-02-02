@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useRef } from 'react';
 import {
   View,
   FlatList,
@@ -23,28 +22,15 @@ import { ProductPriceText } from '../../components';
 const windowWidth = Dimensions.get('window').width;
 const itemWidth = windowWidth * 0.4; // visible item width
 const itemHeight = itemWidth * 1.5; // visible item height
-const centeredItemWidth = windowWidth * 0.5; // centered item width
-const centeredItemHeight = centeredItemWidth * 1.4; // centered item height
 
 function ImageSlider({ dataItems, navigatetonext }) {
-  const [selectedId, setSelectedId] = useState('1');
-  const flatListRef = useRef(null);
-  function renderItem({ item, index }) {
-    let itemStyle = styles.itemImage;
-    if (item._id === selectedId) {
-      itemStyle = styles.centeredItemImage;
-    } else if (
-      (index === 0 && selectedId !== dataItems[1]._id) ||
-      (index === dataItems.length - 1 &&
-        selectedId !== dataItems[dataItems.length - 2]._id)
-    ) {
-      itemStyle = styles.sideItemImage;
-    }
+  const [selectedId, setSelectedId] = useState(null);
+
+  function renderItem({ item }) {
     return (
       <TouchableOpacity
         onPress={() => {
           setSelectedId(item._id);
-          flatListRef.current.scrollToIndex({ index });
         }}>
         <ImageBackground
           source={{
@@ -53,7 +39,7 @@ function ImageSlider({ dataItems, navigatetonext }) {
               : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
             priority: FastImage.priority.normal,
           }}
-          style={[itemStyle]}
+          style={styles.itemImage}
           imageStyle={{ borderRadius: 10 }}
           // blurRadius={10}
         >
@@ -107,40 +93,17 @@ function ImageSlider({ dataItems, navigatetonext }) {
     );
   }
 
-  function getItemLayout(data, index) {
-    return {
-      length: itemWidth,
-      offset: itemWidth * index,
-      index,
-    };
-  }
-
   return (
     <View style={styles.container}>
       <AText ml="30px" mb={'10px'} large fonts={FontStyle.fontBold}>
         New Arrivals
       </AText>
       <FlatList
-        ref={flatListRef}
         data={dataItems}
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={itemWidth}
-        snapToAlignment="center"
-        getItemLayout={getItemLayout}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
-        contentContainerStyle={{
-          alignItems: 'center',
-        }}
-        onMomentumScrollEnd={(event) => {
-          const index = Math.round(
-            event.nativeEvent.contentOffset.x / itemWidth,
-          );
-          dataItems[index] && dataItems[index]._id
-            ? setSelectedId(dataItems[index]._id)
-            : null;
-        }}
       />
     </View>
   );
@@ -169,13 +132,13 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     marginHorizontal: (windowWidth * 0.1) / 2,
   },
-  centeredItemImage: {
-    width: centeredItemWidth,
-    height: centeredItemHeight,
-    resizeMode: 'contain',
-    borderRadius: 10,
-    marginHorizontal: windowWidth * 0.05,
-  },
+  // centeredItemImage: {
+  //   width: centeredItemWidth,
+  //   height: centeredItemHeight,
+  //   resizeMode: 'contain',
+  //   borderRadius: 10,
+  //   marginHorizontal: windowWidth * 0.05,
+  // },
   overlay: {
     position: 'absolute',
     bottom: 0,
