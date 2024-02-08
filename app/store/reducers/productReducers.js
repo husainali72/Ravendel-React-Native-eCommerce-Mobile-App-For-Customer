@@ -14,6 +14,7 @@ import {
   SINGLE_CATEGORY,
   CAT_PRODUCTS_CLEAR,
   PRODUCT_CLEAR,
+  RELATED_CAT_PRODUCTS,
 } from '../action/productAction';
 
 const initialState = {
@@ -51,6 +52,7 @@ const initialState = {
     custom_field: [],
     short_description: '',
   },
+  relatedProducts: [],
   categories: [],
   category: {},
   loading: false,
@@ -134,6 +136,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         singleCategoryDetails: action.payload,
+        loading: false,
+        success: true,
+      };
+    case RELATED_CAT_PRODUCTS:
+      return {
+        ...state,
+        relatedProducts: action.payload,
         loading: false,
         success: true,
       };

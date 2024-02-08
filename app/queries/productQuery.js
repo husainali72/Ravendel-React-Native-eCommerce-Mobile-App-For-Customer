@@ -330,6 +330,29 @@ const RECENT_PRODUCT = gql`
   }
 `;
 
+export const GET_RELATED_PRODUCTS_QUERY = gql`
+  query ($category: customArray!, $productID: ID!) {
+    relatedProducts(category: $category, productID: $productID) {
+      _id
+      name
+      feature_image
+      pricing
+      rating
+      url
+      categoryId {
+        id
+        name
+      }
+      quantity
+      featured_product
+      status
+      variant
+      shipping
+      taxClass
+    }
+  }
+`;
+
 const GET_BRANDS_QUERY = gql`
   query {
     brands {

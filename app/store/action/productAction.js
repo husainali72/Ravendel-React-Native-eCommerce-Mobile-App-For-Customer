@@ -7,6 +7,7 @@ import {
   ADD_REVIEW,
   GET_ALL_CATEGORIES,
   GET_FILTEREDPRODUCTS,
+  GET_RELATED_PRODUCTS_QUERY,
 } from '../../queries/productQuery';
 import { isEmpty } from '../../utils/helper';
 import { mutation, query } from '../../utils/service';
@@ -102,7 +103,6 @@ export const catProductAction = (filter, isFilter) => async (dispatch) => {
       console.log('this two');
       response = await query(GET_FILTEREDPRODUCTS, { filter: filter });
     }
-    console.log(response, 'response cat data');
     // if (!isEmpty(response.data.filteredProducts)) {
     return dispatch({
       type: CAT_PRODUCTS,
@@ -117,6 +117,44 @@ export const catProductAction = (filter, isFilter) => async (dispatch) => {
     //     payload: [],
     //   });
     // }
+  } catch (error) {
+    console.log(error, 'error when fetching proucts');
+    dispatch({
+      type: PRODUCT_FAIL,
+    });
+    return dispatch({
+      type: PRODUCT_FAIL,
+      payload: { boolean: true, message: error, error: true },
+    });
+  }
+};
+
+export const catRecentProductAction = (recentPayload) => async (dispatch) => {
+  // dispatch({
+  //   type: PRODUCT_LOADING,
+  // });
+  // const response = await query(GET_CAT_PRODUCTS, { url: url });
+  // console.log(response, 'respo');
+  // .then((response) => {
+  console.log(recentPayload, 'filter data');
+  try {
+    console.log('this one');
+    const response = await query(GET_RELATED_PRODUCTS_QUERY, recentPayload);
+    console.log(response, 'Similar Products Data');
+    if (!isEmpty(response.data.relatedProducts)) {
+      return dispatch({
+        type: RELATED_CAT_PRODUCTS,
+        payload: response.data.relatedProducts,
+      });
+    } else {
+      dispatch({
+        type: PRODUCT_FAIL,
+      });
+      return dispatch({
+        type: RELATED_CAT_PRODUCTS,
+        payload: [],
+      });
+    }
   } catch (error) {
     console.log(error, 'error when fetching proucts');
     dispatch({
@@ -227,6 +265,7 @@ export const PRODUCT_SUCCESS = 'PRODUCT_SUCCESS';
 export const PRODUCTS_SUCCESS = 'PRODUCTS_SUCCESS';
 export const PRODUCT_FAIL = 'PRODUCT_FAIL';
 export const CAT_PRODUCTS = 'CAT_PRODUCTS';
+export const RELATED_CAT_PRODUCTS = 'RELATED_CAT_PRODUCTS';
 export const CAT_PRODUCTS_CLEAR = 'CAT_PRODUCTS_CLEAR';
 export const PRODUCT_REVIEWS = 'PRODUCT_REVIEWS';
 export const PRODUCT_CLEAR = 'PRODUCT_CLEAR';
