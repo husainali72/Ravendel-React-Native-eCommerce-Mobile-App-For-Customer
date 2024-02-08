@@ -5,6 +5,7 @@ import CategoriesScreen from './categories';
 import AccountScreen from './account';
 import CategoryScreen from './category';
 import SubCategoriesScreen from './subcategories';
+import SubcategoriesOption from './subcategories/SubcategoriesOption';
 import SingleProductScreen from './single-product';
 import ProfileScreen from './account/profile';
 import SavedAddressScreen from './account/savedAddress';
@@ -49,4 +50,5 @@ export {
   Temp,
   Splash,
   Shop,
+  SubcategoriesOption,
 };

@@ -239,7 +239,7 @@ const HomeScreen = ({ navigation }) => {
     // if (category.children.length < 1) {
     //   navigateTo = 'Category';
     // } else {
-    navigateTo = 'SubCategories';
+    navigateTo = 'SubcategoriesOption';
     // }
 
     var nestedCategory = [];
