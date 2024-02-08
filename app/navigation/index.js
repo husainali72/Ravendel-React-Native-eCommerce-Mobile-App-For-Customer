@@ -28,8 +28,9 @@ import {
   ChangePasswordScreen,
   Temp,
   UserEntry,
+  SubcategoriesOption,
 } from '../screens';
-import { View, Text } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { getValue, isEmpty } from '../utils/helper';
 import AlertError from '../theme-components/alert';
@@ -37,6 +38,8 @@ import { sessionCheck } from '../store/action/loginAction';
 import { checkStorageAction } from '../store/action';
 import { useIsFocused } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { APP_PRIMARY_COLOR } from '../utils/config';
+import Colors from '../constants/Colors';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -81,10 +84,15 @@ const CategoriesStack = () => {
         headerTransparent: true,
         headerTintColor: '#fff',
       }}>
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Categories"
         options={{ headerShown: false }}
         component={CategoriesScreen}
+      /> */}
+      <Stack.Screen
+        name="SubcategoriesOption"
+        options={{ headerShown: false }}
+        component={SubcategoriesOption}
       />
       <Stack.Screen
         name="SubCategories"
@@ -197,34 +205,66 @@ const Navigation = () => {
         detachInactiveScreens={true}
         screenOptions={({ route }) => ({
           tabBarStyle: {
-            display: 'none',
+            backgroundColor: Colors.lightestPrimaryColor,
+            paddingBottom: 4,
+            // display: 'none',
+          },
+          tabBarLabelStyle: {
+            // fontFamily: FontStyle.sffontMedium,
+            // color: APP_PRIMARY_COLOR,
+            fontSize: 14,
           },
           headerShown: false,
           unmountOnBlur: true,
           lazy: false,
-          tabBarActiveTintColor: setting.themes[0].primaryColor,
-          tabBarInactiveTintColor: 'gray',
+          tabBarActiveTintColor: APP_PRIMARY_COLOR,
+          tabBarInactiveTintColor: Colors.grayColor,
           tabBarHideOnKeyboard: true,
           tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+            let image;
             if (route.name === 'Home') {
-              // iconName = focused ? 'home' : 'home';
-              iconName = 'home';
+              image = focused
+                ? require('../assets/images/homeactive.png')
+                : require('../assets/images/home.png');
             } else if (route.name === 'CateGories') {
-              iconName = 'list';
+              image = focused
+                ? require('../assets/images/catactive.png')
+                : require('../assets/images/categori.png');
             } else if (route.name === 'Cart') {
-              // iconName = 'shopping-cart';
-              return (
-                <HomeIconWithBadge
-                  name="shopping-cart"
-                  size={size}
-                  color={color}
-                />
-              );
+              image = focused
+                ? require('../assets/images/cartactive.png')
+                : require('../assets/images/cart.png');
             } else if (route.name === 'AccountWrapper') {
-              iconName = 'user-circle-o';
+              image = focused
+                ? require('../assets/images/useractive.png')
+                : require('../assets/images/user.png');
             }
-            return <Icon name={iconName} size={size} color={color} />;
+            return (
+              <Image
+                source={image}
+                resizeMode="contain"
+                style={style.imgstyle}
+              />
+            );
+            // let iconName;
+            // if (route.name === 'Home') {
+            //   // iconName = focused ? 'home' : 'home';
+            //   iconName = 'home';
+            // } else if (route.name === 'CateGories') {
+            //   iconName = 'list';
+            // } else if (route.name === 'Cart') {
+            //   // iconName = 'shopping-cart';
+            //   return (
+            //     <HomeIconWithBadge
+            //       name="shopping-cart"
+            //       size={size}
+            //       color={color}
+            //     />
+            //   );
+            // } else if (route.name === 'AccountWrapper') {
+            //   iconName = 'user-circle-o';
+            // }
+            // return <Icon name={iconName} size={size} color={color} />;
           },
         })}
         backBehavior={'initialRoute'}>
@@ -276,3 +316,18 @@ const Navigation = () => {
 };
 
 export default Navigation;
+const style = StyleSheet.create({
+  // tabstyle: {
+  //   borderTopColor: '#C7C7C7',
+  //   borderTopWidth: Platform.OS === 'ios' ? 0.3 : 1,
+  //   backgroundColor: '#F9F9F9',
+  //   height: 70,
+  //   paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+  //   paddingTop: 5,
+  // },
+  imgstyle: {
+    resizeMode: 'contain',
+    width: 15,
+    height: 15,
+  },
+});

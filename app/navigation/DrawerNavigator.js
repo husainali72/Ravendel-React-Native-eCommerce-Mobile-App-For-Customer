@@ -42,11 +42,13 @@ import {
   UserEntry,
   Splash,
   Shop,
+  SubcategoriesOption,
 } from '../screens';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AText } from '../theme-components';
 import ShippingMethodScreen from '../screens/checkout/ShippingMethodScreen';
 import Colors from '../constants/Colors';
+import Navigation from './';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -145,7 +147,11 @@ const CategoriesStack = () => {
         // })}
         component={SubCategoriesScreen}
       />
-
+      <Stack.Screen
+        name="SubcategoriesOption"
+        options={{ headerShown: false }}
+        component={SubcategoriesOption}
+      />
       {/* <Stack.Screen
         name="Category"
         options={{ headerShown: false }}
@@ -220,7 +226,7 @@ const DrawerNavigator = () => {
       /> */}
       <Drawer.Screen
         name={'Home'}
-        component={HomeScreen}
+        component={Navigation}
         options={{
           drawerStyle: {
             backgroundColor: '#1c6765',

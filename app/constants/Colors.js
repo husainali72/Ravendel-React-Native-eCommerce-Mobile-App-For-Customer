@@ -1,7 +1,7 @@
 export default {
   primaryColor: '#d8fefe',
   darkPrimaryColor: '#088178',
-  lightestPrimaryColor: '#F4FAFF',
+  lightestPrimaryColor: '#F8FAF9',
   splashBackgroundColor: '#F5F5F5',
   ligthPrimaryColor: '#C5E9FA',
   secondaryColor: 'rgb(238,238,238)',
@@ -22,6 +22,6 @@ export default {
   seperatorGrayColor: '#BDBDBD',
   textBoxBackroundGrayColor: '#F2F2F2',
   primeColor: '#045097',
-  lightBlue: '#F4FAFF',
+  lightBlue: '#F3F8F8',
   blue: '#1679B8',
 };

@@ -5,7 +5,7 @@
  * @format
  * @flow strict-local
  */
-
+import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import store from './app/store';
 import { Provider } from 'react-redux';
