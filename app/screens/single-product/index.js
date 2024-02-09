@@ -94,7 +94,9 @@ const SingleProductScreen = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    handlePresentModalPress();
+    setTimeout(() => {
+      handlePresentModalPress();
+    }, 1000);
   }, []);
 
   const ProductId = route.params.productID;
@@ -426,11 +428,9 @@ const SingleProductScreen = ({ navigation, route }) => {
               ref={bottomSheetModalRef}
               index={1}
               snapPoints={snapPoints}
-              onChange={handleSheetChanges}>
-              <ScrollView>
-                <View style={styles.contentContainer}>
-                  <AText>Awesome 🎉</AText>
-                </View>
+              onChange={handleSheetChanges}
+              style={{ flex: 1 }}>
+              <ScrollView style={{ flex: 1 }}>
                 <ProductPriceText Pricing={SingleProduct.pricing} />
                 {/* ===============Product Name============= */}
                 <View

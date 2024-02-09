@@ -4,6 +4,8 @@ export default {
   lightestPrimaryColor: '#F8FAF9',
   splashBackgroundColor: '#F5F5F5',
   ligthPrimaryColor: '#C5E9FA',
+  lightGreen: '#DCF0EF',
+  green: '#38827e',
   secondaryColor: 'rgb(238,238,238)',
   themeOrangeColor: '#000000',
   primaryTextColor: 'rgb(37, 150, 190)',

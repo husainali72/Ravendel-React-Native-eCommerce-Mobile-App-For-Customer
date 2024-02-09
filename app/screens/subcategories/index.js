@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components/native';
 import {
   AText,
@@ -17,14 +23,15 @@ import { CommonActions, useIsFocused } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import { capitalizeFirstLetter, isEmpty } from '../../utils/helper';
 import {
-  FlatList,
+  // FlatList,
   ImageBackground,
-  ScrollView,
+  // ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { ScrollView, FlatList } from 'react-native-gesture-handler';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import {
   APP_PRIMARY_COLOR,
@@ -39,10 +46,38 @@ import StarRating from 'react-native-star-rating';
 import LinearGradient from 'react-native-linear-gradient';
 import { CAT_PRODUCTS_CLEAR } from '../../store/action/productAction';
 import Colors from '../../constants/Colors';
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from '@gorhom/bottom-sheet';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
+  const [values, setValues] = useState([0, 10000]);
+
+  const multiSliderValuesChange = (values) => {
+    setValues(values);
+  };
+  const bottomSheetModalRef = useRef(null);
+
+  // variables
+  const snapPoints = useMemo(() => ['60%'], []);
+
+  // callbacks
+  const handlePresentModalPress = useCallback(() => {
+    console.log('pressing', bottomSheetModalRef.current);
+    bottomSheetModalRef.current?.present();
+  }, []);
+  const handleSheetChanges = useCallback((index) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+  const [starCount, setStarCount] = useState(3.5);
+
+  const onStarRatingPress = (rating) => {
+    setStarCount(rating);
+  };
   const [selectedCat, setSelectedCat] = useState('All');
   const [selectedCatId, setSelectedCatId] = useState('');
   const singleCat = route?.params?.singleCategory;
@@ -51,17 +86,13 @@ const SubCategoriesScreen = ({ navigation, route }) => {
   const singleCateogry = useSelector(
     (state) => state.products.singleCategoryDetails,
   );
-
+  const { brands } = useSelector((state) => state.settings);
   const [categorydata, setCategorydata] = useState(null);
   const [optionSelect, setOptionSelect] = useState(['All']);
   const [withChild, setWithChild] = useState([]);
   const [inpvalue, setInpvalue] = useState('');
-  // console.log(
-  //   JSON.stringify(singleCateogry),
-  //   singleCat,
-  //   ' - single cat ',
-  //   singleCatChildern,
-  // );
+  const [ActiveBrand, setActiveBrand] = useState('');
+
   //Custom Functions
   const handleinpiut = (e) => {
     setInpvalue(e);
@@ -124,12 +155,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     }
   }, [singleCatChildern]);
 
-  const navigateCategoryScreen = (category) => {
-    navigation.navigate('Category', {
-      singleCategory: category,
-    });
-  };
-
   const handlefilter = (type) => {
     if (!optionSelect.includes(type)) {
       setOptionSelect((old) => [...old, type]);
@@ -145,7 +170,8 @@ const SubCategoriesScreen = ({ navigation, route }) => {
   }, [singleCateogry]);
 
   useEffect(() => {
-    if (isFocused && singleCat) {
+    if (singleCat) {
+      console.log('heyyy');
       let filter = {
         category: singleCat.id,
         brand: '',
@@ -161,6 +187,7 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         },
         search: '',
       };
+      console.log(filter, 'filter data');
       dispatch(catProductAction(filter, true));
     } else {
       console.log('out of foucus runn');
@@ -197,13 +224,55 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         },
         search: '',
       };
-      console.log(filter, 'filter single id');
+      console.log(filter, 'filter data on different type');
       dispatch(catProductAction(filter, true));
     } else {
-      dispatch(catProductAction(singleCat?.id, true));
+      let filter = {
+        category: singleCat.id,
+        brand: '',
+        most_reviewed: false,
+        product_type: '',
+        rating: {
+          min: 0,
+          max: 5,
+        },
+        price: {
+          min: 1,
+          max: 100000,
+        },
+        search: '',
+      };
+      dispatch(catProductAction(filter, true));
     }
   }, [selectedCat]);
 
+  const handleFilter = () => {
+    // console.log(starCount, values, ActiveBrand);
+    const brandobj = !isEmpty(ActiveBrand)
+      ? brands
+          .filter((item) => item.name === ActiveBrand)
+          .map((item) => {
+            return { id: item.id, name: item.name };
+          })
+      : '';
+    let filter = {
+      category: selectedCatId,
+      brand: !isEmpty(brandobj) ? brandobj[0] : '',
+      most_reviewed: false,
+      product_type: '',
+      rating: {
+        min: 0,
+        max: starCount,
+      },
+      price: {
+        min: values[0],
+        max: values[1],
+      },
+      search: '',
+    };
+    console.log(filter, 'filtering modal');
+    dispatch(catProductAction(filter, true));
+  };
   function renderItem({ item }) {
     return (
       <TouchableOpacity
@@ -286,139 +355,256 @@ const SubCategoriesScreen = ({ navigation, route }) => {
 
   return (
     <>
-      <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
-        <View style={styles.header}>
-          <AIcon
-            onPress={() => navigation.navigate('Home')}
-            name="arrowleft"
-            size={22}
-          />
-          <AText fonts={FontStyle.semiBold} ml="20px">
-            {capitalizeFirstLetter(singleCat.url)}
-          </AText>
-        </View>
-        <ARow
-          ml="30px"
-          mr="30px"
-          mt={'50px'}
-          row
-          justifyContent="space-between"
-          alignItems="center"
-          position="relative">
-          <View style={{ width: '65%', justifyContent: 'center' }}>
-            <Icon
-              style={styles.iconstyle}
-              name={'search'}
-              size={15}
-              color={'black'}
-            />
-            <TextInput
-              height={30}
-              bc={'#E0E0E0'}
-              value={inpvalue}
-              onchange={handleinpiut}
-              padding={0}
-              pl={35}
-              inputBgColor={Colors.whiteColor}
-              fs={12}
-              placeholder={'Search'}
-              placeholdercolor={'black'}
-              br={30}
-            />
-          </View>
-          <View style={styles.filterstyle}>
+      <BottomSheetModalProvider>
+        <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
+          <View style={styles.header}>
             <AIcon
-              onPress={() => handlesearch()}
-              name={'filter'}
-              size={20}
-              color={'black'}
+              onPress={() => navigation.navigate('Home')}
+              name="arrowleft"
+              size={22}
             />
-            <AText color="black" ml="10px">
-              Filter
+            <AText fonts={FontStyle.semiBold} ml="20px">
+              {capitalizeFirstLetter(singleCat.url)}
             </AText>
           </View>
-        </ARow>
-        {/* <HeaderContent /> */}
-        <View style={{ paddingHorizontal: 30 }}>
-          <ScrollView
-            contentContainerStyle={{
-              marginTop: 20,
-              flexDirection: 'row',
-              alignItems: 'space-between',
-              justifyContent: 'space-between',
-            }}
-            scrollEnabled={true}
-            keyboardShouldPersistTaps="always"
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}>
-            <AButton
-              semi
-              mr="8px"
-              title={'All'}
-              onPress={() => handleselectedCat('All', null)}
-              bgColor={'All' == selectedCat ? APP_PRIMARY_COLOR : 'transparent'}
-              color={'All' == selectedCat ? 'white' : 'black'}
-              round
-              minor={windowWidth < 330 ? true : false}
-              small={windowWidth < 400 && windowWidth > 330 ? true : false}
-              extramedium={windowWidth > 400 ? true : false}
-              xtrasmall
-              borderColor={'transparent'}
-            />
-            {/* {console.log(withChild, 'wothchaild')} */}
-            {withChild.map((item) => (
-              <>
-                <AButton
-                  semi
-                  mr="8px"
-                  key={item.id}
-                  title={item.name}
-                  onPress={() => handleselectedCat(item.url, item.id)}
-                  bgColor={
-                    item.url == selectedCat ? APP_PRIMARY_COLOR : 'transparent'
-                  }
-                  color={item.url == selectedCat ? 'white' : 'black'}
-                  round
-                  minor={windowWidth < 330 ? true : false}
-                  small={windowWidth < 400 && windowWidth > 330 ? true : false}
-                  extramedium={windowWidth > 400 ? true : false}
-                  xtrasmall
-                  borderColor={'transparent'}
-                />
-              </>
-            ))}
-          </ScrollView>
-        </View>
-        {/* {console.log(categorydata, 'catteee data')} */}
-        <FlatList
-          numColumns={2}
-          data={categorydata}
-          snapToAlignment="center"
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
-          contentContainerStyle={{
-            marginTop: 10,
-            flexDirection: 'column',
-            margin: 'auto',
-            marginHorizontal: 30,
-          }}
-          ListEmptyComponent={() => (
-            <View>
-              <AText
-                style={{ fontSize: 16, alignSelf: 'center', color: 'grey' }}>
-                No Records Found
-              </AText>
+          <ARow
+            ml="30px"
+            mr="30px"
+            mt={'50px'}
+            row
+            justifyContent="space-between"
+            alignItems="center"
+            position="relative">
+            <View style={{ width: '65%', justifyContent: 'center' }}>
+              <Icon
+                style={styles.iconstyle}
+                name={'search'}
+                size={15}
+                color={'black'}
+              />
+              <TextInput
+                height={30}
+                bc={'#E0E0E0'}
+                value={inpvalue}
+                onchange={handleinpiut}
+                padding={0}
+                pl={35}
+                inputBgColor={Colors.whiteColor}
+                fs={12}
+                placeholder={'Search'}
+                placeholdercolor={'black'}
+                br={30}
+              />
             </View>
-          )}
-        />
-        {/* {withChild.length ? menuListing(withChild) : null} */}
-      </View>
+            <TouchableOpacity
+              onPress={() => handlePresentModalPress()}
+              style={styles.filterstyle}>
+              <AIcon name={'filter'} size={20} color={'black'} />
+              <AText color="black" ml="10px">
+                Filter
+              </AText>
+            </TouchableOpacity>
+          </ARow>
+          {/* <HeaderContent /> */}
+          <View style={{ paddingHorizontal: 30 }}>
+            <ScrollView
+              contentContainerStyle={{
+                marginTop: 20,
+                flexDirection: 'row',
+                alignItems: 'space-between',
+                justifyContent: 'space-between',
+              }}
+              scrollEnabled={true}
+              keyboardShouldPersistTaps="always"
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}>
+              <AButton
+                semi
+                mr="8px"
+                title={'All'}
+                onPress={() => handleselectedCat('All', null)}
+                bgColor={
+                  'All' == selectedCat ? APP_PRIMARY_COLOR : 'transparent'
+                }
+                color={'All' == selectedCat ? 'white' : 'black'}
+                round
+                minor={windowWidth < 330 ? true : false}
+                small={windowWidth < 400 && windowWidth > 330 ? true : false}
+                extramedium={windowWidth > 400 ? true : false}
+                xtrasmall
+                borderColor={'transparent'}
+              />
+              {/* {console.log(withChild, 'wothchaild')} */}
+              {withChild.map((item) => (
+                <>
+                  <AButton
+                    semi
+                    mr="8px"
+                    key={item.id}
+                    title={item.name}
+                    onPress={() => handleselectedCat(item.url, item.id)}
+                    bgColor={
+                      item.url == selectedCat
+                        ? APP_PRIMARY_COLOR
+                        : 'transparent'
+                    }
+                    color={item.url == selectedCat ? 'white' : 'black'}
+                    round
+                    minor={windowWidth < 330 ? true : false}
+                    small={
+                      windowWidth < 400 && windowWidth > 330 ? true : false
+                    }
+                    extramedium={windowWidth > 400 ? true : false}
+                    xtrasmall
+                    borderColor={'transparent'}
+                  />
+                </>
+              ))}
+            </ScrollView>
+          </View>
+          {/* {console.log(categorydata, 'catteee data')} */}
+          <FlatList
+            numColumns={2}
+            data={categorydata}
+            snapToAlignment="center"
+            keyExtractor={(item) => item._id}
+            renderItem={renderItem}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            contentContainerStyle={{
+              marginTop: 10,
+              flexDirection: 'column',
+              margin: 'auto',
+              marginHorizontal: 30,
+            }}
+            ListEmptyComponent={() => (
+              <View>
+                <AText
+                  style={{ fontSize: 16, alignSelf: 'center', color: 'grey' }}>
+                  No Records Found
+                </AText>
+              </View>
+            )}
+          />
+          {/* {withChild.length ? menuListing(withChild) : null} */}
+        </View>
+        <BottomSheetModal
+          // enableDismissOnClose={false}
+          ref={bottomSheetModalRef}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}
+          // handleStyle={{ backgroundColor: 'pink' }}
+          containerStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          style={{ flex: 1, elevation: 10, paddingHorizontal: 15 }}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View
+              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <AText fonts={FontStyle.semiBold}>Filter</AText>
+              <AText fonts={FontStyle.semiBold}>Reset</AText>
+            </View>
+            <AText mt={'20px'} mb={'5px'} fonts={FontStyle.semiBold}>
+              Brands
+            </AText>
+            <View
+              style={{
+                elevation: 10,
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+
+                // backgroundColor: 'orange',
+              }}>
+              {brands.map((item) => (
+                <TouchableOpacity
+                  onPress={() => setActiveBrand(item.name)}
+                  style={{
+                    ...styles.chipstyle,
+                    backgroundColor:
+                      ActiveBrand === item.name
+                        ? Colors.green
+                        : Colors.lightGreen,
+                  }}>
+                  <AText
+                    fonts={FontStyle.semiBold}
+                    color={
+                      ActiveBrand === item.name
+                        ? Colors.whiteColor
+                        : Colors.blackColor
+                    }>
+                    {item.name}
+                  </AText>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <AText
+              mt="20px"
+              color={Colors.blackColor}
+              fonts={FontStyle.semiBold}>
+              Price Range
+            </AText>
+            <Text>
+              Selected Range: {values[0]} - {values[1]}
+            </Text>
+
+            <MultiSlider
+              containerStyle={{ marginLeft: 20 }}
+              values={values}
+              sliderLength={300}
+              onValuesChange={multiSliderValuesChange}
+              min={0}
+              max={10000}
+              step={1}
+              allowOverlap={false}
+              snapped
+              selectedStyle={{
+                backgroundColor: APP_PRIMARY_COLOR,
+              }}
+              unselectedStyle={{
+                backgroundColor: APP_PRIMARY_COLOR,
+              }}
+              markerStyle={{
+                backgroundColor: APP_PRIMARY_COLOR,
+              }}
+            />
+            <AText color={Colors.blackColor} fonts={FontStyle.semiBold}>
+              Rating
+            </AText>
+            <View style={{ width: '35%' }}>
+              <StarRating
+                disabled={false}
+                maxStars={5}
+                rating={starCount}
+                selectedStar={(rating) => onStarRatingPress(rating)}
+                emptyStarColor={'gray'}
+                starSize={19}
+                containerStyle={{ marginTop: 5 }}
+                fullStarColor={'#FFDB20'}
+              />
+            </View>
+            <AButton
+              mt={'20px'}
+              title={'Apply Filter'}
+              round
+              onPress={() => handleFilter()}
+            />
+          </ScrollView>
+        </BottomSheetModal>
+      </BottomSheetModalProvider>
     </>
   );
 };
 const styles = StyleSheet.create({
   fastImageStyle: { flex: 1, resizeMode: 'cover' },
+  chipstyle: {
+    backgroundColor: Colors.lightGreen,
+    height: 30,
+    width: 'auto',
+    alignItems: 'center',
+    marginRight: 10,
+    // marginLeft: 10,
+    borderRadius: 26,
+    paddingHorizontal: 15,
+    justifyContent: 'center',
+    marginTop: 5,
+  },
   heart: {
     position: 'absolute',
     right: 15,
