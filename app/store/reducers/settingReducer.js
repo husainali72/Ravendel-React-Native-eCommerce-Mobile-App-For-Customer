@@ -6,6 +6,7 @@ import {
   SALE_PRODUCTS,
   CATEGORY_PRODUCT,
   GET_FEATURE_PRODUCT,
+  GET_BRANDS,
 } from '../action/settingAction';
 
 const initialState = {
@@ -21,6 +22,7 @@ const initialState = {
   ProductByCategory: [],
   currencyOptions: [],
   currencySymbol: '',
+  brands: [],
   manage_stock: false,
 };
 
@@ -74,6 +76,12 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
         success: false,
+      };
+    case GET_BRANDS:
+      return {
+        ...state,
+        loading: false,
+        brands: action.payload,
       };
     default: {
       return state;

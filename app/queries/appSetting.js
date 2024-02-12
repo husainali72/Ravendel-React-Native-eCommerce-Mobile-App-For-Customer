@@ -8,6 +8,11 @@ const GET_APP_SETTING = gql`
         meta_tag
         meta_description
       }
+      imageStorage {
+        status
+        s3_id
+        s3_key
+      }
       store {
         currency_options {
           currency
@@ -17,8 +22,6 @@ const GET_APP_SETTING = gql`
           number_of_decimals
         }
         store_address {
-          address_line1
-          address_line2
           city
           country
           state

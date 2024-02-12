@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 const GET_USERS = gql`
   {
     users {
@@ -12,7 +12,7 @@ const GET_USERS = gql`
 `;
 
 const GET_USER = gql`
-  query($id: ID!) {
+  query ($id: ID!) {
     user(id: $id) {
       id
       name
@@ -23,7 +23,7 @@ const GET_USER = gql`
 `;
 
 const ADD_USER = gql`
-  mutation(
+  mutation (
     $name: String
     $email: String
     $password: String
@@ -47,7 +47,7 @@ const ADD_USER = gql`
 `;
 
 const UPDATE_USER = gql`
-  mutation(
+  mutation (
     $id: ID!
     $name: String
     $email: String
@@ -73,7 +73,7 @@ const UPDATE_USER = gql`
 `;
 
 const DELETE_USER = gql`
-  mutation($id: ID!) {
+  mutation ($id: ID!) {
     deleteUser(id: $id) {
       name
       email
@@ -84,62 +84,69 @@ const DELETE_USER = gql`
   }
 `;
 const ADD_CUSTOMER = gql`
-mutation (
-     $first_name: String,
-     $last_name: String, 
-     $email: String,
-     $phone: String,
-     $password: String
-      ) {
-  addCustomer(
-    first_name: $first_name
-    last_name: $last_name
-    email: $email
-    phone: $phone
-    password: $password
+  mutation (
+    $firstName: String
+    $lastName: String
+    $email: String
+    $company: String
+    $phone: String
+    $password: String
   ) {
-    message
-    success
-    __typename
+    addCustomer(
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      company: $company
+      phone: $phone
+      password: $password
+    ) {
+      message
+      success
+    }
   }
-}
-
 `;
 const EDIT_CUSTOMER = gql`
-mutation (
-      $id: ID!
-      $first_name: String,
-      $last_name: String, 
-      $email: String,
-      $phone: String,
-      $gender:String
-    ) {
-  updateCustomer(
-    id: $id
-    first_name: $first_name
-    last_name: $last_name
-    email: $email
-    phone: $phone
-    gender:$gender
+  mutation (
+    $id: ID!
+    $first_name: String
+    $last_name: String
+    $email: String
+    $phone: String
+    $gender: String
   ) {
-    message
-    success
-     }
-   }
+    updateCustomer(
+      id: $id
+      first_name: $first_name
+      last_name: $last_name
+      email: $email
+      phone: $phone
+      gender: $gender
+    ) {
+      message
+      success
+    }
+  }
 `;
 const CHANGE_PASSWORD = gql`
-  mutation(
-    $id: ID!,
-    $oldPassword: String, 
-    $newPassword: String) {
+  mutation ($id: ID!, $oldPassword: String, $newPassword: String) {
     updateCustomerPassword(
-      id: $id, 
-      oldPassword: $oldPassword,
-      newPassword: $newPassword) {
+      id: $id
+      oldPassword: $oldPassword
+      newPassword: $newPassword
+    ) {
       message
       success
     }
   }
 `;
 
-export { GET_USERS, GET_USER, ADD_USER, UPDATE_USER, DELETE_USER,ADD_CUSTOMER,EDIT_CUSTOMER,CHANGE_PASSWORD };
+export {
+  GET_USERS,
+  GET_USER,
+  ADD_USER,
+  UPDATE_USER,
+  DELETE_USER,
+  ADD_CUSTOMER,
+  EDIT_CUSTOMER,
+  CHANGE_PASSWORD,
+};

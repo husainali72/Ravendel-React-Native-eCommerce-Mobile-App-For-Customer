@@ -20,37 +20,37 @@ export const checkStorageAction = (userID) => async (dispatch) => {
     dispatch({
       type: CART_LOADING,
     });
-    query(GET_CART, { id: userID })
-      .then(async (response) => {
-        if (!isEmpty(response.data.cartbyUser.products)) {
-          var cartProducts = response.data.cartbyUser.products;
-          dispatch({
-            type: CHECK_STORAGE,
-            payload: {
-              cartProducts: cartProducts,
-              cartID: response.data.cartbyUser.id,
-            },
-          });
-        } else if (
-          !isEmpty(response.data.cartbyUser.id) &&
-          isEmpty(response.data.cartbyUser.products)
-        ) {
-          dispatch({
-            type: CHECK_STORAGE,
-            payload: { cartProducts: [], cartID: response.data.cartbyUser.id },
-          });
-        }
-      })
-      .catch((error) => {
-        console.log('error in check storage', error);
-        dispatch({
-          type: CART_EMPTY,
-        });
+    const response = await query(GET_CART, { id: userID });
+    // .then(async (response) => {
+    try {
+      if (!isEmpty(response.data.cartbyUser.products)) {
+        var cartProducts = response.data.cartbyUser.products;
         dispatch({
           type: CHECK_STORAGE,
-          payload: { cartProducts: [], cartID: '' },
+          payload: {
+            cartProducts: cartProducts,
+            cartID: response.data.cartbyUser.id,
+          },
         });
+      } else if (
+        !isEmpty(response.data.cartbyUser.id) &&
+        isEmpty(response.data.cartbyUser.products)
+      ) {
+        dispatch({
+          type: CHECK_STORAGE,
+          payload: { cartProducts: [], cartID: response.data.cartbyUser.id },
+        });
+      }
+    } catch (error) {
+      console.log('error in check storage', error);
+      dispatch({
+        type: CART_EMPTY,
       });
+      dispatch({
+        type: CHECK_STORAGE,
+        payload: { cartProducts: [], cartID: '' },
+      });
+    }
   } else {
     dispatch({
       type: CART_LOADING,
@@ -123,97 +123,97 @@ export const addCartAction = (payload, isLoggin) => async (dispatch) => {
     });
   }
 };
-export const updateCartAction = (payload, userID) => (dispatch) => {
+export const updateCartAction = (payload, userID) => async (dispatch) => {
   dispatch({
     type: CART_LOADING,
   });
-  mutation(UPDATE_CART, payload)
-    .then(async (response) => {
-      if (!isEmpty(response.data.updateCart)) {
+  const response = await mutation(UPDATE_CART, payload);
+  // .then(async (response) => {
+  try {
+    if (!isEmpty(response.data.updateCart)) {
+      dispatch({
+        type: RESPONSE_HANDLE,
+        payload: response.data.updateCart.success,
+      });
+      dispatch(checkStorageAction(userID));
+      await AsyncStorage.removeItem('cartproducts');
+    }
+  } catch (error) {
+    console.log('error', error);
+    dispatch({
+      type: CART_FAIL,
+    });
+  }
+};
+export const removeFromCartAction = (payload, userID) => async (dispatch) => {
+  dispatch({
+    type: CART_LOADING,
+  });
+  const response = await mutation(DELETE_CART_PRODUCT, payload);
+  // .then((response) => {
+  try {
+    if (response) {
+      if (
+        !isEmpty(response.data.deleteCartProduct) &&
+        response.data.deleteCartProduct.success
+      ) {
         dispatch({
-          type: RESPONSE_HANDLE,
-          payload: response.data.updateCart.success,
+          type: CART_FAIL,
         });
         dispatch(checkStorageAction(userID));
-        await AsyncStorage.removeItem('cartproducts');
       }
-    })
-    .catch((error) => {
-      console.log('error', error);
-      dispatch({
-        type: CART_FAIL,
-      });
+    }
+  } catch (error) {
+    console.log('error cartupdate', error);
+    dispatch({
+      type: CART_FAIL,
     });
+    dispatch({
+      type: ALERT_ERROR,
+      payload:
+        response.data.calculateCoupon.message ||
+        'Something went wrong. Please try again later.',
+    });
+  }
 };
-export const removeFromCartAction = (payload, userID) => (dispatch) => {
+export const applyCouponAction = (payload) => async (dispatch) => {
   dispatch({
     type: CART_LOADING,
   });
-  mutation(DELETE_CART_PRODUCT, payload)
-    .then((response) => {
-      if (response) {
-        if (
-          !isEmpty(response.data.deleteCartProduct) &&
-          response.data.deleteCartProduct.success
-        ) {
-          dispatch({
-            type: CART_FAIL,
-          });
-          dispatch(checkStorageAction(userID));
-        }
+  const response = await query(APPLY_COUPON, payload);
+  // .then((response) => {
+  try {
+    if (response) {
+      if (
+        !isEmpty(response.data.calculateCoupon) &&
+        response.data.calculateCoupon.total_coupon > 0
+      ) {
+        dispatch({
+          type: COUPON_APPLIED,
+          payload: response.data.calculateCoupon.total_coupon,
+        });
+      } else {
+        dispatch({
+          type: CART_FAIL,
+        });
+        dispatch({
+          type: ALERT_ERROR,
+          payload:
+            response.data.calculateCoupon.message ||
+            'Something went wrong. Please try again later.',
+        });
       }
-    })
-    .catch((error) => {
-      console.log('error cartupdate', error);
-      dispatch({
-        type: CART_FAIL,
-      });
-      dispatch({
-        type: ALERT_ERROR,
-        payload:
-          response.data.calculateCoupon.message ||
-          'Something went wrong. Please try again later.',
-      });
+    }
+  } catch (error) {
+    console.log('error', error);
+    dispatch({
+      type: CART_FAIL,
     });
-};
-export const applyCouponAction = (payload) => (dispatch) => {
-  dispatch({
-    type: CART_LOADING,
-  });
-  query(APPLY_COUPON, payload)
-    .then((response) => {
-      if (response) {
-        if (
-          !isEmpty(response.data.calculateCoupon) &&
-          response.data.calculateCoupon.total_coupon > 0
-        ) {
-          dispatch({
-            type: COUPON_APPLIED,
-            payload: response.data.calculateCoupon.total_coupon,
-          });
-        } else {
-          dispatch({
-            type: CART_FAIL,
-          });
-          dispatch({
-            type: ALERT_ERROR,
-            payload:
-              response.data.calculateCoupon.message ||
-              'Something went wrong. Please try again later.',
-          });
-        }
-      }
-    })
-    .catch((error) => {
-      console.log('error', error);
-      dispatch({
-        type: CART_FAIL,
-      });
-      dispatch({
-        type: ALERT_ERROR,
-        payload: 'Something went wrong. Please try again later.',
-      });
+    dispatch({
+      type: ALERT_ERROR,
+      payload: 'Something went wrong. Please try again later.',
     });
+  }
 };
 export const orderHistoryAction = (payload) => async (dispatch) => {
   dispatch({

@@ -15,7 +15,7 @@ export const mutation = async (query, variables, refetchQuery) => {
     return Promise.resolve(response);
   } catch (error) {
     const errors = JSON.parse(JSON.stringify(error));
-    console.log(errors);
+    console.log('Error is', errors);
     if (
       errors.graphQLErrors.length &&
       !isEmpty(errors.graphQLErrors[0].message)
@@ -47,13 +47,14 @@ export const query = async (query, variables) => {
       errors.graphQLErrors.length &&
       !isEmpty(errors.graphQLErrors[0].message)
     ) {
+      console.log('pErroringddd', errors.message);
       return Promise.reject(errors.graphQLErrors[0].message);
     }
     if (
       !isEmpty(errors.networkError) &&
       errors.networkError.statusCode === 400
     ) {
-      return Promise.reject(errors.message);
+      return Promise.resolve(errors.message);
     }
     return Promise.reject('Something went wrong');
   }
@@ -73,7 +74,6 @@ export const PostFetchWithoutToken = (url, registerDetails) => {
   try {
     const response = fetch(`${loginURL}${url}`, requestOptions).then((res) => {
       return new Promise((resolve) => {
-        console.log(res);
         const contentType = res.headers.get('content-type');
         if (contentType && contentType.indexOf('application/json') !== -1) {
           res.json().then((json) =>

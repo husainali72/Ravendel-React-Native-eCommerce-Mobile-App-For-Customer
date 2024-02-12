@@ -1,40 +1,50 @@
-import { CUSTOMER_LOADING, CUSTOMER_LOADING_FAIL } from "../action/customerAction";
-import { USER } from "../action/loginAction";
+import {
+  CUSTOMER_LOADING,
+  CUSTOMER_LOADING_FAIL,
+  USER_ALREADY_HAS_LOGIN,
+} from '../action/customerAction';
+import { USER } from '../action/loginAction';
 
 const initialState = {
-    savedAddress: {},
-    profileDetails: {},
-    orders: {},
-    isLoggin: false,
-    userDetails:[],
-    loading:false
+  savedAddress: {},
+  profileDetails: {},
+  orders: {},
+  isLoggin: false,
+  userDetails: [],
+  loading: false,
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case CUSTOMER_LOADING:
-      return{
+      return {
         ...state,
-        loading:true
-      }
+        loading: true,
+      };
     case CUSTOMER_LOADING_FAIL:
-      return{
+      return {
         ...state,
-        loading:false
-      }
+        loading: false,
+      };
     case 'USERS_DETAILS':
       return {
         ...state,
         chekoutDetails: action.payload,
       };
-      case USER:
-        return{
-          ...state,
-          userDetails:action.payload,
-          isLoggin:true,
-        }
-        case "USER_LOGOUT":
-          return {...initialState};
+    case USER:
+      return {
+        ...state,
+        userDetails: action.payload,
+        isLoggin: true,
+      };
+    case USER_ALREADY_HAS_LOGIN:
+      return {
+        ...state,
+        ...action.payload,
+        isLoggin: true,
+      };
+    case 'USER_LOGOUT':
+      return { ...initialState };
     default: {
       return state;
     }

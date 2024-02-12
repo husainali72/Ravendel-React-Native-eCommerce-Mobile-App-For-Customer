@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === "production") {
   baseURL = "http://localhost:8000";
 }*/
 
-export const baseUrl = 'http://192.168.1.12:8000';
+export const baseUrl = 'http://192.168.1.31:8000';
 // export const baseUrl = 'http://localhost:8000';
 // export const baseUrl = 'https://ravendel-backend.hbwebsol.com';
 
@@ -27,14 +27,7 @@ export const unflatten = (items, id = null, link = 'parentId') => {
     .map((item) => ({ ...item, children: unflatten(items, item.id) }));
   return arr;
 };
-export const FontStyle = {
-  fontBlack: 'Roboto-Black',
-  fontBold: 'Roboto-Bold',
-  fontExtraLight: 'Roboto-ExtraLight',
-  fontMedium: 'Roboto-Medium',
-  fontRegular: 'Roboto-Regular',
-  fontThin: 'Roboto-Thin',
-};
+
 export const shippedStatuscolor = (status, alpha) => {
   const INPROGRESS_COLOR = '#8fbec7';
   const SHIPPED_COLOR = '#D6BFBF';
@@ -161,3 +154,9 @@ export const formatCurrency = (amt, currencyOptions, currencySymbol) => {
     return `$${amount}`;
   }
 };
+
+export function capitalizeFirstLetter(string) {
+  if (string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+}

@@ -13,9 +13,13 @@ const PaymentMethodScreen = ({ navigation, route }) => {
   var cartAmount = route.params.cartAmount;
   var cartProducts = route.params.cartProducts;
   var couponCode = route.params.couponCode;
+  const defaultaddress = route.params.shippingValue;
+  console.log(defaultaddress, 'dd');
   const [paymentMethod, setPaymentMethod] = React.useState('cash');
-  const { currencyOptions, currencySymbol } = useSelector(state => state.settings);
-  const { couponDiscount } = useSelector(state => state.cart);
+  const { currencyOptions, currencySymbol } = useSelector(
+    (state) => state.settings,
+  );
+  const { couponDiscount } = useSelector((state) => state.cart);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -24,13 +28,17 @@ const PaymentMethodScreen = ({ navigation, route }) => {
       headerTintColor: '#000',
       headerRight: () => (
         <AText bold pr="10px">
-          {formatCurrency(cartAmount-couponDiscount, currencyOptions, currencySymbol)}
+          {formatCurrency(
+            cartAmount - couponDiscount,
+            currencyOptions,
+            currencySymbol,
+          )}
         </AText>
       ),
     });
   }, [navigation]);
 
-  const changeValue = val => {
+  const changeValue = (val) => {
     setPaymentMethod(val);
   };
   return (
@@ -47,7 +55,7 @@ const PaymentMethodScreen = ({ navigation, route }) => {
         ) : null}
 
         <RadioButton.Group
-          onValueChange={val => changeValue(val)}
+          onValueChange={(val) => changeValue(val)}
           value={paymentMethod}>
           <RadioButton.Item label="Credit" value="credit" />
           <RadioButton.Item label="Cash on Delievery" value="cash" />
@@ -58,13 +66,15 @@ const PaymentMethodScreen = ({ navigation, route }) => {
         disabled={paymentMethod === '' ? true : false}
         title="Next"
         block
-        onPress={() => navigation.navigate('Checkout', {
-          paymentMethod: paymentMethod,
-          cartAmount: cartAmount,
-          shippingValue: shippingValue,
-          cartProducts: cartProducts,
-          couponCode: couponCode,
-        })}
+        onPress={() =>
+          navigation.navigate('Checkout', {
+            paymentMethod: paymentMethod,
+            cartAmount: cartAmount,
+            shippingValue: shippingValue,
+            cartProducts: cartProducts,
+            couponCode: couponCode,
+          })
+        }
       />
     </>
   );

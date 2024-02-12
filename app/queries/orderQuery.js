@@ -116,13 +116,16 @@ const DELETE_CART_PRODUCT = gql`
 
 const GET_CART = gql`
   query ($id: ID!) {
-    cartbyUser(user_id: $id) {
+    cartbyUser(userId: $id) {
       id
-      user_id
+      userId
       status
       total
-      products
+      cartItem
+      availableItem
+      unavailableItem
       date
+
       updated
     }
   }
@@ -188,6 +191,7 @@ const ORDER_HISTORY = gql`
         tax_amount
         discount_amount
         grand_total
+        order_number
       }
       message {
         message

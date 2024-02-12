@@ -7,70 +7,73 @@ import { ALERT_ERROR } from '../reducers/alert';
 import { updateCartAction } from './cartAction';
 
 export const checkoutDetailsAction =
-  (checoutDetailsData, cartId, navigation) => (dispatch) => {
+  (checoutDetailsData, cartId, navigation) => async (dispatch) => {
     dispatch({
       type: CHECKOUT_LOADING,
     });
-    mutation(ADD_ORDER, checoutDetailsData)
-      .then(async (response) => {
-        if (response) {
-          if (
-            !isEmpty(response.data.addOrder) &&
-            response.data.addOrder.success
-          ) {
-            dispatch({
-              type: REMOVE_ALL_CART_PRODUCT,
-            });
-            await AsyncStorage.removeItem('cartproducts');
-            dispatch({
-              type: CHEKOUT_DETAILS,
-              payload: checoutDetailsData,
-            });
-            const cartData = {
-              id: cartId,
-              products: [],
-            };
-            dispatch(
-              updateCartAction(cartData, checoutDetailsData.customer_id),
-            );
-            Alert.alert(
-              'Success',
-              'Congratulations! Your order has been placed successfully.',
-              [
-                {
-                  text: 'Ok',
-                  onPress: () => {
-                    navigation.reset({
-                      index: 0,
-                      routes: [{ name: 'Home' }],
-                    });
-                  },
-                  style: 'cancel',
+    console.log(JSON.stringify(checoutDetailsData));
+    const response = await mutation(ADD_ORDER, checoutDetailsData);
+    console.log(JSON.stringify(response));
+    // .then(async (response) => {
+    try {
+      if (response) {
+        if (
+          !isEmpty(response.data.addOrder) &&
+          response.data.addOrder.success
+        ) {
+          dispatch({
+            type: REMOVE_ALL_CART_PRODUCT,
+          });
+          await AsyncStorage.removeItem('cartproducts');
+          dispatch({
+            type: CHEKOUT_DETAILS,
+            payload: checoutDetailsData,
+          });
+          const cartData = {
+            id: cartId,
+            products: [],
+          };
+          dispatch(updateCartAction(cartData, checoutDetailsData.customer_id));
+          Alert.alert(
+            'Success',
+            'Congratulations! Your order has been placed successfully.',
+            [
+              {
+                text: 'Ok',
+                onPress: () => {
+                  // navigation.reset({
+                  //   index: 0,
+                  //   routes: [{ name: 'Home' }],
+                  // });
+                  navigation.navigate('Home', {
+                    checoutDetailsData,
+                  });
                 },
-              ],
-              { cancelable: false },
-            );
-          } else {
-            dispatch({
-              type: CHECKOUT_LOADING_STOP,
-            });
-            dispatch({
-              type: ALERT_ERROR,
-              payload: 'Something went wrong. Please try again later.',
-            });
-          }
+                style: 'cancel',
+              },
+            ],
+            { cancelable: false },
+          );
+        } else {
+          dispatch({
+            type: CHECKOUT_LOADING_STOP,
+          });
+          dispatch({
+            type: ALERT_ERROR,
+            payload: 'Something went wrong. Please try again later.',
+          });
         }
-      })
-      .catch((error) => {
-        // console.log('error', error);
-        dispatch({
-          type: CHECKOUT_LOADING_STOP,
-        });
-        dispatch({
-          type: ALERT_ERROR,
-          payload: 'Something went wrong. Please try again later.',
-        });
+      }
+    } catch (error) {
+      // console.log('error', error);
+      dispatch({
+        type: CHECKOUT_LOADING_STOP,
       });
+      dispatch({
+        type: ALERT_ERROR,
+        payload: 'Something went wrong. Please try again later.',
+      });
+    }
   };
 
 export const CHEKOUT_DETAILS = 'CHEKOUT_DETAILS';
