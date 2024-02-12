@@ -16,7 +16,6 @@ import URL from '../../utils/baseurl';
 import { useIsFocused } from '@react-navigation/native';
 import { DataTable } from 'react-native-paper';
 import {
-  FontStyle,
   formatCurrency,
   isEmpty,
   shippedFinalStatuscolor,
@@ -24,6 +23,7 @@ import {
 } from '../../utils/helper';
 import { StyleSheet } from 'react-native';
 import Colors from '../../constants/Colors';
+import { FontStyle } from '../../utils/config';
 
 const OrderDetailScreen = ({ navigation, route }) => {
   const fontColor = '#7C7C7C';

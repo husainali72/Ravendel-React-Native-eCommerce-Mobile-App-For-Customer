@@ -27,14 +27,7 @@ export const unflatten = (items, id = null, link = 'parentId') => {
     .map((item) => ({ ...item, children: unflatten(items, item.id) }));
   return arr;
 };
-export const FontStyle = {
-  fontBlack: 'Roboto-Black',
-  fontBold: 'Roboto-Bold',
-  fontExtraLight: 'Roboto-ExtraLight',
-  fontMedium: 'Roboto-Medium',
-  fontRegular: 'Roboto-Regular',
-  fontThin: 'Roboto-Thin',
-};
+
 export const shippedStatuscolor = (status, alpha) => {
   const INPROGRESS_COLOR = '#8fbec7';
   const SHIPPED_COLOR = '#D6BFBF';

@@ -65,12 +65,12 @@ function ImageSlider({ dataItems, navigatetonext }) {
             }}
             style={styles.overlay}></TouchableOpacity>
           <View style={styles.textContainer}>
-            <AText mb="5px" medium fonts={FontStyle.fontBold}>
+            <AText mb="5px" small fonts={FontStyle.fontBold}>
               {item.name.length > 14
                 ? item.name.substring(0, 14) + '...'
                 : item.name}
             </AText>
-            <AText medium fonts={FontStyle.fontBold}>
+            <AText small fonts={FontStyle.fontBold}>
               $ {item.pricing.sellprice + '.00'}
             </AText>
             {/* <ProductPriceText fontsizesmall={true} Pricing={item.pricing} /> */}
@@ -85,7 +85,7 @@ function ImageSlider({ dataItems, navigatetonext }) {
               rating={3.5}
               fullStarColor={'#FFDB20'}
               emptyStarColor={'gray'}
-              starSize={15}
+              starSize={10}
             />
           </View>
         </ImageBackground>

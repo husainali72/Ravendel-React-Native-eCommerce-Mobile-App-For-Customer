@@ -201,7 +201,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         },
         search: '',
       };
-      console.log(filter, 'filter single id');
       dispatch(catProductAction(filter));
     } else {
       dispatch(catProductAction(singleCat?.id));
