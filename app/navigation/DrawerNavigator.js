@@ -49,6 +49,7 @@ import { AText } from '../theme-components';
 import ShippingMethodScreen from '../screens/checkout/ShippingMethodScreen';
 import Colors from '../constants/Colors';
 import Navigation from './';
+import NavigationConstants from './NavigationConstants';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -212,20 +213,10 @@ const DrawerNavigator = () => {
         },
         drawerInactiveTintColor: '#ABA7A7',
       }}
-      initialRouteName="Splash"
+      initialRouteName="Home"
       drawerContent={DrawerHeaderContent}>
-      {/* <Drawer.Screen
-        name={'Splash'}
-        component={Splash}
-        options={{
-          drawerStyle: {
-            backgroundColor: '#1c6765',
-          },
-          drawerLabel: '',
-        }}
-      /> */}
       <Drawer.Screen
-        name={'Home'}
+        name={NavigationConstants.HOME_SCREEN}
         component={Navigation}
         options={{
           drawerStyle: {
@@ -233,13 +224,17 @@ const DrawerNavigator = () => {
           },
           drawerLabel: 'Home',
           drawerIcon: ({ focused, size, color }) => (
-            <Feather name="home" color={APP_PRIMARY_COLOR} size={size} />
+            <Feather
+              name="home"
+              color={focused ? APP_PRIMARY_COLOR : Colors.grayColor}
+              size={size}
+            />
           ),
         }}
       />
       <Drawer.Screen
-        name={'CateGories'}
-        component={CategoriesStack}
+        name={NavigationConstants.SHOP_SCREEN}
+        component={Shop}
         options={{
           unmountOnBlur: true,
           drawerLabel: 'Shop',
@@ -249,7 +244,7 @@ const DrawerNavigator = () => {
         }}
       />
       <Drawer.Screen
-        name={'MyOrders'}
+        name={NavigationConstants.ORDERS_SCREEN}
         component={OrderScreen}
         options={{
           drawerLabel: 'My Orders',
@@ -259,8 +254,8 @@ const DrawerNavigator = () => {
         }}
       />
       <Drawer.Screen
-        name={'MyCart'}
-        component={CartStack}
+        name={NavigationConstants.CART_SCREEN}
+        component={CartScreen}
         options={{
           drawerLabel: 'My Cart',
           drawerIcon: ({ focused, size, color }) => (
@@ -279,8 +274,8 @@ const DrawerNavigator = () => {
         }}
       /> */}
       <Drawer.Screen
-        name={'AccountWrapper'}
-        component={AccountStack}
+        name={NavigationConstants.ACCOUNT_SCREEN}
+        component={AccountScreen}
         options={{
           unmountOnBlur: false,
           drawerLabel: 'My Account',

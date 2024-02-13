@@ -25,6 +25,7 @@ import { APP_PRIMARY_COLOR, APP_SECONDARY_COLOR } from '../../utils/config';
 import { ScrollView } from 'react-native-gesture-handler';
 import Colors from '../../constants/Colors';
 import Header from '../components/Header';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const OrderScreen = ({ navigation }) => {
   const { userDetails, isLoggin } = useSelector((state) => state.customer);
@@ -162,10 +163,13 @@ const OrderScreen = ({ navigation }) => {
                       round
                       bgColor={APP_PRIMARY_COLOR}
                       onPress={() =>
-                        navigation.navigate('OrderDetail', {
-                          orderDetails: prod,
-                          productIndex: 0,
-                        })
+                        navigation.navigate(
+                          NavigationConstants.ORDER_DETAIL_SCREEN,
+                          {
+                            orderDetails: prod,
+                            productIndex: 0,
+                          },
+                        )
                       }
                       title="View order"
                     />
@@ -179,7 +183,9 @@ const OrderScreen = ({ navigation }) => {
                 </AText>
                 <AButton
                   title="Shop Now"
-                  onPress={() => navigation.navigate('CateGories')}
+                  onPress={() =>
+                    navigation.navigate(NavigationConstants.SHOP_SCREEN)
+                  }
                 />
               </EmptyWrapper>
             )}

@@ -55,6 +55,7 @@ import { USER_ALREADY_HAS_LOGIN } from '../../store/action/customerAction';
 import Colors from '../../constants/Colors';
 import Header from '../components/Header';
 import Styles from '../../Theme';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const HomeScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
@@ -239,7 +240,7 @@ const HomeScreen = ({ navigation }) => {
     // if (category.children.length < 1) {
     //   navigateTo = 'Category';
     // } else {
-    navigateTo = 'SubcategoriesOption';
+    // navigateTo = NavigationConstants.SUBCATEGORIES_OPTION_SCREEN;
     // }
 
     var nestedCategory = [];
@@ -247,10 +248,9 @@ const HomeScreen = ({ navigation }) => {
       nestedCategory = category.children;
     }
     // console.log(JSON.stringify(category), 'this category going in subcategory');
-    navigation.navigate('CateGories', {
-      screen: navigateTo,
-      initial: false,
-      params: { singleCategory: category, withChildern: nestedCategory },
+    navigation.navigate(NavigationConstants.SUBCATEGORIES_OPTION_SCREEN, {
+      singleCategory: category,
+      withChildern: nestedCategory,
     });
   };
   console.log(settingLoading, ' ---- ', catLoading);
@@ -319,10 +319,10 @@ const HomeScreen = ({ navigation }) => {
           <ImageSlider
             dataItems={recentAddedProduct}
             navigatetonext={(item) => {
-              navigation.navigate('CateGories', {
-                screen: 'SingleProduct',
-                initial: false,
-                params: { productID: item._id, productUrl: item.url },
+              console.log(JSON.stringify(item), 'running func');
+              navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+                productID: item._id,
+                productUrl: item.url,
               });
             }}
           />
@@ -361,11 +361,13 @@ const HomeScreen = ({ navigation }) => {
               <HomeComponentShowViews
                 dataItems={featureData}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
             </SectionView>
@@ -381,11 +383,13 @@ const HomeScreen = ({ navigation }) => {
               <HomeComponentShowViews
                 dataItems={recentAddedProduct}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
             </SectionView>
@@ -413,21 +417,22 @@ const HomeScreen = ({ navigation }) => {
               <CardContainer
                 dataItems={saleProduct}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
 
               {/* <HomeComponentShowViews
                 dataItems={saleProduct}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
+                   navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+                    productID: item._id,
+                    productUrl: item.url,
                   });
                 }}
               /> */}
@@ -454,11 +459,13 @@ const HomeScreen = ({ navigation }) => {
               <HomeComponentShowViews
                 dataItems={ProductByCategory}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
             </SectionView>

@@ -41,6 +41,7 @@ import { CAT_PRODUCTS_CLEAR } from '../../store/action/productAction';
 import Colors from '../../constants/Colors';
 import Styles from '../../Theme';
 import Header from '../components/Header';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
@@ -255,10 +256,9 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate('CateGories', {
-            screen: 'SingleProduct',
-            initial: false,
-            params: { productID: item._id, productUrl: item.url },
+          navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+            productID: item._id,
+            productUrl: item.url,
           });
         }}
         style={styles.cardstyle}>

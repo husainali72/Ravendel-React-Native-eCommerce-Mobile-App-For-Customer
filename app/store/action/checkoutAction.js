@@ -5,6 +5,7 @@ import { getValue, isEmpty } from '../../utils/helper';
 import { mutation, query } from '../../utils/service';
 import { ALERT_ERROR } from '../reducers/alert';
 import { updateCartAction } from './cartAction';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 export const checkoutDetailsAction =
   (checoutDetailsData, cartId, navigation) => async (dispatch) => {
@@ -45,7 +46,7 @@ export const checkoutDetailsAction =
                   //   index: 0,
                   //   routes: [{ name: 'Home' }],
                   // });
-                  navigation.navigate('Home', {
+                  navigation.navigate(NavigationConstants.HOME_SCREEN, {
                     checoutDetailsData,
                   });
                 },

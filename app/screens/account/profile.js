@@ -9,6 +9,7 @@ import man from '../../assets/images/man.png';
 import woman from '../../assets/images/woman.png';
 import question from '../../assets/images/question.png';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const ProfileScreen = ({ navigation }) => {
   const userDetails = useSelector((state) => state.customer.userDetails);
@@ -33,7 +34,10 @@ const ProfileScreen = ({ navigation }) => {
             }
           />
         </ImageWrapper>
-        <Header onPress={() => navigation.navigate('EditProfile')}>
+        <Header
+          onPress={() =>
+            navigation.navigate(NavigationConstants.EDIT_PROFILE_SCREEN)
+          }>
           <AText bold centeR uppercase medium>
             {userDetails.first_name} {userDetails.last_name}
           </AText>

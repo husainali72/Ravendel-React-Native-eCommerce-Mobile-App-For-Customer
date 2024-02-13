@@ -60,6 +60,7 @@ import {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import { ScrollView, FlatList } from 'react-native-gesture-handler';
+import NavigationConstants from '../../navigation/NavigationConstants';
 var reviewObject = {
   title: '',
   email: '',
@@ -73,6 +74,7 @@ var reviewObject = {
 const { height: windowHeight, width: windowWidth } = Dimensions.get('window');
 
 const SingleProductScreen = ({ navigation, route }) => {
+  console.log('hell');
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTintColor: '#000',
@@ -327,11 +329,6 @@ const SingleProductScreen = ({ navigation, route }) => {
           console.log('yes it ran', item._id);
           setProductIds(item._id);
           setProductUrls(item.url);
-          // navigation.navigate('CateGories', {
-          //   screen: 'SingleProduct',
-          //   initial: false,
-          //   params: { productID: item._id, productUrl: item.url },
-          // });
         }}
         style={styles.cardstyle}>
         {/* <Icon
@@ -598,10 +595,9 @@ const SingleProductScreen = ({ navigation, route }) => {
                             onPress={() =>
                               isLoggin
                                 ? setWriteReviewPop(true)
-                                : navigation.navigate('AccountWrapper', {
-                                    screen: 'LoginSignUp',
-                                    initial: false,
-                                  })
+                                : navigation.navigate(
+                                    NavigationConstants.LOGIN_SIGNUP_SCREEN,
+                                  )
                             }
                             small
                             semi

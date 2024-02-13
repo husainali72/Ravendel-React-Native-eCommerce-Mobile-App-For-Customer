@@ -4,6 +4,7 @@ import Styles from '../../Theme';
 import { AText } from '../../theme-components';
 import { FontStyle } from '../../utils/config';
 import { Image } from 'react-native';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const Header = ({ navigation, title, showProfileIcon }) => {
   function handlePress() {
@@ -31,7 +32,7 @@ const Header = ({ navigation, title, showProfileIcon }) => {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() =>
-            navigation.navigate('AccountWrapper', { screen: 'Accounts' })
+            navigation.navigate(NavigationConstants.ACCOUNT_SCREEN)
           }
           style={{ ...styles.profileimgstyle, elevation: 5 }}>
           <Image

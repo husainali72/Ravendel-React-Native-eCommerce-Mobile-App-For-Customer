@@ -36,6 +36,7 @@ import { APP_SECONDARY_COLOR, FontStyle } from '../../utils/config';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import Colors from '../../constants/Colors';
 import Header from '../components/Header';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const CartScreen = ({ navigation }) => {
   // React.useLayoutEffect(() => {
@@ -318,17 +319,10 @@ const CartScreen = ({ navigation }) => {
                         index: 0,
                         routes: [
                           {
-                            name: 'CateGories',
-                            state: {
-                              routes: [
-                                {
-                                  name: 'SingleProduct',
-                                  params: {
-                                    productID: product._id,
-                                    productUrl: product.url,
-                                  },
-                                },
-                              ],
+                            name: NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                            params: {
+                              productID: product._id,
+                              productUrl: product.url,
                             },
                           },
                         ],
@@ -441,7 +435,9 @@ const CartScreen = ({ navigation }) => {
               </AText>
               <AButton
                 title="Shop Now"
-                onPress={() => navigation.navigate('CateGories')}
+                onPress={() =>
+                  navigation.navigate(NavigationConstants.SHOP_SCREEN)
+                }
               />
             </EmptyWrapper>
           )}
@@ -538,16 +534,15 @@ const CartScreen = ({ navigation }) => {
                   mb="30px"
                   onPress={() => {
                     !isEmpty(cartId)
-                      ? navigation.navigate('MyCart', {
+                      ? navigation.navigate(NavigationConstants.CART_SCREEN, {
                           screen: 'Shipping',
                           cartAmount: subtotal,
                           cartProducts: cartProducts,
                           couponCode: couponCode,
                         })
-                      : navigation.navigate('AccountWrapper', {
-                          screen: 'LoginSignUp',
-                          initial: false,
-                        });
+                      : navigation.navigate(
+                          NavigationConstants.LOGIN_SIGNUP_SCREEN,
+                        );
                   }}
                 />
               </CheckoutWrapper>

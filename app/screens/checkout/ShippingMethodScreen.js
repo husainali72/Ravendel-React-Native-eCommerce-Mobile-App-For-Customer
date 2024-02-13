@@ -20,6 +20,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { addAddressAction } from '../../store/action';
 import { AdressForm } from '../components';
 import Colors from '../../constants/Colors';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const ShippingMethodScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -230,7 +231,7 @@ const ShippingMethodScreen = ({ navigation, route }) => {
                 title="Next"
                 round
                 onPress={() =>
-                  navigation.navigate('Checkout', {
+                  navigation.navigate(NavigationConstants.CHECKOUT_SCREEN, {
                     paymentMethod: paymentMethod,
                     cartAmount: cartAmount,
                     shippingValue: shippingValue,

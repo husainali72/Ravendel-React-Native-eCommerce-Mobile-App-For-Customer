@@ -51,6 +51,7 @@ import {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
@@ -277,10 +278,9 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate('CateGories', {
-            screen: 'SingleProduct',
-            initial: false,
-            params: { productID: item._id, productUrl: item.url },
+          navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+            productID: item._id,
+            productUrl: item.url,
           });
         }}
         style={styles.cardstyle}>
@@ -359,7 +359,9 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
           <View style={styles.header}>
             <AIcon
-              onPress={() => navigation.navigate('Home')}
+              onPress={() =>
+                navigation.navigate(NavigationConstants.HOME_SCREEN)
+              }
               name="arrowleft"
               size={22}
             />

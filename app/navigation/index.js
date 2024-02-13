@@ -29,6 +29,7 @@ import {
   Temp,
   UserEntry,
   SubcategoriesOption,
+  Shop,
 } from '../screens';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
@@ -40,6 +41,8 @@ import { useIsFocused } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { APP_PRIMARY_COLOR } from '../utils/config';
 import Colors from '../constants/Colors';
+import NVC from '../navigation/NavigationConstants';
+import ShippingMethodScreen from '../screens/checkout/ShippingMethodScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -84,11 +87,11 @@ const CategoriesStack = () => {
         headerTransparent: true,
         headerTintColor: '#fff',
       }}>
-      {/* <Stack.Screen
+      <Stack.Screen
         name="Categories"
         options={{ headerShown: false }}
         component={CategoriesScreen}
-      /> */}
+      />
       <Stack.Screen
         name="SubcategoriesOption"
         options={{ headerShown: false }}
@@ -195,9 +198,9 @@ const Navigation = () => {
     );
   };
 
-  const HomeIconWithBadge = (props) => {
-    return <IconWithBadge {...props} badgeCount={cartItems.length} />;
-  };
+  // const HomeIconWithBadge = (props) => {
+  //   return <IconWithBadge {...props} badgeCount={cartItems.length} />;
+  // };
 
   return (
     <>
@@ -210,8 +213,6 @@ const Navigation = () => {
             // display: 'none',
           },
           tabBarLabelStyle: {
-            // fontFamily: FontStyle.sffontMedium,
-            // color: APP_PRIMARY_COLOR,
             fontSize: 14,
           },
           headerShown: false,
@@ -226,7 +227,7 @@ const Navigation = () => {
               image = focused
                 ? require('../assets/images/homeactive.png')
                 : require('../assets/images/home.png');
-            } else if (route.name === 'CateGories') {
+            } else if (route.name === 'Categories') {
               image = focused
                 ? require('../assets/images/catactive.png')
                 : require('../assets/images/categori.png');
@@ -234,7 +235,7 @@ const Navigation = () => {
               image = focused
                 ? require('../assets/images/cartactive.png')
                 : require('../assets/images/cart.png');
-            } else if (route.name === 'AccountWrapper') {
+            } else if (route.name === 'Account') {
               image = focused
                 ? require('../assets/images/useractive.png')
                 : require('../assets/images/user.png');
@@ -246,61 +247,103 @@ const Navigation = () => {
                 style={style.imgstyle}
               />
             );
-            // let iconName;
-            // if (route.name === 'Home') {
-            //   // iconName = focused ? 'home' : 'home';
-            //   iconName = 'home';
-            // } else if (route.name === 'CateGories') {
-            //   iconName = 'list';
-            // } else if (route.name === 'Cart') {
-            //   // iconName = 'shopping-cart';
-            //   return (
-            //     <HomeIconWithBadge
-            //       name="shopping-cart"
-            //       size={size}
-            //       color={color}
-            //     />
-            //   );
-            // } else if (route.name === 'AccountWrapper') {
-            //   iconName = 'user-circle-o';
-            // }
-            // return <Icon name={iconName} size={size} color={color} />;
           },
         })}
         backBehavior={'initialRoute'}>
-        {/* unmountInactiveRoutes */}
+        {/* Home */}
         <Tab.Screen
-          name="Home"
+          name={NVC.HOME_SCREEN}
           options={{
             tabBarLabel: 'Home',
           }}
           component={HomeScreen}
         />
+        {/* Home End */}
+
         <Tab.Screen
-          name="Temp"
+          name={NVC.TEMP_SCREEN}
           options={{
             tabBarLabel: 'Temp',
             tabBarButton: () => null,
           }}
           component={Temp}
         />
-        <Tab.Screen
+
+        {/* Categories */}
+        {/* <Tab.Screen
           name="CateGories"
           component={CategoriesStack}
           options={({ route }) => ({
-            unmountOnBlur: false,
+            unmountOnBlur: true,
             lazy: true,
             tabBarLabel: 'Categories',
           })}
+        /> */}
+        <Stack.Screen
+          name={NVC.CATEGORIES_SCREEN}
+          options={{ headerShown: false }}
+          component={CategoriesScreen}
         />
-        <Tab.Screen
-          name="Cart"
+        <Stack.Screen
+          name={NVC.SHOP_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={Shop}
+        />
+        <Stack.Screen
+          name={NVC.SUBCATEGORIES_OPTION_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={SubcategoriesOption}
+        />
+        <Stack.Screen
+          name={NVC.SUBCATEGORIES_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={SubCategoriesScreen}
+        />
+        <Stack.Screen
+          name={NVC.CATEGORY_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={CategoryScreen}
+        />
+        <Stack.Screen
+          name={NVC.SINGLE_PRODUCT_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={SingleProductScreen}
+        />
+        {/* Categories End */}
+
+        {/* Cart */}
+        {/* <Tab.Screen
+          name="MyCart"
           component={CartStack}
           options={({ route }) => ({
             tabBarLabel: 'Cart',
           })}
+        /> */}
+        <Stack.Screen name={NVC.CART_SCREEN} component={CartScreen} />
+        <Stack.Screen
+          name={NVC.SHIPPING_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={ShippingScreen}
         />
-        <Tab.Screen
+        <Stack.Screen
+          name={NVC.PAYMENT_METHOD_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={PaymentMethodScreen}
+        />
+        <Stack.Screen
+          name={NVC.SHIPPING_METHOD_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={ShippingMethodScreen}
+        />
+        <Stack.Screen
+          name={NVC.CHECKOUT_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={CheckoutScreen}
+        />
+        {/* Cart End */}
+
+        {/* Account */}
+        {/* <Tab.Screen
           name="AccountWrapper"
           component={AccountStack}
           options={({ route }) => ({
@@ -308,7 +351,69 @@ const Navigation = () => {
             lazy: false,
             tabBarLabel: 'Account',
           })}
+        /> */}
+        <Stack.Screen name={NVC.ACCOUNT_SCREEN} component={AccountScreen} />
+        <Stack.Screen
+          name={NVC.PROFILE_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={ProfileScreen}
         />
+        <Stack.Screen
+          name={NVC.SAVED_ADDRESS_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={SavedAddressScreen}
+        />
+        <Stack.Screen
+          name={NVC.ORDERS_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={OrderScreen}
+        />
+        <Stack.Screen
+          name={NVC.RECENTLY_VIEWED_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={RecentlyViewScreen}
+        />
+        <Stack.Screen
+          name={NVC.SAVE_CARDS_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={SaveCardScreen}
+        />
+        {/* <Stack.Screen
+          name="Login"
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={LoginScreen}
+        />
+        <Stack.Screen
+          name="Signup"
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={SignupScreen}
+        /> */}
+        <Stack.Screen
+          name={NVC.LOGIN_SIGNUP_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={UserEntry}
+        />
+        <Stack.Screen
+          name={NVC.FORGOT_PASSWORD_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={ForgotPasswordScreen}
+        />
+        <Stack.Screen
+          name={NVC.ORDER_DETAIL_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={OrderDetailScreen}
+        />
+        <Stack.Screen
+          name={NVC.EDIT_PROFILE_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={EditProfileScreen}
+        />
+        <Stack.Screen
+          name={NVC.CHANGE_PASSWORD_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={ChangePasswordScreen}
+        />
+        {/* Account End*/}
       </Tab.Navigator>
       <AlertError />
     </>
