@@ -71,10 +71,7 @@ var reviewObject = {
   product_id: '',
 };
 
-const { height: windowHeight, width: windowWidth } = Dimensions.get('window');
-
 const SingleProductScreen = ({ navigation, route }) => {
-  console.log('hell');
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTintColor: '#000',
@@ -88,11 +85,7 @@ const SingleProductScreen = ({ navigation, route }) => {
 
   // callbacks
   const handlePresentModalPress = useCallback(() => {
-    console.log('pressing', bottomSheetModalRef.current);
     bottomSheetModalRef.current?.present();
-  }, []);
-  const handleSheetChanges = useCallback((index) => {
-    console.log('handleSheetChanges', index);
   }, []);
 
   useEffect(() => {
@@ -117,7 +110,6 @@ const SingleProductScreen = ({ navigation, route }) => {
   );
   const { manage_stock } = useSelector((state) => state.settings);
   const Loading = useSelector((state) => state.products.loading);
-  const [descriptionCollapse, setDescriptionCollapse] = useState(false);
   const [reviewcollapse, setReviewCollapse] = useState(false);
   const [writeReviewPop, setWriteReviewPop] = useState(false);
   const [sliderImages, setSliderImages] = useState([]);
@@ -125,13 +117,9 @@ const SingleProductScreen = ({ navigation, route }) => {
   const [itemInCart, setItemInCart] = useState(false);
   const { cartId } = useSelector((state) => state.cart);
   const [singleProductLoading, setSingleProductLoading] = useState(true);
-  // const [scrollViewHeight, setScrollViewHeight] = useState('45%');
-  const [scrollY] = useState(new Animated.Value(0));
-  const [ScrollOffset, setScrollOffset] = useState(0);
-  // console.log(RelatedProducts, 'related Prod');
+
   const [cartQuantity, setCartQuantity] = useState(1);
   useEffect(() => {
-    // navigation.addListener('focus', () => {
     setReview({
       ...review,
       customer_id: userDetails._id,
@@ -139,11 +127,9 @@ const SingleProductScreen = ({ navigation, route }) => {
       email: userDetails.email,
     });
     setSingleProductLoading(true);
-    console.log(ProductUrl, 'pro id');
     dispatch(productAction(ProductUrls));
     dispatch(productReviewsAction(ProductIds));
     setSingleProductLoading(false);
-    // });
   }, [navigation, ProductIds]);
 
   useEffect(() => {
@@ -173,7 +159,7 @@ const SingleProductScreen = ({ navigation, route }) => {
       setTimeout(() => {
         if (!isEmpty(cartItems) && cartItems.length > 0) {
           cartItems.map((item) => {
-            if (item.product_id === ProductIds) {
+            if (item.productId === ProductIds) {
               setItemInCart(true);
             }
           });
@@ -221,21 +207,27 @@ const SingleProductScreen = ({ navigation, route }) => {
             },
           ],
         };
-        console.log(cartId);
-        return;
         dispatch(addCartAction(cartData));
       } else {
-        const cartData = {
-          user_id: userDetails._id,
-          product_id: SingleProduct._id,
+        let variables = {
+          total:
+            parseFloat(SingleProduct.pricing.sellprice.toFixed(2)) *
+            cartQuantity,
+          userId: userDetails._id,
+          productId: SingleProduct?._id,
           qty: cartQuantity,
-          product_title: SingleProduct.name,
-          product_price: parseFloat(SingleProduct.pricing.sellprice.toFixed(2)),
-          product_image: SingleProduct.feature_image,
-          tax_class: SingleProduct.tax_class,
-          shipping_class: SingleProduct.shipping.shipping_class,
+          productTitle: SingleProduct?.url,
+          productImage: SingleProduct?.feature_image,
+          productPrice: parseFloat(
+            SingleProduct.pricing.sellprice.toFixed(2),
+          ).toString(),
+          variantId: '',
+          productQuantity: Number(SingleProduct.quantity),
+          attributes: [],
+          shippingClass: SingleProduct.shipping.shippingClass,
+          taxClass: SingleProduct.taxClass,
         };
-        dispatch(addToCartAction(cartData));
+        dispatch(addToCartAction(variables));
       }
     } else {
       try {
@@ -244,10 +236,6 @@ const SingleProductScreen = ({ navigation, route }) => {
         console.log('Something went Wrong!!!!');
       }
     }
-    // navigation.reset({
-    //   index: 0,
-    //   routes: [{ name: 'Cart' }],
-    // });
   };
 
   const addToCart = async () => {
@@ -268,7 +256,7 @@ const SingleProductScreen = ({ navigation, route }) => {
     if (hasCartProducts !== null) {
       setItemInCart(true);
       products.push({
-        product_id: SingleProduct._id,
+        productId: SingleProduct._id,
         qty: cartQuantity,
         product_title: SingleProduct.name,
       });
@@ -278,7 +266,7 @@ const SingleProductScreen = ({ navigation, route }) => {
       setItemInCart(true);
       _storeData([
         {
-          product_id: SingleProduct._id,
+          productId: SingleProduct._id,
           qty: cartQuantity,
           product_title: SingleProduct.name,
         },
@@ -295,23 +283,6 @@ const SingleProductScreen = ({ navigation, route }) => {
       dispatch(catRecentProductAction(payload));
     }
   }, [SingleProduct]);
-  // const handleScroll = (event) => {
-  //   const offsetY = event.nativeEvent.contentOffset.y;
-  //   // Adjust the height based on the scroll offset
-  //   const newHeight = offsetY > 0 ? '85%' : '45%';
-  //   setScrollViewHeight(newHeight);
-  // };
-
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    { useNativeDriver: false }, // Set to true if using reanimated
-  );
-
-  const scrollViewHeight = scrollY.interpolate({
-    inputRange: [0, windowHeight * 0.5],
-    outputRange: [windowHeight * 0.5, windowHeight],
-    extrapolate: 'clamp',
-  });
 
   const Checkpoints = ({ title, image }) => {
     return (
@@ -321,7 +292,6 @@ const SingleProductScreen = ({ navigation, route }) => {
       </View>
     );
   };
-  // console.log(scrollViewHeight, 'ssc');
   function renderItem({ item }) {
     return (
       <TouchableOpacity
@@ -331,13 +301,6 @@ const SingleProductScreen = ({ navigation, route }) => {
           setProductUrls(item.url);
         }}
         style={styles.cardstyle}>
-        {/* <Icon
-          onPress={() => alert('Save it Wishlist')}
-          name="heart-o"
-          color={'red'}
-          size={15}
-          style={styles.heart}
-        /> */}
         <ImageBackground
           source={{
             uri: !isEmpty(item.feature_image)
@@ -362,12 +325,7 @@ const SingleProductScreen = ({ navigation, route }) => {
                 resizeMode: 'cover',
               }}></ImageBackground>
           </View>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              // navigatetonext(item);
-            }}
-            style={styles.overlay}></TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.9} style={styles.overlay} />
           <View style={styles.textContainer}>
             <AText mb="5px" small fonts={FontStyle.fontBold}>
               {item.name.length > 14
@@ -413,7 +371,6 @@ const SingleProductScreen = ({ navigation, route }) => {
                 name="arrowleft"
                 size={25}
               />
-              {/* <Icon name="heart-o" color={'red'} size={20} /> */}
             </View>
             {/* ===============Featured Images============= */}
             <GallerySliderWrapper>
@@ -425,7 +382,6 @@ const SingleProductScreen = ({ navigation, route }) => {
               ref={bottomSheetModalRef}
               index={1}
               snapPoints={snapPoints}
-              onChange={handleSheetChanges}
               style={{ flex: 1 }}>
               <ScrollView style={{ flex: 1 }}>
                 <ProductPriceText Pricing={SingleProduct.pricing} />
@@ -481,9 +437,6 @@ const SingleProductScreen = ({ navigation, route }) => {
                       SingleProduct.quantity > 0) ||
                       !manage_stock) && (
                       <>
-                        {/* <AText fonts={FontStyle.semiBold} large>
-                        Quantity
-                      </AText> */}
                         <QtyWrapper>
                           <QtyButton
                             onPress={() => {

@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  AText,
-  AContainer,
-  AHeader,
-  AppLoader,
-  AButton,
-  ARow,
-} from '../../theme-components';
+import { AText, AppLoader, AButton } from '../../theme-components';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   productsAction,
@@ -15,64 +8,48 @@ import {
   applyCouponAction,
   checkStorageAction,
 } from '../../store/action';
-import { formatCurrency, getToken, isEmpty } from '../../utils/helper';
+import { getToken, isEmpty } from '../../utils/helper';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import URL from '../../utils/baseurl';
-import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions, useIsFocused } from '@react-navigation/native';
 import {
   REMOVE_ALL_CART_PRODUCT,
   UPDATE_CART_PRODUCT,
 } from '../../store/action/checkoutAction';
-import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {
   COUPON_REMOVED,
   REMOVE_ITEM_IN_CART,
 } from '../../store/action/cartAction';
 import { ProductPriceText } from '../components';
-import { APP_SECONDARY_COLOR, FontStyle } from '../../utils/config';
+import { FontStyle } from '../../utils/config';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import Colors from '../../constants/Colors';
 import Header from '../components/Header';
 import NavigationConstants from '../../navigation/NavigationConstants';
 
 const CartScreen = ({ navigation }) => {
-  // React.useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     title: 'Cart',
-  //     headerTransparent: false,
-  //     headerTintColor: '#000',
-  //     headerRight: () => {
-  //       !isEmpty(cartItems) && cartItems.length > 0 &&
-  //         <AText bold pr="10px">
-  //           <AButton
-  //             title={
-  //               (<MaterialIcons name="cart-remove" size={22} />)
-  //             }
-  //             onPress={() => clearCart()}
-  //           />
-  //         </AText>
-  //     }
-
-  //   });
-  // }, [navigation]);
   const { userDetails, isLoggin } = useSelector((state) => state.customer);
   const cartItems = useSelector((state) => state.cart.products);
   const { cartId, couponDiscount, loading } = useSelector(
     (state) => state.cart,
   );
   const { Loading, products } = useSelector((state) => state.products);
+
   const loadingproduct = useSelector((state) => state.products.loading);
-  const { currencyOptions, currencySymbol } = useSelector(
-    (state) => state.settings,
-  );
+
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const [cartProducts, setCartProduct] = useState([]);
   const [subtotal, setSubTotal] = useState(0);
-  const [delievery, setDelievery] = useState(0);
   const [coupontotal, setCouponTotal] = useState(0);
   const [couponModal, setCouponModal] = useState(false);
   const [couponApplied, setCouponApplied] = useState(false);
@@ -84,8 +61,11 @@ const CartScreen = ({ navigation }) => {
 
   const fetchCart = () => {
     if (isEmpty(userDetails)) {
+      console.log(userDetails._id, 'pppp');
+
       dispatch(checkStorageAction());
     } else {
+      console.log(userDetails._id);
       dispatch(checkStorageAction(userDetails._id));
     }
     ListProducts();
@@ -106,7 +86,7 @@ const CartScreen = ({ navigation }) => {
       if (!isEmpty(cartItems) && cartItems.length > 0) {
         cartItems.map((item) => {
           products.filter((product) => {
-            if (product._id === item.product_id) {
+            if (product._id == item.productId) {
               filteredProducts.push({ ...product, cartQty: item.qty });
             }
           });
@@ -309,124 +289,153 @@ const CartScreen = ({ navigation }) => {
         <>
           {cartProducts && cartProducts.length ? (
             <>
-              {cartProducts.map((product) => (
-                <TouchableOpacity
-                  style={styles.productitem}
-                  key={product.id}
-                  onPress={() =>
-                    navigation.dispatch(
-                      CommonActions.reset({
-                        index: 0,
-                        routes: [
-                          {
-                            name: NavigationConstants.SINGLE_PRODUCT_SCREEN,
-                            params: {
-                              productID: product._id,
-                              productUrl: product.url,
-                            },
-                          },
-                        ],
-                      }),
-                    )
-                  }>
-                  <ItemImage
-                    source={{
-                      uri: !isEmpty(product.feature_image)
-                        ? URL + product.feature_image
-                        : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
-                    }}
-                  />
-                  <ItemDescription>
-                    <View>
-                      <AText fonts={FontStyle.semiBold} large heavy>
-                        {product.name.length > 20
-                          ? product.name.substring(0, 20) + '...'
-                          : product.name}
-                      </AText>
-                      <AText fonts={FontStyle.semiBold} medium color="#1FAD08">
-                        ${product.pricing.sellprice + '.00'}
-                      </AText>
-                    </View>
-                    <PriceQtyWrapper>
-                      <QtyWrapper>
-                        <QtyButton
-                          onPress={() => {
-                            product.cartQty === 1
-                              ? removeCartItem(product)
-                              : decreaseItemQty(product);
-                          }}>
-                          <AText color="#fff">
-                            <AIcon
-                              color={'#72787e'}
-                              name="minussquare"
-                              size={16}
-                            />
-                          </AText>
-                        </QtyButton>
-                        <AText center medium bold ml="10px" mr="10px">
-                          {product.cartQty}
+              {/* {console.log(JSON.stringify(cartProducts), 'Cart pro')} */}
+              <ScrollView
+                style={{ width: '100%' }}
+                showsVerticalScrollIndicator={false}>
+                {cartProducts.map((product) => (
+                  <TouchableOpacity
+                    style={styles.productitem}
+                    key={product.id}
+                    onPress={() =>
+                      navigation.navigate(
+                        NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                        { productID: product._id, productUrl: product.url },
+                      )
+                    }>
+                    <ItemImage
+                      source={{
+                        uri: !isEmpty(product.feature_image)
+                          ? URL + product.feature_image
+                          : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
+                      }}
+                    />
+                    <ItemDescription>
+                      <View style={{ width: '70%' }}>
+                        <AText nol={1} fonts={FontStyle.semiBold} large heavy>
+                          {product.name.length > 20
+                            ? product.name.substring(0, 20) + '...'
+                            : product.name}
                         </AText>
-                        <QtyButton onPress={() => increaseItemQty(product)}>
-                          <AText color="#fff">
-                            <AIcon
-                              color={'#72787e'}
-                              name="plussquare"
-                              size={16}
-                            />
+                        <AText
+                          fonts={FontStyle.semiBold}
+                          medium
+                          color="#1FAD08">
+                          ${product.pricing.sellprice + '.00'}
+                        </AText>
+                      </View>
+                      <PriceQtyWrapper>
+                        <QtyWrapper>
+                          <QtyButton
+                            onPress={() => {
+                              product.cartQty === 1
+                                ? removeCartItem(product)
+                                : decreaseItemQty(product);
+                            }}>
+                            <AText color="#fff">
+                              <AIcon
+                                color={'#72787e'}
+                                name="minussquare"
+                                size={16}
+                              />
+                            </AText>
+                          </QtyButton>
+                          <AText center medium bold ml="10px" mr="10px">
+                            {product.cartQty}
                           </AText>
-                        </QtyButton>
-                      </QtyWrapper>
-                      <ProductPriceText
-                        fontsizesmall={true}
-                        Pricing={product.pricing}
-                        DontshowPercentage={true}
-                        showInMulipleLine={'column-reverse'}
-                        fontColor={'#DB3022'}
-                      />
-                    </PriceQtyWrapper>
-                  </ItemDescription>
-                  <RemoveItem onPress={() => removeCartItem(product)}>
-                    <AText color="#fff">
-                      <Icon color={'#72787e'} name="close" size={12} />
+                          <QtyButton onPress={() => increaseItemQty(product)}>
+                            <AText color="#fff">
+                              <AIcon
+                                color={'#72787e'}
+                                name="plussquare"
+                                size={16}
+                              />
+                            </AText>
+                          </QtyButton>
+                        </QtyWrapper>
+                        <ProductPriceText
+                          fontsizesmall={true}
+                          Pricing={product.pricing}
+                          DontshowPercentage={true}
+                          showInMulipleLine={'column-reverse'}
+                          fontColor={'#DB3022'}
+                        />
+                      </PriceQtyWrapper>
+                    </ItemDescription>
+                    <RemoveItem onPress={() => removeCartItem(product)}>
+                      <AText color="#fff">
+                        <Icon color={'#72787e'} name="close" size={12} />
+                      </AText>
+                    </RemoveItem>
+                  </TouchableOpacity>
+                ))}
+                {cartProducts && cartProducts.length > 0 ? (
+                  <View
+                    style={{
+                      marginTop: 10,
+                      marginBottom: 26,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginHorizontal: 8,
+                    }}>
+                    <AText color="gray" small fonts={FontStyle.semiBold}>
+                      {cartProducts.length}{' '}
+                      {cartProducts.length > 1 ? 'Items' : 'Item'} in your cart
                     </AText>
-                  </RemoveItem>
-                </TouchableOpacity>
-              ))}
-              {cartProducts && cartProducts.length > 0 ? (
-                <View
-                  style={{
-                    marginTop: 10,
-                    marginBottom: 26,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginHorizontal: 8,
-                  }}>
-                  <AText color="gray" small fonts={FontStyle.semiBold}>
-                    {cartProducts.length}{' '}
-                    {cartProducts.length > 1 ? 'Items' : 'Item'} in your cart
-                  </AText>
-                  <AText color="gray" small fonts={FontStyle.semiBold}>
-                    Clear
-                  </AText>
-                </View>
-              ) : null}
-              <AInputFeild
-                type="text"
-                value={couponCode}
-                onChangeText={(text) => setCouponCode(text)}
-                placeholder="Enter coupon code"
-              />
-              {couponApplied && <AText>Coupon Applied successfully</AText>}
-              <View style={{ width: '40%', alignSelf: 'flex-end' }}>
-                <AButton
-                  onPress={() => ApplyCoupon()}
-                  round
-                  block
-                  title="Apply Coupon"
-                  small
-                  semi
+                    <AText color="gray" small fonts={FontStyle.semiBold}>
+                      Clear
+                    </AText>
+                  </View>
+                ) : null}
+                <AInputFeild
+                  type="text"
+                  value={couponCode}
+                  onChangeText={(text) => setCouponCode(text)}
+                  placeholder="Enter coupon code"
                 />
-              </View>
+                {couponApplied && <AText>Coupon Applied successfully</AText>}
+                <View style={{ width: '40%', alignSelf: 'flex-end' }}>
+                  <AButton
+                    onPress={() => ApplyCoupon()}
+                    round
+                    block
+                    title="Apply Coupon"
+                    small
+                    semi
+                  />
+                </View>
+                <View
+                  style={{ width: '100%', marginBottom: 25, marginTop: 15 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <AText fonts={FontStyle.semiBold}>Items</AText>
+                    <AText color="gray">${subtotal}</AText>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      borderBottomWidth: 0.5,
+                      paddingBottom: 15,
+                    }}>
+                    {/* <AText fonts={FontStyle.semiBold}>Discount</AText>
+                    <AText color="gray">7%</AText> */}
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: 5,
+                      marginBottom: 25,
+                    }}>
+                    <AText fonts={FontStyle.semiBold}>Grand Total</AText>
+                    <AText color="gray">${subtotal}</AText>
+                  </View>
+                </View>
+              </ScrollView>
             </>
           ) : (
             <EmptyWrapper>
@@ -443,103 +452,22 @@ const CartScreen = ({ navigation }) => {
           )}
           {cartProducts && cartProducts.length ? (
             <>
-              {/* <CouponWrapper
-                onPress={() =>
-                  couponApplied
-                    ? removeCoupon()
-                    : (setCouponCode(''), setCouponModal(true))
-                }>
-                <ARow row>
-                  <MaterialIcons name="brightness-percent" size={25} />
-                  {couponApplied ? (
-                    <AText left ml="7px" mt={-5} medium>
-                      Coupon applied {couponCode} {`\n`}
-                      <AText left small color={'#009A68'}>
-                        Coupon saving{' '}
-                        {formatCurrency(
-                          couponDiscount,
-                          currencyOptions,
-                          currencySymbol,
-                        )}
-                      </AText>
-                    </AText>
-                  ) : (
-                    <AText ml="5px" center medium>
-                      Apply Coupon
-                    </AText>
-                  )}
-                </ARow>
-                <AText medium heavy>
-                  {couponApplied ? 'Remove' : 'Select'}
-                </AText>
-              </CouponWrapper> */}
               <CheckoutWrapper>
-                <View style={{ width: '100%', marginBottom: 25 }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
-                    <AText fonts={FontStyle.semiBold}>Items</AText>
-                    <AText color="gray">$1139.99</AText>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      borderBottomWidth: 0.5,
-                      paddingBottom: 15,
-                    }}>
-                    <AText fonts={FontStyle.semiBold}>Discount</AText>
-                    <AText color="gray">7%</AText>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginTop: 5,
-                    }}>
-                    <AText fonts={FontStyle.semiBold}>Grand Total</AText>
-                    <AText color="gray">$914.00</AText>
-                  </View>
-                </View>
-                {/* <PriceTotal>
-                  <PriceWrapper>
-                    <AText
-                      right
-                      lineThrough={couponApplied}
-                      small={couponApplied}
-                      heavy={!couponApplied}
-                      color={couponApplied ? '#7b7b7b' : '#000000'}>
-                      {formatCurrency(
-                        subtotal + delievery,
-                        currencyOptions,
-                        currencySymbol,
-                      )}
-                    </AText>
-                    {couponApplied ? (
-                      <AText medium heavy>
-                        {formatCurrency(
-                          coupontotal,
-                          currencyOptions,
-                          currencySymbol,
-                        )}
-                      </AText>
-                    ) : null}
-                  </PriceWrapper>
-                </PriceTotal> */}
                 <AButton
                   title="Proceed to Checkout"
                   round
                   mb="30px"
                   onPress={() => {
                     !isEmpty(cartId)
-                      ? navigation.navigate(NavigationConstants.CART_SCREEN, {
-                          screen: 'Shipping',
-                          cartAmount: subtotal,
-                          cartProducts: cartProducts,
-                          couponCode: couponCode,
-                        })
+                      ? navigation.navigate(
+                          NavigationConstants.SHIPPING_SCREEN,
+                          {
+                            screen: 'Shipping',
+                            cartAmount: subtotal,
+                            cartProducts: cartProducts,
+                            couponCode: couponCode,
+                          },
+                        )
                       : navigation.navigate(
                           NavigationConstants.LOGIN_SIGNUP_SCREEN,
                         );
@@ -776,6 +704,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderWidth: 1,
     borderColor: '#f7f7f7',
+    marginHorizontal: 2,
   },
 });
 export default CartScreen;
