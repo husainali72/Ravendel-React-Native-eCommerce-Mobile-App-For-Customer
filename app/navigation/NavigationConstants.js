@@ -12,6 +12,7 @@ export default {
   PAYMENT_METHOD_SCREEN: 'PaymentMethod',
   SHIPPING_METHOD_SCREEN: 'ShippingMethod',
   CHECKOUT_SCREEN: 'Checkout',
+  CHECKOUT_DETAILS_SCREEN: 'CheckoutDetails',
   ACCOUNT_SCREEN: 'Account',
   PROFILE_SCREEN: 'Profile',
   SAVED_ADDRESS_SCREEN: 'SavedAddress',

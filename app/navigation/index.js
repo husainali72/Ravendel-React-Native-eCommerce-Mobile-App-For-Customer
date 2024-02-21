@@ -1,9 +1,8 @@
 import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer, DrawerActions } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import {
   HomeScreen,
   CartScreen,
@@ -16,8 +15,6 @@ import {
   SavedAddressScreen,
   OrderScreen,
   RecentlyViewScreen,
-  LoginScreen,
-  SignupScreen,
   ForgotPasswordScreen,
   SaveCardScreen,
   ShippingScreen,
@@ -30,6 +27,7 @@ import {
   UserEntry,
   SubcategoriesOption,
   Shop,
+  CheckoutDetails,
 } from '../screens';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
@@ -38,7 +36,6 @@ import AlertError from '../theme-components/alert';
 import { sessionCheck } from '../store/action/loginAction';
 import { checkStorageAction } from '../store/action';
 import { useIsFocused } from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { APP_PRIMARY_COLOR } from '../utils/config';
 import Colors from '../constants/Colors';
 import NVC from '../navigation/NavigationConstants';
@@ -48,116 +45,12 @@ const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const setting = { themes: [{ primaryColor: '#3a3a3a', productsCount: '3' }] };
 
-// Account Stack
-const AccountStack = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Account"
-      detachInactiveScreens={true}
-      screenOptions={{
-        title: '',
-        headerShown: false,
-      }}>
-      <Stack.Screen name="Account" component={AccountScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="SavedAddress" component={SavedAddressScreen} />
-      <Stack.Screen name="Orders" component={OrderScreen} />
-      <Stack.Screen name="RecentlyViewed" component={RecentlyViewScreen} />
-      <Stack.Screen name="SaveCards" component={SaveCardScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
-      <Stack.Screen name="LoginSignUp" component={UserEntry} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-      <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-    </Stack.Navigator>
-  );
-};
-
-// Categories and Single Product page route
-const CategoriesStack = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Categories"
-      detachInactiveScreens={true}
-      screenOptions={{
-        headerShown: false,
-        title: '',
-        headerTransparent: true,
-        headerTintColor: '#fff',
-      }}>
-      <Stack.Screen
-        name="Categories"
-        options={{ headerShown: false }}
-        component={CategoriesScreen}
-      />
-      <Stack.Screen
-        name="SubcategoriesOption"
-        options={{ headerShown: false }}
-        component={SubcategoriesOption}
-      />
-      <Stack.Screen
-        name="SubCategories"
-        // options={({ navigation }) => ({
-        //   title: 'Home',
-        //   headerStyle: {
-        //     backgroundColor: 'rgb(0, 145, 234)',
-        //   },
-        //   headerTintColor: 'blue',
-        //   headerTitleStyle: {
-        //     fontWeight: 'bold',
-        //     color: 'blue',
-        //   },
-        //   headerLeft: () => (
-        //     <Ionicons
-        //       name={'md-menu'}
-        //       size={24}
-        //       style={{ marginLeft: 10 }}
-        //       onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        //     />
-        //   ),
-        // })}
-        component={SubCategoriesScreen}
-      />
-      <Stack.Screen
-        name="Category"
-        options={{ headerShown: false }}
-        component={CategoryScreen}
-      />
-      <Stack.Screen
-        name="SingleProduct"
-        options={{ headerShown: false }}
-        component={SingleProductScreen}
-      />
-    </Stack.Navigator>
-  );
-};
-
-// Cart and checkoutscreen
-const CartStack = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Cart"
-      screenOptions={{
-        title: '',
-        headerTransparent: true,
-        headerTintColor: '#fff',
-      }}>
-      <Stack.Screen name="Cart" component={CartScreen} />
-      <Stack.Screen name="Shipping" component={ShippingScreen} />
-      <Stack.Screen name="PaymentMethod" component={PaymentMethodScreen} />
-      <Stack.Screen name="Checkout" component={CheckoutScreen} />
-    </Stack.Navigator>
-  );
-};
-
 const Navigation = () => {
   const isFocused = useIsFocused();
   const cartItems = useSelector((state) => state.cart.products) || 0;
   const { isLoggin } = useSelector((state) => state.customer);
   const dispatch = useDispatch();
-
+  console.log(cartItems.length, ' citem');
   useEffect(() => {
     dispatch(sessionCheck());
     getCart();
@@ -198,9 +91,9 @@ const Navigation = () => {
     );
   };
 
-  // const HomeIconWithBadge = (props) => {
-  //   return <IconWithBadge {...props} badgeCount={cartItems.length} />;
-  // };
+  const HomeIconWithBadge = (props) => {
+    return <IconWithBadge {...props} badgeCount={cartItems.length} />;
+  };
 
   return (
     <>
@@ -210,7 +103,6 @@ const Navigation = () => {
           tabBarStyle: {
             backgroundColor: Colors.lightestPrimaryColor,
             paddingBottom: 4,
-            // display: 'none',
           },
           tabBarLabelStyle: {
             fontSize: 14,
@@ -232,9 +124,13 @@ const Navigation = () => {
                 ? require('../assets/images/catactive.png')
                 : require('../assets/images/categori.png');
             } else if (route.name === 'Cart') {
-              image = focused
-                ? require('../assets/images/cartactive.png')
-                : require('../assets/images/cart.png');
+              return (
+                <HomeIconWithBadge
+                  name="shopping-cart"
+                  size={size}
+                  color={color}
+                />
+              );
             } else if (route.name === 'Account') {
               image = focused
                 ? require('../assets/images/useractive.png')
@@ -249,7 +145,7 @@ const Navigation = () => {
             );
           },
         })}
-        backBehavior={'initialRoute'}>
+        backBehavior={'history'}>
         {/* Home */}
         <Tab.Screen
           name={NVC.HOME_SCREEN}
@@ -340,6 +236,11 @@ const Navigation = () => {
           options={{ headerShown: false, tabBarButton: () => null }}
           component={CheckoutScreen}
         />
+        <Stack.Screen
+          name={NVC.CHECKOUT_DETAILS_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={CheckoutDetails}
+        />
         {/* Cart End */}
 
         {/* Account */}
@@ -390,12 +291,20 @@ const Navigation = () => {
         /> */}
         <Stack.Screen
           name={NVC.LOGIN_SIGNUP_SCREEN}
-          options={{ headerShown: false, tabBarButton: () => null }}
+          options={{
+            headerShown: false,
+            tabBarButton: () => null,
+            tabBarStyle: { display: 'none' },
+          }}
           component={UserEntry}
         />
         <Stack.Screen
           name={NVC.FORGOT_PASSWORD_SCREEN}
-          options={{ headerShown: false, tabBarButton: () => null }}
+          options={{
+            headerShown: false,
+            tabBarButton: () => null,
+            tabBarStyle: { display: 'none' },
+          }}
           component={ForgotPasswordScreen}
         />
         <Stack.Screen

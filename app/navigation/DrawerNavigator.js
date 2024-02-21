@@ -2,20 +2,16 @@ import * as React from 'react';
 import {
   View,
   StyleSheet,
-  Image,
   Text,
-  TouchableOpacity,
   ImageBackground,
   ScrollView,
 } from 'react-native';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
-  DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
 import Feather from 'react-native-vector-icons/Feather';
-import BottomTabNavigator from './';
 import { APP_PRIMARY_COLOR, FontStyle } from '../utils/config';
 import {
   AccountScreen,
@@ -26,8 +22,6 @@ import {
   CheckoutScreen,
   EditProfileScreen,
   ForgotPasswordScreen,
-  HomeScreen,
-  LoginScreen,
   OrderDetailScreen,
   OrderScreen,
   PaymentMethodScreen,
@@ -36,136 +30,19 @@ import {
   SaveCardScreen,
   SavedAddressScreen,
   ShippingScreen,
-  SignupScreen,
   SingleProductScreen,
   SubCategoriesScreen,
   UserEntry,
-  Splash,
   Shop,
   SubcategoriesOption,
+  CheckoutDetails,
 } from '../screens';
-import { createStackNavigator } from '@react-navigation/stack';
 import { AText } from '../theme-components';
 import ShippingMethodScreen from '../screens/checkout/ShippingMethodScreen';
 import Colors from '../constants/Colors';
 import Navigation from './';
 import NavigationConstants from './NavigationConstants';
-
 const Drawer = createDrawerNavigator();
-const Stack = createStackNavigator();
-
-// Account Stack
-const AccountStack = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Account"
-      detachPreviousScreen={true}
-      detachInactiveScreens={true}
-      screenOptions={{
-        title: '',
-        headerShown: false,
-      }}>
-      <Stack.Screen name="Account" component={AccountScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="SavedAddress" component={SavedAddressScreen} />
-      <Stack.Screen name="Orders" component={OrderScreen} />
-      <Stack.Screen name="RecentlyViewed" component={RecentlyViewScreen} />
-      <Stack.Screen name="SaveCards" component={SaveCardScreen} />
-      {/* <Stack.Screen name="Login" component={LoginScreen} /> */}
-      {/* <Stack.Screen name="Signup" component={SignupScreen} /> */}
-      <Stack.Screen name="LoginSignUp" component={UserEntry} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-      <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-    </Stack.Navigator>
-  );
-};
-
-// Cart and checkoutscreen
-const CartStack = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Cart"
-      screenOptions={{
-        title: '',
-        headerTransparent: true,
-        headerTintColor: '#fff',
-        headerShown: false,
-      }}>
-      <Stack.Screen name="Cart" component={CartScreen} />
-      <Stack.Screen name="Shipping" component={ShippingScreen} />
-      <Stack.Screen name="PaymentMethod" component={PaymentMethodScreen} />
-      <Stack.Screen name="ShippingMethod" component={ShippingMethodScreen} />
-      <Stack.Screen name="Checkout" component={CheckoutScreen} />
-    </Stack.Navigator>
-  );
-};
-
-// Categories and Single Product page route
-const CategoriesStack = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Shop"
-      detachInactiveScreens={true}
-      screenOptions={{
-        headerShown: false,
-        title: '',
-        headerTransparent: true,
-        headerTintColor: '#fff',
-      }}>
-      {/* <Stack.Screen
-        name="Categories"
-        options={{ headerShown: false }}
-        component={CategoriesScreen}
-      /> */}
-      <Stack.Screen
-        name="Shop"
-        initialParams={{ singleCategory: null, withChildern: null }}
-        component={Shop}
-      />
-      <Stack.Screen
-        name="SubCategories"
-        initialParams={{ singleCategory: null, withChildern: null }}
-        // options={({ navigation }) => ({
-        //   title: 'Home',
-        //   headerStyle: {
-        //     backgroundColor: 'rgb(0, 145, 234)',
-        //   },
-        //   headerTintColor: 'blue',
-        //   headerTitleStyle: {
-        //     fontWeight: 'bold',
-        //     color: 'blue',
-        //   },
-        //   headerLeft: () => (
-        //     <Ionicons
-        //       name={'md-menu'}
-        //       size={24}
-        //       style={{ marginLeft: 10 }}
-        //       onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        //     />
-        //   ),
-        // })}
-        component={SubCategoriesScreen}
-      />
-      <Stack.Screen
-        name="SubcategoriesOption"
-        options={{ headerShown: false }}
-        component={SubcategoriesOption}
-      />
-      {/* <Stack.Screen
-        name="Category"
-        options={{ headerShown: false }}
-        component={CategoryScreen}
-      /> */}
-      <Stack.Screen
-        name="SingleProduct"
-        options={{ headerShown: false }}
-        component={SingleProductScreen}
-      />
-    </Stack.Navigator>
-  );
-};
 
 const DrawerNavigator = () => {
   const DrawerHeaderContent = (props) => {
@@ -203,7 +80,6 @@ const DrawerNavigator = () => {
         },
         headerShown: false,
         drawerActiveTintColor: APP_PRIMARY_COLOR,
-        // drawerContentStyle: { backgroundColor: 'pink' },
         drawerItemStyle: {
           borderBottomColor: '#ABA7A7',
           borderBottomWidth: 0.5,
@@ -213,6 +89,7 @@ const DrawerNavigator = () => {
         },
         drawerInactiveTintColor: '#ABA7A7',
       }}
+      backBehavior="history"
       initialRouteName="Home"
       drawerContent={DrawerHeaderContent}>
       <Drawer.Screen
@@ -232,6 +109,7 @@ const DrawerNavigator = () => {
           ),
         }}
       />
+      {/* Categories */}
       <Drawer.Screen
         name={NavigationConstants.SHOP_SCREEN}
         component={Shop}
@@ -244,6 +122,47 @@ const DrawerNavigator = () => {
         }}
       />
       <Drawer.Screen
+        name={NavigationConstants.CATEGORIES_SCREEN}
+        component={CategoriesScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.SUBCATEGORIES_OPTION_SCREEN}
+        component={SubcategoriesOption}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.SUBCATEGORIES_SCREEN}
+        component={SubCategoriesScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.CATEGORY_SCREEN}
+        component={CategoryScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.SINGLE_PRODUCT_SCREEN}
+        component={SingleProductScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      {/* Categories End */}
+      <Drawer.Screen
         name={NavigationConstants.ORDERS_SCREEN}
         component={OrderScreen}
         options={{
@@ -253,6 +172,8 @@ const DrawerNavigator = () => {
           ),
         }}
       />
+
+      {/* Cart*/}
       <Drawer.Screen
         name={NavigationConstants.CART_SCREEN}
         component={CartScreen}
@@ -263,16 +184,49 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      {/* <Drawer.Screen
-        name={'MyWishlist'}
-        component={CartScreen}
+      <Drawer.Screen
+        name={NavigationConstants.SHIPPING_SCREEN}
+        component={ShippingScreen}
         options={{
-          drawerLabel: 'My Wishlist',
-          drawerIcon: ({ focused, size, color }) => (
-            <Feather name="tag" color={color} size={size} />
-          ),
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
         }}
-      /> */}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.PAYMENT_METHOD_SCREEN}
+        component={PaymentMethodScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.SHIPPING_METHOD_SCREEN}
+        component={ShippingMethodScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.CHECKOUT_SCREEN}
+        component={CheckoutScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.CHECKOUT_DETAILS_SCREEN}
+        component={CheckoutDetails}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      {/* Cart End */}
+
+      {/* Account */}
       <Drawer.Screen
         name={NavigationConstants.ACCOUNT_SCREEN}
         component={AccountScreen}
@@ -284,6 +238,79 @@ const DrawerNavigator = () => {
           ),
         }}
       />
+      <Drawer.Screen
+        name={NavigationConstants.PROFILE_SCREEN}
+        component={ProfileScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.SAVED_ADDRESS_SCREEN}
+        component={SavedAddressScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.RECENTLY_VIEWED_SCREEN}
+        component={RecentlyViewScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.SAVE_CARDS_SCREEN}
+        component={SaveCardScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.LOGIN_SIGNUP_SCREEN}
+        component={UserEntry}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.FORGOT_PASSWORD_SCREEN}
+        component={ForgotPasswordScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.ORDER_DETAIL_SCREEN}
+        component={OrderDetailScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.EDIT_PROFILE_SCREEN}
+        component={EditProfileScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      <Drawer.Screen
+        name={NavigationConstants.CHANGE_PASSWORD_SCREEN}
+        component={ChangePasswordScreen}
+        options={{
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
+      {/* Account End */}
       <Drawer.Screen
         name={'Notification'}
         component={CartScreen}
@@ -298,9 +325,6 @@ const DrawerNavigator = () => {
         name={'Contact us'}
         component={ShippingScreen}
         options={{
-          // drawerIcon: ({ focused, size, color }) => (
-          //   <Feather name="location-enter" color={color} size={size} />
-          // ),
           drawerItemStyle: {
             borderBottomColor: '#ABA7A7',
             borderBottomWidth: 0.5,
