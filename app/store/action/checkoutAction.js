@@ -12,10 +12,7 @@ export const checkoutDetailsAction =
     dispatch({
       type: CHECKOUT_LOADING,
     });
-    console.log(JSON.stringify(checoutDetailsData));
     const response = await mutation(ADD_ORDER, checoutDetailsData);
-    console.log(JSON.stringify(response));
-    // .then(async (response) => {
     try {
       if (response) {
         if (
@@ -35,26 +32,10 @@ export const checkoutDetailsAction =
             products: [],
           };
           dispatch(updateCartAction(cartData, checoutDetailsData.customer_id));
-          Alert.alert(
-            'Success',
-            'Congratulations! Your order has been placed successfully.',
-            [
-              {
-                text: 'Ok',
-                onPress: () => {
-                  // navigation.reset({
-                  //   index: 0,
-                  //   routes: [{ name: 'Home' }],
-                  // });
-                  navigation.navigate(NavigationConstants.HOME_SCREEN, {
-                    checoutDetailsData,
-                  });
-                },
-                style: 'cancel',
-              },
-            ],
-            { cancelable: false },
-          );
+
+          navigation.navigate(NavigationConstants.CHECKOUT_DETAILS_SCREEN, {
+            checoutDetailsData,
+          });
         } else {
           dispatch({
             type: CHECKOUT_LOADING_STOP,
@@ -66,7 +47,6 @@ export const checkoutDetailsAction =
         }
       }
     } catch (error) {
-      // console.log('error', error);
       dispatch({
         type: CHECKOUT_LOADING_STOP,
       });
