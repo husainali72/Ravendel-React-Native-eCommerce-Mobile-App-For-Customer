@@ -1,11 +1,5 @@
 import APclient from '../../Client';
 import NavigationConstants from '../../navigation/NavigationConstants';
-import {
-  ADD_ADDRESSBOOK,
-  DELETE_ADDRESSBOOK,
-  GET_CUSTOMER,
-  UPDATE_ADDRESSBOOK,
-} from '../../queries/customerQuery';
 import { GET_CART } from '../../queries/orderQuery';
 import { ADD_CUSTOMER } from '../../queries/userQuery';
 import {
@@ -16,12 +10,7 @@ import {
 } from '../../utils/helper';
 import { mutation, PostFetchWithoutToken, query } from '../../utils/service';
 import { ALERT_ERROR, ALERT_SUCCESS } from '../reducers/alert';
-import {
-  addCartAction,
-  CART_EMPTY,
-  checkStorageAction,
-  updateCartAction,
-} from './cartAction';
+import { addCartAction, CART_EMPTY, updateCartAction } from './cartAction';
 import { userDetailsfetch } from './customerAction';
 
 export const LoginAction =
@@ -32,7 +21,6 @@ export const LoginAction =
     dispatch({
       type: CART_EMPTY,
     });
-    // .then(async (response) => {
     const response = await PostFetchWithoutToken(`apis/customers/login`, {
       email: email,
       password: password,
@@ -91,7 +79,6 @@ export const getCartDetails =
   (userID, cartProductstore) => async (dispatch) => {
     const response = await query(GET_CART, { id: userID });
     try {
-      // .then(async (response) => {
       if (!isEmpty(response.data.cartbyUser.products)) {
         var cartProducts = response.data.cartbyUser.products;
         if (!isEmpty(cartProductstore)) {
@@ -154,7 +141,6 @@ export const getCartDetails =
         }
       }
     } catch (error) {
-      // console.log('error in getCartDetails ', error);
       if (!isEmpty(cartProductstore)) {
         var filteredProducts = [];
         cartProductstore = JSON.parse(cartProductstore);

@@ -4,13 +4,11 @@ import {
   AContainer,
   ARow,
   ACol,
-  AHeader,
   AppLoader,
   TextInput,
 } from '../../theme-components';
 import styled from 'styled-components/native';
 import { useSelector, useDispatch } from 'react-redux';
-import URL from '../../utils/baseurl';
 import {
   downloadImageFromS3,
   getToken,
@@ -46,7 +44,6 @@ import {
 import { brandAction } from '../../store/action/settingAction';
 import HomeBrandViews from './Components.js/BrandShow';
 import { APP_PRIMARY_COLOR, APP_SECONDARY_COLOR } from '../../utils/config';
-import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
 import Categories from './Components.js/CategoriesList';
 import ImageSlider from './Components.js/CustomSlider';
@@ -59,10 +56,9 @@ import Styles from '../../Theme';
 import NavigationConstants from '../../navigation/NavigationConstants';
 
 const HomeScreen = ({ navigation }) => {
-  const isFocused = useIsFocused();
+  // States and Variables
   const dispatch = useDispatch();
-  // var allCategories = useSelector(state => state.products.allCategories);
-
+  const isFocused = useIsFocused();
   const allCategoriesWithChild = useSelector(
     (state) => state.products.categories.data,
   );
@@ -72,8 +68,6 @@ const HomeScreen = ({ navigation }) => {
   const catLoading = useSelector((state) => state.products.loading);
   const loginState = useSelector((state) => state.login);
   const {
-    currencyOptions,
-    homeslider,
     homeData,
     featureData,
     recentAddedProduct,
@@ -82,12 +76,12 @@ const HomeScreen = ({ navigation }) => {
     brands,
     appTitle,
   } = useSelector((state) => state.settings);
-  // console.log('prod', recentAddedProduct, 'hooo');
   const primaryColor = '#000';
   const settingLoading = useSelector((state) => state.settings.loading);
-
   const [allCategories, setAllCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+
+  //Custom Functions
   const checkUserLoggedIn = async () => {
     try {
       const token = await getToken();
@@ -108,81 +102,9 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  //Custom Functions
   const handleinpiut = (e) => {
     setSearchTerm(e);
   };
-
-  useEffect(() => {
-    dispatch(AppSettingAction());
-    // dispatch(AllCategoriesAction(null));
-    dispatch(categoriesAction());
-  }, [isFocused]);
-
-  useEffect(() => {
-    dispatch(brandAction());
-    // console.log(homeData, 'homedaata');
-    if (!isEmpty(homeData)) {
-      const featuredProduct = homeData.filter(
-        (section) => section.label === 'Featured Product',
-      )[0];
-      const recentProduct = homeData.filter(
-        (section) => section.label === 'Recently Added Products',
-      )[0];
-      const productOnsale = homeData.filter(
-        (section) => section.label === 'Products On Sales',
-      )[0];
-      const productRec = homeData.filter(
-        (section) => section.label === 'Product Recommendation',
-      )[0];
-      const productFromSpecific = homeData.filter(
-        (section) => section.label === 'Product from Specific Categories',
-      )[0];
-      // console.log('fproduc', featuredProduct);
-      if (featuredProduct.visible) {
-        dispatch(featureDataAction());
-      }
-      // if (featuredProduct.visible) {
-      // }
-      if (recentProduct.visible) {
-        dispatch(recentaddedproductAction());
-      }
-      // if (homeData.most_viewed_products) {
-      // }
-      // if (homeData.recently_bought_products) {
-      // }
-      if (productRec.visible) {
-        // dispatch(productOnSaleAction());
-      }
-      if (productOnsale.visible) {
-        dispatch(productOnSaleAction());
-      }
-      if (productFromSpecific.visible) {
-        let catID = '62fe094eb2831ffd1e6fdfe8';
-        dispatch(productByPerticulareAction(catID));
-      }
-    }
-  }, [homeData]);
-  useEffect(() => {
-    if (allCategoriesWithChild) {
-      const data = unflatten(allCategoriesWithChild);
-      setAllCategories(data);
-    }
-  }, [allCategoriesWithChild]);
-
-  useEffect(() => {
-    if (!loginState.login) {
-      checkUserLoggedIn();
-    }
-  }, [loginState]);
-
-  useEffect(() => {
-    if (cartChecked) {
-      if (!isEmpty(userDetails)) {
-        UpdateCart();
-      }
-    }
-  }, [cartId, cartChecked]);
 
   const UpdateCart = async () => {
     var cartProduct = await getValue('cartproducts');
@@ -243,6 +165,74 @@ const HomeScreen = ({ navigation }) => {
   const handleSearchProduct = () => {
     navigation.navigate('Shop', { searchTerm: searchTerm });
   };
+
+  // Use Effect Call
+  useEffect(() => {
+    dispatch(AppSettingAction());
+    dispatch(categoriesAction());
+  }, [isFocused]);
+
+  useEffect(() => {
+    dispatch(brandAction());
+    if (!isEmpty(homeData)) {
+      const featuredProduct = homeData.filter(
+        (section) => section.label === 'Featured Product',
+      )[0];
+      const recentProduct = homeData.filter(
+        (section) => section.label === 'Recently Added Products',
+      )[0];
+      const productOnsale = homeData.filter(
+        (section) => section.label === 'Products On Sales',
+      )[0];
+      const productRec = homeData.filter(
+        (section) => section.label === 'Product Recommendation',
+      )[0];
+      const productFromSpecific = homeData.filter(
+        (section) => section.label === 'Product from Specific Categories',
+      )[0];
+      if (featuredProduct.visible) {
+        dispatch(featureDataAction());
+      }
+      if (recentProduct.visible) {
+        dispatch(recentaddedproductAction());
+      }
+      // if (homeData.most_viewed_products) {
+      // }
+      // if (homeData.recently_bought_products) {
+      // }
+      if (productRec.visible) {
+        // dispatch(productOnSaleAction());
+      }
+      if (productOnsale.visible) {
+        dispatch(productOnSaleAction());
+      }
+      if (productFromSpecific.visible) {
+        let catID = '62fe094eb2831ffd1e6fdfe8';
+        dispatch(productByPerticulareAction(catID));
+      }
+    }
+  }, [homeData]);
+
+  useEffect(() => {
+    if (allCategoriesWithChild) {
+      const data = unflatten(allCategoriesWithChild);
+      setAllCategories(data);
+    }
+  }, [allCategoriesWithChild]);
+
+  useEffect(() => {
+    if (!loginState.login) {
+      checkUserLoggedIn();
+    }
+  }, [loginState]);
+
+  useEffect(() => {
+    if (cartChecked) {
+      if (!isEmpty(userDetails)) {
+        UpdateCart();
+      }
+    }
+  }, [cartId, cartChecked]);
 
   return (
     <View style={Styles.mainContainer}>
@@ -479,7 +469,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
     paddingHorizontal: 30,
     paddingTop: 20,
-    // justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
 

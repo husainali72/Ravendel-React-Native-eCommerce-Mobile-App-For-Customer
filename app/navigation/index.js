@@ -46,16 +46,13 @@ const Stack = createStackNavigator();
 const setting = { themes: [{ primaryColor: '#3a3a3a', productsCount: '3' }] };
 
 const Navigation = () => {
+  // States and Variables
+  const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const cartItems = useSelector((state) => state.cart.products) || 0;
   const { isLoggin } = useSelector((state) => state.customer);
-  const dispatch = useDispatch();
-  console.log(cartItems.length, ' citem');
-  useEffect(() => {
-    dispatch(sessionCheck());
-    getCart();
-  }, [isFocused]);
 
+  // Custom Function
   const getCart = async () => {
     var userDetails = await getValue('userDetails');
     if (!isEmpty(userDetails)) {
@@ -65,6 +62,14 @@ const Navigation = () => {
       dispatch(checkStorageAction());
     }
   };
+
+  // Use Effect Call
+  useEffect(() => {
+    dispatch(sessionCheck());
+    getCart();
+  }, [isFocused]);
+
+  // Custom Components
   const IconWithBadge = ({ name, badgeCount, color, size }) => {
     return (
       <View style={{ width: 24, height: 24, margin: 5 }}>
@@ -166,15 +171,6 @@ const Navigation = () => {
         />
 
         {/* Categories */}
-        {/* <Tab.Screen
-          name="CateGories"
-          component={CategoriesStack}
-          options={({ route }) => ({
-            unmountOnBlur: true,
-            lazy: true,
-            tabBarLabel: 'Categories',
-          })}
-        /> */}
         <Stack.Screen
           name={NVC.CATEGORIES_SCREEN}
           options={{ headerShown: false }}
@@ -207,14 +203,7 @@ const Navigation = () => {
         />
         {/* Categories End */}
 
-        {/* Cart */}
-        {/* <Tab.Screen
-          name="MyCart"
-          component={CartStack}
-          options={({ route }) => ({
-            tabBarLabel: 'Cart',
-          })}
-        /> */}
+        {/* Cart*/}
         <Stack.Screen name={NVC.CART_SCREEN} component={CartScreen} />
         <Stack.Screen
           name={NVC.SHIPPING_SCREEN}

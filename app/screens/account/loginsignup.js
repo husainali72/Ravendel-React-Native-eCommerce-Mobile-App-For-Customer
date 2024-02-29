@@ -20,14 +20,15 @@ import { Splash } from '..';
 const Tab = createMaterialTopTabNavigator();
 
 const UserEntry = ({ navigation }) => {
-  const [activetab, setActivetab] = useState('Login');
+  // States and Variables
   const loading = useSelector((state) => state.login.loading);
+  const [activetab, setActivetab] = useState('Login');
+
+  // Custom Function
   const handleactivetab = (tabname) => {
     tabname === 'Login' ? setActivetab('Login') : setActivetab('Signup');
   };
-  // if (loading) {
-  //   return <AppLoader />;
-  // }
+
   if (loading) {
     return <Splash />;
   }

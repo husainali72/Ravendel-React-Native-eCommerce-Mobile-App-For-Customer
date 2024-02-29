@@ -6,10 +6,9 @@ import {
   UPDATE_ADDRESSBOOK,
 } from '../../queries/customerQuery';
 import { CHANGE_PASSWORD, EDIT_CUSTOMER } from '../../queries/userQuery';
-import { isEmpty, storeData } from '../../utils/helper';
+import { getValue, isEmpty, storeData } from '../../utils/helper';
 import { mutation, query } from '../../utils/service';
 import { ALERT_ERROR, ALERT_SUCCESS } from '../reducers/alert';
-import { CART_EMPTY } from './cartAction';
 import { USER } from './loginAction';
 
 export const editCustomerAction = (payload, navigation) => async (dispatch) => {
@@ -17,7 +16,6 @@ export const editCustomerAction = (payload, navigation) => async (dispatch) => {
     type: CUSTOMER_LOADING,
   });
   const response = await mutation(EDIT_CUSTOMER, payload);
-  // .then((response) => {
   try {
     if (
       !isEmpty(response.data.updateCustomer) &&
@@ -58,7 +56,6 @@ export const changePasswordAction =
       type: CUSTOMER_LOADING,
     });
     const response = await mutation(CHANGE_PASSWORD, payload);
-    // .then((response) => {
     try {
       if (
         !isEmpty(response.data.updateCustomerPassword) &&
@@ -100,21 +97,18 @@ export const userDetailsfetch = (id) => async (dispatch) => {
     type: CUSTOMER_LOADING,
   });
   const response = await query(GET_CUSTOMER, { id: id });
-  // .then(async (response) => {
   try {
-    if (
-      !isEmpty(response.data.customer) &&
-      response.data.customer.message.success
-    ) {
+    if (!isEmpty(response.data.customer.data)) {
+      const customerOldData = await getValue('userDetails');
+      const cold = JSON.parse(customerOldData);
+      cold.addressBook = response.data.customer.data.addressBook;
+
+      storeData('userDetails', JSON.stringify(cold));
       dispatch({
         type: USER,
-        payload: response.data.customer.data,
+        payload: cold,
       });
-      dispatch({
-        type: CART_EMPTY,
-        payload: response.data.customer.data,
-      });
-      storeData('userDetails', JSON.stringify(response.data.customer.data));
+
       dispatch({
         type: CUSTOMER_LOADING_FAIL,
       });
@@ -125,7 +119,7 @@ export const userDetailsfetch = (id) => async (dispatch) => {
       dispatch({
         type: ALERT_ERROR,
         payload:
-          response.data.customer.message.message ||
+          response.data.customer ||
           'Something went wrong. Please try again later.',
       });
     }
@@ -144,7 +138,6 @@ export const addAddressAction = (payload, navigation) => async (dispatch) => {
     type: CUSTOMER_LOADING,
   });
   const response = await mutation(ADD_ADDRESSBOOK, payload);
-  // .then((response) => {
   try {
     if (
       !isEmpty(response.data.addAddressBook) &&
@@ -183,7 +176,6 @@ export const removeAddressAction =
       type: CUSTOMER_LOADING,
     });
     const response = await mutation(DELETE_ADDRESSBOOK, payload);
-    // .then((response) => {
     try {
       if (
         !isEmpty(response.data.deleteAddressBook) &&
@@ -220,7 +212,6 @@ export const updateAddressAction =
       type: CUSTOMER_LOADING,
     });
     const response = await mutation(UPDATE_ADDRESSBOOK, payload);
-    // .then((response) => {
     try {
       if (
         !isEmpty(response.data.updateAddressBook) &&
