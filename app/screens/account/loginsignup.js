@@ -75,7 +75,10 @@ const UserEntry = ({ navigation }) => {
           {activetab === 'Login' ? (
             <LoginScreen navigation={navigation} />
           ) : (
-            <SignupScreen navigation={navigation} />
+            <SignupScreen
+              handleactivetab={handleactivetab}
+              navigation={navigation}
+            />
           )}
         </View>
         <View style={{ marginBottom: 20 }}></View>

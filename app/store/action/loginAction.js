@@ -41,18 +41,17 @@ export const LoginAction =
           type: USER,
           payload: userDetails,
         });
-        var cartProductstore = await getValue('cartproducts');
-        if (!isEmpty(cartProductstore)) {
-          dispatch(getCartDetails(data.customer._id, cartProductstore));
-        }
-        dispatch({
-          type: ALERT_SUCCESS,
-          payload: 'Login  successfully',
-        });
-
         navigation.reset({
           index: 0,
           routes: [{ name: 'Home' }],
+        });
+        // var cartProductstore = await getValue('cartproducts');
+        // if (!isEmpty(cartProductstore)) {
+        //   dispatch(getCartDetails(data.customer._id, cartProductstore));
+        // }
+        dispatch({
+          type: ALERT_SUCCESS,
+          payload: 'Login  successfully',
         });
       } else {
         dispatch({
@@ -177,49 +176,51 @@ export const sessionCheck = () => async (dispatch) => {
   }
 };
 
-export const registerAction = (payload, navigation) => async (dispatch) => {
-  dispatch({
-    type: LOGIN_LOADING,
-  });
-  const response = await mutation(ADD_CUSTOMER, payload);
-  // .then((response) => {
-  console.log(response);
-  try {
-    if (
-      !isEmpty(response.data.addCustomer) &&
-      response.data.addCustomer.success
-    ) {
-      navigation.navigate(NavigationConstants.LOGIN_SIGNUP_SCREEN, {
-        initial: false,
-      });
+export const registerAction =
+  (payload, navigation, handleactivetab) => async (dispatch) => {
+    dispatch({
+      type: LOGIN_LOADING,
+    });
+    const response = await mutation(ADD_CUSTOMER, payload);
+    // .then((response) => {
+    console.log(response);
+    try {
+      if (
+        !isEmpty(response.data.addCustomer) &&
+        response.data.addCustomer.success
+      ) {
+        // navigation.navigate(NavigationConstants.LOGIN_SIGNUP_SCREEN, {
+        //   initial: false,
+        // });
+        handleactivetab('Login');
+        dispatch({
+          type: LOGIN_STOP,
+        });
+        dispatch({
+          type: ALERT_SUCCESS,
+          payload: 'Signup successfully',
+        });
+      } else {
+        dispatch({
+          type: LOGIN_STOP,
+        });
+        dispatch({
+          type: ALERT_ERROR,
+          payload:
+            response.data.addCustomer.message ||
+            'Something went wrong. Please try again later.',
+        });
+      }
+    } catch (error) {
       dispatch({
-        type: LOGIN_STOP,
-      });
-      dispatch({
-        type: ALERT_SUCCESS,
-        payload: 'Signup successfully',
-      });
-    } else {
-      dispatch({
-        type: LOGIN_STOP,
+        type: LOGIN_FAIL,
       });
       dispatch({
         type: ALERT_ERROR,
-        payload:
-          response.data.addCustomer.message ||
-          'Something went wrong. Please try again later.',
+        payload: 'Something went wrong. Please try again later.',
       });
     }
-  } catch (error) {
-    dispatch({
-      type: LOGIN_FAIL,
-    });
-    dispatch({
-      type: ALERT_ERROR,
-      payload: 'Something went wrong. Please try again later.',
-    });
-  }
-};
+  };
 
 export const LOGIN_LOADING = 'LOGIN_LOADING';
 export const LOGIN_FAIL = 'LOGIN_FAIL';

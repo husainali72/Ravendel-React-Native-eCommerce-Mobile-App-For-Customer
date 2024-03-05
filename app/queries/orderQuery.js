@@ -9,8 +9,6 @@ const ADD_TOCART = gql`
     $productImage: String
     $total: Float
     $qty: Int
-    $shippingClass: String
-    $taxClass: String
     $attributes: customArray
     $variantId: String
     $productQuantity: Int
@@ -26,8 +24,6 @@ const ADD_TOCART = gql`
       attributes: $attributes
       productQuantity: $productQuantity
       variantId: $variantId
-      shippingClass: $shippingClass
-      taxClass: $taxClass
     ) {
       message
       success
@@ -120,6 +116,15 @@ const DELETE_CART_PRODUCT = gql`
   }
 `;
 
+const DELETE_CART = gql`
+  mutation DeleteCart($userId: ID!) {
+    deleteCart(userId: $userId) {
+      success
+      message
+    }
+  }
+`;
+
 const GET_CART = gql`
   query ($id: ID!) {
     cartbyUser(userId: $id) {
@@ -136,6 +141,36 @@ const GET_CART = gql`
     }
   }
 `;
+
+const CALCULATE_CART = gql`
+  query ($id: ID!) {
+    calculateCart(userId: $id) {
+      id
+      userId
+      status
+      cartItems
+      date
+      totalSummary
+
+      updated
+    }
+  }
+`;
+
+const CALCULATE_CART_WITHOUT_LOGIN = gql`
+  query ($cartItems: [calculateCartProducts]) {
+    calculateCart(cartItems: $cartItems) {
+      id
+      userId
+      status
+      cartItems
+      date
+      totalSummary
+      updated
+    }
+  }
+`;
+
 const CART = gql`
   query ($id: ID!) {
     cart(id: $id) {
@@ -157,6 +192,16 @@ const UPDATE_CART = gql`
     }
   }
 `;
+
+const CHANGE_QTY = gql`
+  mutation ChangeQty($userId: ID!, $productId: ID!, $qty: Int!) {
+    changeQty(userId: $userId, productId: $productId, qty: $qty) {
+      success
+      message
+    }
+  }
+`;
+
 const APPLY_COUPON = gql`
   query ($coupon_code: String, $cart: [cartProducts]) {
     calculateCoupon(coupon_code: $coupon_code, cart: $cart) {
@@ -244,6 +289,7 @@ export {
   GET_ORDERS,
   GET_ORDER,
   DELETE_ORDER,
+  DELETE_CART,
   UPDATE_ORDER,
   DELETE_CART_PRODUCT,
   GET_CART,
@@ -253,4 +299,7 @@ export {
   ORDER_HISTORY,
   ADD_ORDER,
   CART,
+  CALCULATE_CART,
+  CALCULATE_CART_WITHOUT_LOGIN,
+  CHANGE_QTY,
 };

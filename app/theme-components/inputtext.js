@@ -65,6 +65,8 @@ const Textinputs = ({
   top,
   pr,
   sc,
+  onSubmit,
+  pt,
 }) => {
   const { passwordVisibility, rightIcon, handlePasswordVisibility } =
     useTogglePasswordVisibility();

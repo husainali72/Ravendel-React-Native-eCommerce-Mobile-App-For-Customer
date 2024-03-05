@@ -27,7 +27,9 @@ import {
 } from 'react-native';
 import {
   COUPON_REMOVED,
+  CartQtyAction,
   REMOVE_ITEM_IN_CART,
+  removeCartAction,
 } from '../../store/action/cartAction';
 import { ProductPriceText } from '../components';
 import { FontStyle } from '../../utils/config';
@@ -37,28 +39,24 @@ import Header from '../components/Header';
 import NavigationConstants from '../../navigation/NavigationConstants';
 
 const CartScreen = ({ navigation }) => {
+  // States and Variables
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
   const { userDetails, isLoggin } = useSelector((state) => state.customer);
   const cartItems = useSelector((state) => state.cart.products);
+  const cartSummary = useSelector((state) => state.cart.cartSummary);
   const { cartId, couponDiscount, loading } = useSelector(
     (state) => state.cart,
   );
   const { Loading, products } = useSelector((state) => state.products);
-
   const loadingproduct = useSelector((state) => state.products.loading);
-
-  const dispatch = useDispatch();
-  const isFocused = useIsFocused();
   const [cartProducts, setCartProduct] = useState([]);
-  const [subtotal, setSubTotal] = useState(0);
   const [coupontotal, setCouponTotal] = useState(0);
   const [couponModal, setCouponModal] = useState(false);
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponCode, setCouponCode] = useState('');
-  useEffect(() => {
-    dispatch(productsAction());
-    fetchCart();
-  }, [isFocused]);
 
+  // Custom Function
   const fetchCart = () => {
     if (isEmpty(userDetails)) {
       console.log(userDetails._id, 'pppp');
@@ -68,69 +66,21 @@ const CartScreen = ({ navigation }) => {
       console.log(userDetails._id);
       dispatch(checkStorageAction(userDetails._id));
     }
-    ListProducts();
   };
-
-  useEffect(() => {
-    ListProducts();
-  }, [products, cartItems]);
-
-  useEffect(() => {
-    cartSubTotal();
-  }, [cartProducts, couponDiscount]);
 
   const ListProducts = () => {
-    if (!isEmpty(products)) {
-      setCartProduct([]);
-      var filteredProducts = [];
-      if (!isEmpty(cartItems) && cartItems.length > 0) {
-        cartItems.map((item) => {
-          products.filter((product) => {
-            if (product._id == item.productId) {
-              filteredProducts.push({ ...product, cartQty: item.qty });
-            }
-          });
-        });
-      }
-      setCartProduct([...filteredProducts]);
-    } else {
-      dispatch(productsAction());
-    }
-  };
-
-  const cartSubTotal = () => {
-    var subtotalVar = 0;
-    if (cartProducts && cartProducts.length) {
-      cartProducts.map((item) => {
-        if (item.pricing.sellprice) {
-          var sellPrice = item.pricing.sellprice * item.cartQty;
-          subtotalVar = subtotalVar + sellPrice;
-        } else {
-          var totalPrice = item.pricing.price * item.cartQty;
-          subtotalVar = subtotalVar + totalPrice;
-        }
-      });
-    }
-    if (!isEmpty(couponDiscount) && couponDiscount > 0) {
-      setCouponApplied(true);
-      let subto = subtotalVar - couponDiscount;
-      if (subto < 0) {
-        setCouponTotal(0);
-      } else {
-        setCouponTotal(subtotalVar - couponDiscount);
-      }
-    }
-    setSubTotal(subtotalVar);
+    setCartProduct(cartItems);
   };
 
   const removeCartItem = async (removedItem) => {
     removedItem.cart = false;
     let filteredProduct = cartProducts.filter(
-      (item) => item._id !== removedItem._id,
+      (item) => item.productId !== removedItem.productId,
     );
     let filterCartItem = cartItems.filter(
-      (item) => item.product_id !== removedItem._id,
+      (item) => item.productId !== removedItem.productId,
     );
+
     try {
       if (cartProducts.length > 1) {
         if (isLoggin) {
@@ -144,6 +94,7 @@ const CartScreen = ({ navigation }) => {
             'cartproducts',
             JSON.stringify(filterCartItem),
           );
+          dispatch(checkStorageAction());
         }
       } else {
         clearCart();
@@ -158,13 +109,13 @@ const CartScreen = ({ navigation }) => {
       console.log('Something went Wrong!!!!');
     }
   };
+
   const increaseItemQty = async (item) => {
     var cartitem = [];
     cartItems.map((cart) => {
       if (cart.product_id === item._id) {
         cartitem.push({
-          product_id: cart.product_id,
-          product_title: cart.product_title,
+          ...cart,
           qty: cart.qty + 1,
         });
       } else {
@@ -172,23 +123,16 @@ const CartScreen = ({ navigation }) => {
       }
     });
     if (isLoggin) {
-      var cartpro = [];
-      cartitem.map((cart) => {
-        cartpro.push({
-          product_id: cart.product_id,
-          product_image: cart.product_image,
-          product_title: cart.product_title,
-          qty: cart.qty,
-        });
-      });
       var cartData = {
-        id: cartId,
-        products: cartpro,
+        userId: userDetails._id,
+        productId: item.productId,
+        qty: item.qty + 1,
       };
-      dispatch(updateCartAction(cartData, userDetails._id));
+      dispatch(CartQtyAction(cartData));
     } else {
       try {
         await AsyncStorage.setItem('cartproducts', JSON.stringify(cartitem));
+        dispatch(checkStorageAction());
       } catch (error) {
         console.log('Something went Wrong!!!!');
       }
@@ -207,8 +151,7 @@ const CartScreen = ({ navigation }) => {
     cartItems.map((cart) => {
       if (cart.product_id === item._id) {
         cartitem.push({
-          product_id: cart.product_id,
-          product_title: cart.product_title,
+          ...cart,
           qty: cart.qty - 1,
         });
       } else {
@@ -216,23 +159,16 @@ const CartScreen = ({ navigation }) => {
       }
     });
     if (isLoggin) {
-      var cartpro = [];
-      cartitem.map((cart) => {
-        cartpro.push({
-          product_id: cart.product_id,
-          product_image: cart.product_image,
-          product_title: cart.product_title,
-          qty: cart.qty,
-        });
-      });
       var cartData = {
-        id: cartId,
-        products: cartpro,
+        userId: userDetails._id,
+        productId: item.productId,
+        qty: item.qty - 1,
       };
-      dispatch(updateCartAction(cartData, userDetails._id));
+      dispatch(CartQtyAction(cartData));
     } else {
       try {
         await AsyncStorage.setItem('cartproducts', JSON.stringify(cartitem));
+        dispatch(checkStorageAction());
       } catch (error) {
         console.log('Something went Wrong!!!!');
       }
@@ -242,20 +178,18 @@ const CartScreen = ({ navigation }) => {
       payload: cartitem,
     });
   };
+
   const clearCart = async () => {
     dispatch({
       type: REMOVE_ALL_CART_PRODUCT,
     });
     if (isLoggin) {
-      const cartData = {
-        id: cartId,
-        products: [],
-      };
-      dispatch(updateCartAction(cartData, userDetails._id));
+      dispatch(removeCartAction(userDetails._id));
     }
 
     ListProducts();
   };
+
   const ApplyCoupon = () => {
     let cartpro = [];
     cartItems.map((cart) => {
@@ -281,6 +215,17 @@ const CartScreen = ({ navigation }) => {
     setCouponCode('');
     setCouponTotal(0);
   };
+
+  // Use Effect Call
+  useEffect(() => {
+    dispatch(productsAction());
+    fetchCart();
+  }, [isFocused]);
+
+  useEffect(() => {
+    ListProducts();
+  }, [products, cartItems]);
+
   return (
     <>
       {loadingproduct || loading ? <AppLoader /> : null}
@@ -289,7 +234,6 @@ const CartScreen = ({ navigation }) => {
         <>
           {cartProducts && cartProducts.length ? (
             <>
-              {/* {console.log(JSON.stringify(cartProducts), 'Cart pro')} */}
               <ScrollView
                 style={{ width: '100%' }}
                 showsVerticalScrollIndicator={false}>
@@ -300,35 +244,38 @@ const CartScreen = ({ navigation }) => {
                     onPress={() =>
                       navigation.navigate(
                         NavigationConstants.SINGLE_PRODUCT_SCREEN,
-                        { productID: product._id, productUrl: product.url },
+                        {
+                          productID: product.productId,
+                          productUrl: product.productTitle,
+                        },
                       )
                     }>
                     <ItemImage
                       source={{
-                        uri: !isEmpty(product.feature_image)
-                          ? URL + product.feature_image
+                        uri: !isEmpty(product.productImage)
+                          ? URL + product.productImage
                           : 'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png',
                       }}
                     />
                     <ItemDescription>
                       <View style={{ width: '70%' }}>
                         <AText nol={1} fonts={FontStyle.semiBold} large heavy>
-                          {product.name.length > 20
-                            ? product.name.substring(0, 20) + '...'
-                            : product.name}
+                          {product.productTitle.length > 20
+                            ? product.productTitle.substring(0, 20) + '...'
+                            : product.productTitle}
                         </AText>
                         <AText
                           fonts={FontStyle.semiBold}
                           medium
                           color="#1FAD08">
-                          ${product.pricing.sellprice + '.00'}
+                          ${product.productPrice + '.00'}
                         </AText>
                       </View>
                       <PriceQtyWrapper>
                         <QtyWrapper>
                           <QtyButton
                             onPress={() => {
-                              product.cartQty === 1
+                              product.qty === 1
                                 ? removeCartItem(product)
                                 : decreaseItemQty(product);
                             }}>
@@ -341,7 +288,7 @@ const CartScreen = ({ navigation }) => {
                             </AText>
                           </QtyButton>
                           <AText center medium bold ml="10px" mr="10px">
-                            {product.cartQty}
+                            {product.qty}
                           </AText>
                           <QtyButton onPress={() => increaseItemQty(product)}>
                             <AText color="#fff">
@@ -355,7 +302,10 @@ const CartScreen = ({ navigation }) => {
                         </QtyWrapper>
                         <ProductPriceText
                           fontsizesmall={true}
-                          Pricing={product.pricing}
+                          Pricing={{
+                            sellprice: product.productPrice,
+                            price: product.mrp,
+                          }}
                           DontshowPercentage={true}
                           showInMulipleLine={'column-reverse'}
                           fontColor={'#DB3022'}
@@ -382,9 +332,15 @@ const CartScreen = ({ navigation }) => {
                       {cartProducts.length}{' '}
                       {cartProducts.length > 1 ? 'Items' : 'Item'} in your cart
                     </AText>
-                    <AText color="gray" small fonts={FontStyle.semiBold}>
-                      Clear
-                    </AText>
+                    <TouchableOpacity
+                      onPress={() => clearCart()}
+                      style={{
+                        paddingHorizontal: 5,
+                      }}>
+                      <AText color="gray" small fonts={FontStyle.semiBold}>
+                        Clear
+                      </AText>
+                    </TouchableOpacity>
                   </View>
                 ) : null}
                 <AInputFeild
@@ -411,8 +367,32 @@ const CartScreen = ({ navigation }) => {
                       flexDirection: 'row',
                       justifyContent: 'space-between',
                     }}>
+                    <AText fonts={FontStyle.semiBold}>MRP</AText>
+                    <AText color="gray">${cartSummary?.mrpTotal}</AText>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
                     <AText fonts={FontStyle.semiBold}>Items</AText>
-                    <AText color="gray">${subtotal}</AText>
+                    <AText color="gray">${cartSummary?.cartTotal}</AText>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <AText fonts={FontStyle.semiBold}>Discount</AText>
+                    <AText color="gray">{cartSummary?.discountTotal}</AText>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <AText fonts={FontStyle.semiBold}>Shipping</AText>
+                    <AText color="gray">{cartSummary?.totalShipping}</AText>
                   </View>
                   <View
                     style={{
@@ -421,8 +401,8 @@ const CartScreen = ({ navigation }) => {
                       borderBottomWidth: 0.5,
                       paddingBottom: 15,
                     }}>
-                    {/* <AText fonts={FontStyle.semiBold}>Discount</AText>
-                    <AText color="gray">7%</AText> */}
+                    <AText fonts={FontStyle.semiBold}>Tax</AText>
+                    <AText color="gray">{cartSummary?.totalTax}</AText>
                   </View>
                   <View
                     style={{
@@ -432,7 +412,7 @@ const CartScreen = ({ navigation }) => {
                       marginBottom: 25,
                     }}>
                     <AText fonts={FontStyle.semiBold}>Grand Total</AText>
-                    <AText color="gray">${subtotal}</AText>
+                    <AText color="gray">${cartSummary?.grandTotal}</AText>
                   </View>
                 </View>
               </ScrollView>
@@ -463,7 +443,7 @@ const CartScreen = ({ navigation }) => {
                           NavigationConstants.SHIPPING_SCREEN,
                           {
                             screen: 'Shipping',
-                            cartAmount: subtotal,
+                            cartAmount: cartSummary?.grandTotal,
                             cartProducts: cartProducts,
                             couponCode: couponCode,
                           },
@@ -523,11 +503,7 @@ const CartScreen = ({ navigation }) => {
     </>
   );
 };
-const ItemContainer = styled.ScrollView`
-  flex: 0.75;
-  padding-bottom: 20px;
-  background-color: #fff;
-`;
+
 const ModalConatiner = styled.ScrollView`
   background: #f7f7f7;
   height: 350px;
@@ -538,17 +514,7 @@ const ModalConatiner = styled.ScrollView`
   box-shadow: 15px 5px 15px #000;
   elevation: 15;
 `;
-const ModalClose = styled.TouchableOpacity`
-  background: #fff;
-  width: 25px;
-  height: 25px;
-  border-radius: 25px;
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  align-items: center;
-  justify-content: center;
-`;
+
 const ModalHeader = styled.View`
   height: 50px;
   background: #dadada;
@@ -571,12 +537,7 @@ const AInputFeild = styled.TextInput`
   border-radius: 5px;
   padding: 10px;
 `;
-const PriceTotal = styled.View`
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 2px 10px;
-`;
+
 const CheckoutWrapper = styled.View`
   position: absolute;
   bottom: 0;
@@ -594,20 +555,7 @@ const EmptyWrapper = styled.View`
   align-items: center;
   height: 300px;
 `;
-const PriceWrapper = styled.View``;
-const ItemWrapper = styled.TouchableOpacity`
-  flex-direction: row;
-  justify-content: space-between;
-  height: 105px;
-  margin-top: 60px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  background: #fff;
-  overflow: hidden;
-  position: relative;
-  border: 1px solid #f7f7f7;
-  box-shadow: 0 0 5px #eee;
-`;
+
 const RemoveItem = styled.TouchableOpacity`
   padding: 4px;
   background: white;
@@ -631,11 +579,7 @@ const ItemDescription = styled.View`
   flex-direction: row;
   justify-content: space-between;
 `;
-const AttributedWrapper = styled.View`
-  margin-bottom: 5px;
-  margin-top: 5px;
-  flex-direction: row;
-`;
+
 const PriceQtyWrapper = styled.View`
   flex-direction: row;
   justify-content: space-between;
@@ -660,18 +604,7 @@ const QtyButton = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
 `;
-const CouponWrapper = styled.TouchableOpacity`
-  position: absolute;
-  bottom: 130;
-  left: 0;
-  right: 0;
-  background: #eee;
-  justify-content: space-between;
-  align-items: center;
-  flex: 1;
-  flex-direction: row;
-  padding: 10px;
-`;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -5,9 +5,12 @@ import {
   ADD_TOCART,
   APPLY_COUPAN,
   APPLY_COUPON,
+  CALCULATE_CART,
+  CALCULATE_CART_WITHOUT_LOGIN,
   CART,
+  CHANGE_QTY,
+  DELETE_CART,
   DELETE_CART_PRODUCT,
-  GET_CART,
   ORDER_HISTORY,
   UPDATE_CART,
 } from '../../queries/orderQuery';
@@ -15,42 +18,73 @@ import { getToken, getValue, isEmpty } from '../../utils/helper';
 import { mutation, query } from '../../utils/service';
 import { ALERT_ERROR } from '../reducers/alert';
 
-export const checkStorageAction = (userID) => async (dispatch) => {
+export const checkStorageAction = (userID, load) => async (dispatch) => {
   if (!isEmpty(userID)) {
-    dispatch({
-      type: CART_LOADING,
-    });
-
+    if (!load) {
+      dispatch({
+        type: CART_LOADING,
+      });
+    }
     try {
-      const response = await query(GET_CART, { id: userID });
-      // .then(async (response) => {
-      console.log(response, ' checkstorage response');
-      if (!isEmpty(response.data.cartbyUser.cartItem)) {
-        var cartProducts = response.data.cartbyUser.cartItem;
-        dispatch({
-          type: CHECK_STORAGE,
-          payload: {
-            cartProducts: cartProducts,
-            cartID: response.data.cartbyUser.id,
-          },
-        });
-      } else if (
-        !isEmpty(response.data.cartbyUser.id) &&
-        isEmpty(response.data.cartbyUser.products)
-      ) {
-        dispatch({
-          type: CHECK_STORAGE,
-          payload: { cartProducts: [], cartID: response.data.cartbyUser.id },
-        });
-      }
+      const response = await query(CALCULATE_CART, { id: userID });
+
+      var cartProducts = response.data.calculateCart.cartItems;
+      dispatch({
+        type: CHECK_STORAGE,
+        payload: {
+          cartProducts: cartProducts,
+          cartSummary: response.data.calculateCart.totalSummary,
+          cartID: response.data.calculateCart.id,
+        },
+      });
     } catch (error) {
       console.log('error in check storage', error);
       if (error === 'Cart not found') {
-        const cartData = {
-          userId: userID,
-          products: [],
-        };
-        dispatch(addCartAction(cartData));
+        var cartProduct = await getValue('cartproducts');
+        if (!isEmpty(cartProduct)) {
+          var filteredProducts = [];
+          cartProduct = JSON.parse(cartProduct);
+          var mergedArr = [...cartProduct];
+          var filteredProducts = [];
+          mergedArr.filter((val) => {
+            // let exist = mergedArr.find(
+            //   (n) => n.product_id === val.product_id && n.qty > val.qty,
+            // );
+            // if (
+            //   !filteredProducts.find((n) => n.product_id === val.product_id)
+            // ) {
+            // if (isEmpty(exist)) {
+            //   filteredProducts.push({
+            //     product_id: val.product_id,
+            //     product_title: val.product_title,
+            //     qty: val.qty,
+            //   });
+            // }
+            //  else {
+            filteredProducts.push({
+              productId: val.product_id,
+              productTitle: val.product_title,
+              qty: val.qty,
+              productImage: '',
+              attributes: val.attributes,
+            });
+            // }
+            // }
+          });
+          if (!isEmpty(filteredProducts)) {
+            const cartData = {
+              userId: userDetails._id,
+              products: filteredProducts,
+            };
+            dispatch(addCartAction(cartData));
+          } else {
+            const cartData = {
+              userId: userID,
+              products: [],
+            };
+            dispatch(addCartAction(cartData));
+          }
+        }
       }
       dispatch({
         type: CART_EMPTY,
@@ -66,16 +100,33 @@ export const checkStorageAction = (userID) => async (dispatch) => {
     });
     try {
       var cartProduct = await AsyncStorage.getItem('cartproducts');
-      if (!isEmpty(cartProduct)) {
-        var cartProducts = JSON.parse(cartProduct);
-      }
+      var cartProduct = JSON.parse(cartProduct);
+      const cartPaylaod = cartProduct
+        ? cartProduct.map((item) => {
+            return {
+              productId: item.productId,
+              variantId: '',
+              productTitle: item.productTitle,
+              attributes: item.attributes,
+              qty: item.qty,
+            };
+          })
+        : [];
+      const response = await query(CALCULATE_CART_WITHOUT_LOGIN, {
+        cartItems: cartPaylaod,
+      });
+
+      dispatch({
+        type: CHECK_LOCAL_STORAGE,
+        payload: {
+          cartProducts: response.data.calculateCart.cartItems,
+          cartSummary: response.data.calculateCart.totalSummary,
+          cartID: '',
+        },
+      });
     } catch (error) {
       console.log('Cart Reducers', error);
     }
-    dispatch({
-      type: CHECK_LOCAL_STORAGE,
-      payload: { cartProducts: cartProducts, cartID: '' },
-    });
   }
 };
 export const removeCartItemAction = (cartProduct) => (dispatch) => {
@@ -99,6 +150,20 @@ export const addToCartAction = (payload) => async (dispatch) => {
         payload: response.data.addToCart.success,
       });
       dispatch(checkStorageAction(payload.user_id));
+    }
+  } catch (error) {
+    console.log('error', error);
+    dispatch({
+      type: CART_FAIL,
+    });
+  }
+};
+
+export const CartQtyAction = (payload) => async (dispatch) => {
+  const response = await mutation(CHANGE_QTY, payload);
+  try {
+    if (response.data.changeQty.success) {
+      dispatch(checkStorageAction(payload.userId, true));
     }
   } catch (error) {
     console.log('error', error);
@@ -172,6 +237,39 @@ export const removeFromCartAction = (payload, userID) => async (dispatch) => {
         });
         dispatch(checkStorageAction(userID));
       }
+    }
+  } catch (error) {
+    console.log('error cartupdate', error);
+    dispatch({
+      type: CART_FAIL,
+    });
+    dispatch({
+      type: ALERT_ERROR,
+      payload:
+        response.data.calculateCoupon.message ||
+        'Something went wrong. Please try again later.',
+    });
+  }
+};
+
+export const removeCartAction = (userID) => async (dispatch) => {
+  dispatch({
+    type: CART_LOADING,
+  });
+  const response = await mutation(DELETE_CART, { userId: userID });
+  console.log(response, 'delte cart response');
+  // .then((response) => {
+  try {
+    if (response) {
+      // if (
+      //   !isEmpty(response.data.deleteCartProduct) &&
+      //   response.data.deleteCartProduct.success
+      // ) {
+      dispatch({
+        type: CART_FAIL,
+      });
+      dispatch(checkStorageAction(userID));
+      // }
     }
   } catch (error) {
     console.log('error cartupdate', error);

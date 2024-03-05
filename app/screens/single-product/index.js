@@ -72,37 +72,11 @@ var reviewObject = {
 };
 
 const SingleProductScreen = ({ navigation, route }) => {
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTintColor: '#000',
-    });
-  }, [navigation]);
-  // ref
-  const bottomSheetModalRef = useRef(null);
-
-  // variables
-  const snapPoints = useMemo(() => ['26%', '42%', '100%'], []);
-
-  // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
-
-  useEffect(() => {
-    setTimeout(() => {
-      handlePresentModalPress();
-    }, 1000);
-  }, []);
-
-  const ProductId = route.params.productID;
-  const ProductUrl = route.params.productUrl;
-  const [ProductIds, setProductIds] = useState(ProductId);
-  const [ProductUrls, setProductUrls] = useState(ProductUrl);
-  const [review, setReview] = useState(reviewObject);
-  const SingleProduct = useSelector((state) => state.products.product);
-  const { user_token } = useSelector((state) => state.login);
+  // States and Variables
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
+  const SingleProduct = useSelector((state) => state.products.product);
+  const { user_token } = useSelector((state) => state.login);
   const { userDetails, isLoggin } = useSelector((state) => state.customer);
   const ReviewProduct = useSelector((state) => state.products.productReviews);
   const RelatedProducts = useSelector(
@@ -110,15 +84,118 @@ const SingleProductScreen = ({ navigation, route }) => {
   );
   const { manage_stock } = useSelector((state) => state.settings);
   const Loading = useSelector((state) => state.products.loading);
+  const ProductId = route.params.productID;
+  const ProductUrl = route.params.productUrl;
+  const [ProductIds, setProductIds] = useState(ProductId);
+  const [ProductUrls, setProductUrls] = useState(ProductUrl);
+  const [review, setReview] = useState(reviewObject);
   const [reviewcollapse, setReviewCollapse] = useState(false);
   const [writeReviewPop, setWriteReviewPop] = useState(false);
   const [sliderImages, setSliderImages] = useState([]);
   const cartItems = useSelector((state) => state.cart.products);
   const [itemInCart, setItemInCart] = useState(false);
-  const { cartId } = useSelector((state) => state.cart);
   const [singleProductLoading, setSingleProductLoading] = useState(true);
-
   const [cartQuantity, setCartQuantity] = useState(1);
+  const snapPoints = useMemo(() => ['26%', '42%', '100%'], []);
+
+  // ref
+  const bottomSheetModalRef = useRef(null);
+
+  // callbacks
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  // Custom Function
+  const addReview = (val) => {
+    const reviews = {
+      title: val.title,
+      email: val.email,
+      review: val.review,
+      rating: val.rating,
+      status: val.status,
+      customer_id: val.customer_id,
+      product_id: val.product_id,
+    };
+    dispatch(productAddReviewAction(reviews));
+    setWriteReviewPop(!writeReviewPop);
+  };
+
+  const _storeData = async (product) => {
+    if (isLoggin) {
+      let variables = {
+        total:
+          parseFloat(SingleProduct.pricing.sellprice.toFixed(2)) * cartQuantity,
+        userId: userDetails._id,
+        productId: SingleProduct?._id,
+        qty: cartQuantity,
+        productTitle: SingleProduct?.url,
+        productImage: SingleProduct?.feature_image,
+        productPrice: parseFloat(
+          SingleProduct.pricing.sellprice.toFixed(2),
+        ).toString(),
+        variantId: '',
+        productQuantity: Number(SingleProduct.quantity),
+        attributes: SingleProduct.attribute,
+      };
+      dispatch(addToCartAction(variables));
+    } else {
+      try {
+        await AsyncStorage.setItem('cartproducts', JSON.stringify(product));
+        dispatch(checkStorageAction());
+      } catch (error) {
+        console.log('Something went Wrong!!!!');
+      }
+    }
+  };
+
+  const addToCart = async () => {
+    var hasCartProducts = [];
+    var products = [];
+    if (isLoggin) {
+      hasCartProducts = cartItems;
+    } else {
+      hasCartProducts = await AsyncStorage.getItem('cartproducts');
+      if (!isEmpty(hasCartProducts)) {
+        products = JSON.parse(hasCartProducts);
+      }
+    }
+
+    if (itemInCart) {
+      return true;
+    }
+    if (hasCartProducts !== null) {
+      setItemInCart(true);
+      products.push({
+        productId: SingleProduct._id,
+        qty: cartQuantity,
+        productTitle: SingleProduct.name,
+        productPrice: SingleProduct.pricing.sellprice,
+        attributes: SingleProduct.attribute,
+      });
+
+      _storeData(products);
+    } else {
+      setItemInCart(true);
+      _storeData([
+        {
+          productId: SingleProduct._id,
+          qty: cartQuantity,
+          productTitle: SingleProduct.name,
+          productPrice: SingleProduct.pricing.sellprice,
+          attributes: SingleProduct.attribute,
+        },
+      ]);
+    }
+  };
+
+  // Use Effect Call
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTintColor: '#000',
+    });
+  }, [navigation]);
+
   useEffect(() => {
     setReview({
       ...review,
@@ -131,6 +208,12 @@ const SingleProductScreen = ({ navigation, route }) => {
     dispatch(productReviewsAction(ProductIds));
     setSingleProductLoading(false);
   }, [navigation, ProductIds]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      handlePresentModalPress();
+    }, 1000);
+  }, []);
 
   useEffect(() => {
     setSingleProductLoading(true);
@@ -164,7 +247,7 @@ const SingleProductScreen = ({ navigation, route }) => {
             }
           });
         }
-      }, 500);
+      }, 1000);
     } else {
       dispatch({
         type: PRODUCT_CLEAR,
@@ -173,106 +256,6 @@ const SingleProductScreen = ({ navigation, route }) => {
     }
     setSingleProductLoading(false);
   }, [isFocused]);
-
-  const addReview = (val) => {
-    const reviews = {
-      title: val.title,
-      email: val.email,
-      review: val.review,
-      rating: val.rating,
-      status: val.status,
-      customer_id: val.customer_id,
-      product_id: val.product_id,
-    };
-    dispatch(productAddReviewAction(reviews));
-    setWriteReviewPop(!writeReviewPop);
-  };
-
-  const _storeData = async (product) => {
-    if (isLoggin) {
-      if (isEmpty(cartId)) {
-        const cartData = {
-          user_id: userDetails._id,
-          products: [
-            {
-              product_id: SingleProduct._id,
-              qty: cartQuantity,
-              product_title: SingleProduct.name,
-              product_price: parseFloat(
-                SingleProduct.pricing.sellprice.toFixed(2),
-              ),
-              product_image: SingleProduct.feature_image,
-              tax_class: SingleProduct.tax_class,
-              shipping_class: SingleProduct.shipping.shipping_class,
-            },
-          ],
-        };
-        dispatch(addCartAction(cartData));
-      } else {
-        let variables = {
-          total:
-            parseFloat(SingleProduct.pricing.sellprice.toFixed(2)) *
-            cartQuantity,
-          userId: userDetails._id,
-          productId: SingleProduct?._id,
-          qty: cartQuantity,
-          productTitle: SingleProduct?.url,
-          productImage: SingleProduct?.feature_image,
-          productPrice: parseFloat(
-            SingleProduct.pricing.sellprice.toFixed(2),
-          ).toString(),
-          variantId: '',
-          productQuantity: Number(SingleProduct.quantity),
-          attributes: [],
-          shippingClass: SingleProduct.shipping.shippingClass,
-          taxClass: SingleProduct.taxClass,
-        };
-        dispatch(addToCartAction(variables));
-      }
-    } else {
-      try {
-        await AsyncStorage.setItem('cartproducts', JSON.stringify(product));
-      } catch (error) {
-        console.log('Something went Wrong!!!!');
-      }
-    }
-  };
-
-  const addToCart = async () => {
-    var hasCartProducts = [];
-    var products = [];
-    if (isLoggin) {
-      hasCartProducts = cartItems;
-    } else {
-      hasCartProducts = await AsyncStorage.getItem('cartproducts');
-      if (!isEmpty(hasCartProducts)) {
-        products = JSON.parse(hasCartProducts);
-      }
-    }
-
-    if (itemInCart) {
-      return true;
-    }
-    if (hasCartProducts !== null) {
-      setItemInCart(true);
-      products.push({
-        productId: SingleProduct._id,
-        qty: cartQuantity,
-        product_title: SingleProduct.name,
-      });
-
-      _storeData(products);
-    } else {
-      setItemInCart(true);
-      _storeData([
-        {
-          productId: SingleProduct._id,
-          qty: cartQuantity,
-          product_title: SingleProduct.name,
-        },
-      ]);
-    }
-  };
 
   useEffect(() => {
     if (SingleProduct?._id) {
@@ -284,6 +267,7 @@ const SingleProductScreen = ({ navigation, route }) => {
     }
   }, [SingleProduct]);
 
+  // Custom Components
   const Checkpoints = ({ title, image }) => {
     return (
       <View style={{ alignItems: 'center' }}>
@@ -292,6 +276,7 @@ const SingleProductScreen = ({ navigation, route }) => {
       </View>
     );
   };
+
   function renderItem({ item }) {
     return (
       <TouchableOpacity
@@ -353,6 +338,7 @@ const SingleProductScreen = ({ navigation, route }) => {
       </TouchableOpacity>
     );
   }
+
   return (
     <BottomSheetModalProvider>
       {singleProductLoading || Loading ? <AppLoader /> : null}

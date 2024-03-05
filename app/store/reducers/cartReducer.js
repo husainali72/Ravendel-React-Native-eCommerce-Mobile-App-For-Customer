@@ -19,6 +19,7 @@ import {
 const initialState = {
   loading: false,
   products: [],
+  cartSummary: {},
   cartId: '',
   couponDiscount: 0,
   response: false,
@@ -66,6 +67,7 @@ export default (state = initialState, action) => {
         ...state,
         products: action.payload.cartProducts,
         cartId: action.payload.cartID,
+        cartSummary: action.payload.cartSummary,
         loading: false,
         cartChecked: true,
       };
@@ -80,6 +82,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         products: action.payload.cartProducts,
+        cartSummary: action.payload.cartSummary,
         loading: false,
       };
 

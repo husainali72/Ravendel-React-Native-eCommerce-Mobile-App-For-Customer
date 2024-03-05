@@ -8,7 +8,7 @@ import { Checkbox } from 'react-native-paper';
 import { Linking, TouchableOpacity, View } from 'react-native';
 import Styles from '../../Theme';
 
-const SignupScreen = ({ navigation }) => {
+const SignupScreen = ({ navigation, handleactivetab }) => {
   // States and Variables
   const dispatch = useDispatch();
   const formik = useFormik({
@@ -49,9 +49,8 @@ const SignupScreen = ({ navigation }) => {
       password: values.password,
       phone: values.mobile,
       company: values.company,
-      // role: 'user',
     };
-    dispatch(registerAction(registerValue, navigation));
+    dispatch(registerAction(registerValue, navigation, handleactivetab));
   };
 
   return (

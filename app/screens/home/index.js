@@ -115,20 +115,24 @@ const HomeScreen = ({ navigation }) => {
       var filteredProducts = [];
       mergedArr.filter((val) => {
         let exist = mergedArr.find(
-          (n) => n.product_id === val.product_id && n.qty > val.qty,
+          (n) => n.productId === val.productId && n.qty > val.qty,
         );
-        if (!filteredProducts.find((n) => n.product_id === val.product_id)) {
+        if (!filteredProducts.find((n) => n.productId === val.productId)) {
           if (isEmpty(exist)) {
             filteredProducts.push({
-              product_id: val.product_id,
-              product_title: val.product_title,
+              productId: val.productId,
+              productTitle: val.productTitle,
               qty: val.qty,
+              productPrice: val.productPrice.toString(),
+              attributes: val.attributes,
             });
           } else {
             filteredProducts.push({
-              product_id: val.product_id,
-              product_title: val.product_title,
+              productId: val.productId,
+              productTitle: val.productTitle,
               qty: exist.qty,
+              productPrice: val.productPrice.toString(),
+              attributes: val.attributes,
             });
           }
         }
@@ -139,12 +143,14 @@ const HomeScreen = ({ navigation }) => {
             userId: userDetails._id,
             products: filteredProducts,
           };
+          console.log(cartData, ' Add cart payload Home');
           dispatch(addCartAction(cartData));
         } else {
           const cartData = {
             id: cartId,
             products: filteredProducts,
           };
+          console.log(cartData, ' Add cart payload Home2');
           dispatch(updateCartAction(cartData, userDetails._id));
         }
       }
