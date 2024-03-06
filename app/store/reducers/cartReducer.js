@@ -122,7 +122,9 @@ export default (state = initialState, action) => {
     case COUPON_APPLIED:
       return {
         ...state,
-        couponDiscount: action.payload,
+        couponDiscount: action.payload.couponDiscount,
+        products: action.payload.cartProducts,
+        cartSummary: action.payload.cartSummary,
         loading: false,
       };
     case COUPON_REMOVED:

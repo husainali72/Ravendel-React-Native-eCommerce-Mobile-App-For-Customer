@@ -5,6 +5,7 @@ import {
   ADD_TOCART,
   APPLY_COUPAN,
   APPLY_COUPON,
+  APPLY_COUPON_CODE,
   CALCULATE_CART,
   CALCULATE_CART_WITHOUT_LOGIN,
   CART,
@@ -284,45 +285,53 @@ export const removeCartAction = (userID) => async (dispatch) => {
     });
   }
 };
-export const applyCouponAction = (payload) => async (dispatch) => {
-  dispatch({
-    type: CART_LOADING,
-  });
-  const response = await query(APPLY_COUPON, payload);
-  // .then((response) => {
-  try {
-    if (response) {
-      if (
-        !isEmpty(response.data.calculateCoupon) &&
-        response.data.calculateCoupon.total_coupon > 0
-      ) {
-        dispatch({
-          type: COUPON_APPLIED,
-          payload: response.data.calculateCoupon.total_coupon,
-        });
-      } else {
-        dispatch({
-          type: CART_FAIL,
-        });
-        dispatch({
-          type: ALERT_ERROR,
-          payload:
-            response.data.calculateCoupon.message ||
-            'Something went wrong. Please try again later.',
-        });
+export const applyCouponAction =
+  (payload, setCouponApplied) => async (dispatch) => {
+    dispatch({
+      type: CART_LOADING,
+    });
+    const response = await query(APPLY_COUPON_CODE, payload);
+    console.log(JSON.stringify(response), 'repo coupon');
+    try {
+      if (response) {
+        if (
+          !isEmpty(response.data.calculateCoupon) &&
+          response.data.calculateCoupon.message ===
+            'Coupon code applied successfully'
+        ) {
+          dispatch({
+            type: COUPON_APPLIED,
+            payload: {
+              couponDiscount:
+                response.data.calculateCoupon.couponCard?.appliedCouponDiscount,
+              cartProducts: response.data.calculateCoupon.cartItems,
+              cartSummary: response.data.calculateCoupon.totalSummary,
+            },
+          });
+          setCouponApplied(true);
+        } else {
+          dispatch({
+            type: CART_FAIL,
+          });
+          dispatch({
+            type: ALERT_ERROR,
+            payload:
+              response.data.calculateCoupon.message ||
+              'Something went wrong. Please try again later.',
+          });
+        }
       }
+    } catch (error) {
+      console.log('error', error);
+      dispatch({
+        type: CART_FAIL,
+      });
+      dispatch({
+        type: ALERT_ERROR,
+        payload: 'Something went wrong. Please try again later.',
+      });
     }
-  } catch (error) {
-    console.log('error', error);
-    dispatch({
-      type: CART_FAIL,
-    });
-    dispatch({
-      type: ALERT_ERROR,
-      payload: 'Something went wrong. Please try again later.',
-    });
-  }
-};
+  };
 export const orderHistoryAction = (payload) => async (dispatch) => {
   dispatch({
     type: ORDER_LOADING,

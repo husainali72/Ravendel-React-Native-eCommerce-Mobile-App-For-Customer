@@ -67,7 +67,7 @@ const Navigation = () => {
   useEffect(() => {
     dispatch(sessionCheck());
     getCart();
-  }, [isFocused]);
+  }, [isFocused, isLoggin]);
 
   // Custom Components
   const IconWithBadge = ({ name, badgeCount, color, size }) => {

@@ -22,6 +22,7 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -112,16 +113,31 @@ const CartScreen = ({ navigation }) => {
 
   const increaseItemQty = async (item) => {
     var cartitem = [];
+    var outOfStock = false;
+    // console.log(JSON.stringify(cartItems), ' cartitem', JSON.stringify(item));
     cartItems.map((cart) => {
-      if (cart.product_id === item._id) {
-        cartitem.push({
-          ...cart,
-          qty: cart.qty + 1,
-        });
+      if (cart.productId === item.productId) {
+        console.log(
+          cart.qty,
+          cart.productQuantity,
+          cart.qty == cart.productQuantity,
+        );
+        if (cart.qty == cart.productQuantity) {
+          outOfStock = true;
+        } else {
+          cartitem.push({
+            ...cart,
+            qty: cart.qty + 1,
+          });
+        }
       } else {
         cartitem.push(cart);
       }
     });
+    if (outOfStock) {
+      alert('Cannot order more than this');
+      return;
+    }
     if (isLoggin) {
       var cartData = {
         userId: userDetails._id,
@@ -149,7 +165,7 @@ const CartScreen = ({ navigation }) => {
     }
     var cartitem = [];
     cartItems.map((cart) => {
-      if (cart.product_id === item._id) {
+      if (cart.productId === item.productId) {
         cartitem.push({
           ...cart,
           qty: cart.qty - 1,
@@ -191,20 +207,27 @@ const CartScreen = ({ navigation }) => {
   };
 
   const ApplyCoupon = () => {
+    if (isEmpty(couponCode)) {
+      alert('Coupon code is required');
+      return;
+    }
     let cartpro = [];
     cartItems.map((cart) => {
       cartpro.push({
-        product_id: cart.product_id,
-        total: cart.total,
+        productId: cart.productId,
+        // total: cart.total,
         qty: cart.qty,
       });
     });
     const payload = {
-      coupon_code: couponCode,
-      cart: cartpro,
+      couponCode: couponCode,
+      cartItems: cartpro,
+      userId: userDetails._id,
     };
-    setCouponModal(false);
-    dispatch(applyCouponAction(payload));
+    console.log(payload, ' cart coupon');
+    // return;
+    // setCouponModal(false);
+    dispatch(applyCouponAction(payload, setCouponApplied));
   };
 
   const removeCoupon = () => {
@@ -214,6 +237,7 @@ const CartScreen = ({ navigation }) => {
     setCouponApplied(false);
     setCouponCode('');
     setCouponTotal(0);
+    dispatch(checkStorageAction(userDetails._id));
   };
 
   // Use Effect Call
@@ -225,7 +249,6 @@ const CartScreen = ({ navigation }) => {
   useEffect(() => {
     ListProducts();
   }, [products, cartItems]);
-
   return (
     <>
       {loadingproduct || loading ? <AppLoader /> : null}
@@ -235,21 +258,23 @@ const CartScreen = ({ navigation }) => {
           {cartProducts && cartProducts.length ? (
             <>
               <ScrollView
+                keyboardShouldPersistTaps={true}
                 style={{ width: '100%' }}
                 showsVerticalScrollIndicator={false}>
                 {cartProducts.map((product) => (
                   <TouchableOpacity
                     style={styles.productitem}
                     key={product.id}
-                    onPress={() =>
+                    onPress={() => {
+                      console.log(product);
                       navigation.navigate(
                         NavigationConstants.SINGLE_PRODUCT_SCREEN,
                         {
                           productID: product.productId,
                           productUrl: product.productTitle,
                         },
-                      )
-                    }>
+                      );
+                    }}>
                     <ItemImage
                       source={{
                         uri: !isEmpty(product.productImage)
@@ -258,7 +283,7 @@ const CartScreen = ({ navigation }) => {
                       }}
                     />
                     <ItemDescription>
-                      <View style={{ width: '70%' }}>
+                      <View style={{ width: '100%' }}>
                         <AText nol={1} fonts={FontStyle.semiBold} large heavy>
                           {product.productTitle.length > 20
                             ? product.productTitle.substring(0, 20) + '...'
@@ -267,50 +292,86 @@ const CartScreen = ({ navigation }) => {
                         <AText
                           fonts={FontStyle.semiBold}
                           medium
-                          color="#1FAD08">
+                          color={Colors.blackColor}>
                           ${product.productPrice + '.00'}
-                        </AText>
-                      </View>
-                      <PriceQtyWrapper>
-                        <QtyWrapper>
-                          <QtyButton
-                            onPress={() => {
-                              product.qty === 1
-                                ? removeCartItem(product)
-                                : decreaseItemQty(product);
+                          <Text
+                            style={{
+                              marginLeft: 15,
+                              fontSize: 12,
+                              color: 'gray',
+                              textDecorationLine: 'line-through',
                             }}>
-                            <AText color="#fff">
-                              <AIcon
-                                color={'#72787e'}
-                                name="minussquare"
-                                size={16}
-                              />
+                            {' '}
+                            ${product.mrpAmount + '.00'}
+                          </Text>
+                          <Text
+                            style={{
+                              marginLeft: 15,
+                              fontSize: 12,
+                              color: 'red',
+                            }}>
+                            {' ' + product.discountPercentage}
+                            {'%off'}
+                          </Text>
+                        </AText>
+                        <PriceQtyWrapper
+                          style={
+                            {
+                              // width: '35%',
+                              // flexWrap: 'wrap',
+                            }
+                          }>
+                          <QtyWrapper>
+                            <QtyButton
+                              onPress={() => {
+                                product.qty === 1
+                                  ? removeCartItem(product)
+                                  : decreaseItemQty(product);
+                              }}>
+                              <AText color="#fff">
+                                <AIcon
+                                  color={'#72787e'}
+                                  name="minussquare"
+                                  size={16}
+                                />
+                              </AText>
+                            </QtyButton>
+                            <AText center medium bold ml="10px" mr="10px">
+                              {product.qty}
                             </AText>
-                          </QtyButton>
-                          <AText center medium bold ml="10px" mr="10px">
-                            {product.qty}
-                          </AText>
-                          <QtyButton onPress={() => increaseItemQty(product)}>
-                            <AText color="#fff">
-                              <AIcon
-                                color={'#72787e'}
-                                name="plussquare"
-                                size={16}
-                              />
-                            </AText>
-                          </QtyButton>
-                        </QtyWrapper>
-                        <ProductPriceText
-                          fontsizesmall={true}
-                          Pricing={{
-                            sellprice: product.productPrice,
-                            price: product.mrp,
-                          }}
-                          DontshowPercentage={true}
-                          showInMulipleLine={'column-reverse'}
-                          fontColor={'#DB3022'}
-                        />
-                      </PriceQtyWrapper>
+                            <QtyButton onPress={() => increaseItemQty(product)}>
+                              <AText color="#fff">
+                                <AIcon
+                                  color={'#72787e'}
+                                  name="plussquare"
+                                  size={16}
+                                />
+                              </AText>
+                            </QtyButton>
+                          </QtyWrapper>
+                          {product.productQuantity <= 5 ? (
+                            <Text
+                              style={{
+                                color: '#ff0000',
+                                fontSize: 12,
+                                fontFamily: FontStyle.semiBold,
+                              }}>
+                              {'Only ' + product.productQuantity + ' Left'}
+                            </Text>
+                          ) : null}
+
+                          {/* <ProductPriceText
+                            fontsizesmall={true}
+                            Pricing={{
+                              sellprice: product.productPrice,
+                              price: product.mrp,
+                            }}
+                            DontshowPercentage={true}
+                            showInMulipleLine={'column-reverse'}
+                            fontColor={'#DB3022'}
+                          /> */}
+                        </PriceQtyWrapper>
+                      </View>
                     </ItemDescription>
                     <RemoveItem onPress={() => removeCartItem(product)}>
                       <AText color="#fff">
@@ -343,71 +404,77 @@ const CartScreen = ({ navigation }) => {
                     </TouchableOpacity>
                   </View>
                 ) : null}
-                <AInputFeild
-                  type="text"
-                  value={couponCode}
-                  onChangeText={(text) => setCouponCode(text)}
-                  placeholder="Enter coupon code"
-                />
-                {couponApplied && <AText>Coupon Applied successfully</AText>}
-                <View style={{ width: '40%', alignSelf: 'flex-end' }}>
-                  <AButton
-                    onPress={() => ApplyCoupon()}
-                    round
-                    block
-                    title="Apply Coupon"
-                    small
-                    semi
+                <View style={{ position: 'relative' }}>
+                  <AInputFeild
+                    type="text"
+                    value={couponCode}
+                    onChangeText={(text) => setCouponCode(text)}
+                    placeholder="Enter coupon code"
                   />
+                  <View style={styles.couponBtn}>
+                    <AButton
+                      onPress={() =>
+                        couponApplied ? removeCoupon() : ApplyCoupon()
+                      }
+                      round
+                      block
+                      title={couponApplied ? 'Applied' : 'Apply'}
+                      small
+                      semi
+                    />
+                  </View>
                 </View>
+                {couponApplied && <AText>Coupon Applied successfully</AText>}
+
                 <View
                   style={{ width: '100%', marginBottom: 25, marginTop: 15 }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
-                    <AText fonts={FontStyle.semiBold}>MRP</AText>
-                    <AText color="gray">${cartSummary?.mrpTotal}</AText>
+                  <View style={styles.summary}>
+                    <AText fonts={FontStyle.semiBold}>Total MRP</AText>
+                    <AText color={Colors.grayColor}>
+                      ${cartSummary?.mrpTotal}
+                    </AText>
                   </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
+                  {/* <View style={styles.summary}>
                     <AText fonts={FontStyle.semiBold}>Items</AText>
-                    <AText color="gray">${cartSummary?.cartTotal}</AText>
+                    <AText color={Colors.grayColor}>${cartSummary?.cartTotal}</AText>
+                  </View> */}
+                  <View style={styles.summary}>
+                    <AText fonts={FontStyle.semiBold}>Discount On MRP</AText>
+                    <AText color={Colors.green}>
+                      {cartSummary?.discountTotal}
+                    </AText>
                   </View>
                   <View
                     style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
+                      ...styles.summary,
+                      borderBottomWidth: 0.5,
+                      paddingBottom: 15,
                     }}>
-                    <AText fonts={FontStyle.semiBold}>Discount</AText>
-                    <AText color="gray">{cartSummary?.discountTotal}</AText>
+                    <AText fonts={FontStyle.semiBold}>Shipping Fee</AText>
+                    <AText
+                      fonts={
+                        cartSummary?.totalShipping === 0
+                          ? FontStyle.semiBold
+                          : FontStyle.fontRegular
+                      }
+                      color={Colors.grayColor}>
+                      {cartSummary?.totalShipping === 0
+                        ? 'FREE SHIPPING'
+                        : cartSummary?.totalShipping}
+                    </AText>
                   </View>
-                  <View
+                  {/* <View
                     style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
-                    <AText fonts={FontStyle.semiBold}>Shipping</AText>
-                    <AText color="gray">{cartSummary?.totalShipping}</AText>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
+                      ...styles.summary,
                       borderBottomWidth: 0.5,
                       paddingBottom: 15,
                     }}>
                     <AText fonts={FontStyle.semiBold}>Tax</AText>
                     <AText color="gray">{cartSummary?.totalTax}</AText>
-                  </View>
+                  </View> */}
                   <View
                     style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
+                      ...styles.summary,
                       marginTop: 5,
                       marginBottom: 25,
                     }}>
@@ -582,19 +649,21 @@ const ItemDescription = styled.View`
 
 const PriceQtyWrapper = styled.View`
   flex-direction: row;
-  justify-content: space-between;
+  // justify-content: flex-end;
   margin-top: 5px;
+  align-items: center;
 `;
 const QtyWrapper = styled.View`
   height: 30px;
   overflown: hidden;
   // width: 110px;
-  margin: 10px 0px;
+  // margin: 10px 0px;
   background: white;
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
   // border-width: 0.5px;
+  margin-right: 5px;
 `;
 const QtyButton = styled.TouchableOpacity`
   background: white;
@@ -638,6 +707,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#f7f7f7',
     marginHorizontal: 2,
+  },
+  summary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  couponBtn: {
+    width: '30%',
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    bottom: 18,
   },
 });
 export default CartScreen;

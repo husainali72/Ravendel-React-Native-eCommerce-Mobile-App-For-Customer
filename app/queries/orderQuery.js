@@ -202,14 +202,40 @@ const CHANGE_QTY = gql`
   }
 `;
 
-const APPLY_COUPON = gql`
-  query ($coupon_code: String, $cart: [cartProducts]) {
-    calculateCoupon(coupon_code: $coupon_code, cart: $cart) {
-      total_coupon
+// const APPLY_COUPON = gql`
+//   query ($coupon_code: String, $cart: [cartProducts]) {
+//     calculateCoupon(coupon_code: $coupon_code, cart: $cart) {
+//       total_coupon
+//       message
+//     }
+//   }
+// `;
+
+const APPLY_COUPON_CODE = gql`
+  query (
+    $userId: ID
+    $cartItems: [calculateCartProducts]
+    $couponCode: String!
+  ) {
+    calculateCoupon(
+      couponCode: $couponCode
+      cartItems: $cartItems
+      userId: $userId
+    ) {
       message
+      success
+      id
+      userId
+      status
+      cartItems
+      date
+      totalSummary
+      couponCard
+      updated
     }
   }
 `;
+
 const ADD_CHECKOUT = gql`
   mutation ($user_id: ID, $products: [checkoutProduct]) {
     addCheckout(user_id: $user_id, products: $products) {
@@ -294,7 +320,7 @@ export {
   DELETE_CART_PRODUCT,
   GET_CART,
   UPDATE_CART,
-  APPLY_COUPON,
+  APPLY_COUPON_CODE,
   ADD_CHECKOUT,
   ORDER_HISTORY,
   ADD_ORDER,
