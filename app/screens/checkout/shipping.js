@@ -1,10 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { AText, AButton, AppLoader, ZHeader } from '../../theme-components';
-import { Formik } from 'formik';
-import { validationSchema } from './validationSchema';
 import styled from 'styled-components/native';
-import { RadioButton, TextInput } from 'react-native-paper';
-import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatCurrency, isEmpty } from '../../utils/helper';
 import { useIsFocused } from '@react-navigation/native';
@@ -13,24 +10,14 @@ import {
   updateAddressAction,
   userDetailsfetch,
 } from '../../store/action';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { countryArray } from '../../utils/CountryData';
 import { AdressForm } from '../components';
 import AIcon from 'react-native-vector-icons/AntDesign';
-import {
-  APP_PRIMARY_COLOR,
-  APP_SECONDARY_COLOR,
-  FontStyle,
-  GREYTEXT,
-} from '../../utils/config';
+import { APP_PRIMARY_COLOR, FontStyle, GREYTEXT } from '../../utils/config';
 import Colors from '../../constants/Colors';
 const CheckoutScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
-  const [openCountryModal, setOpenCountryModal] = useState(false);
   const [scrollenable, setScrollEnable] = useState(true);
-  const [openStateModal, setOpenStateModal] = useState(false);
-  const [countrySelectIndex, setCountrySelectIndex] = useState(0);
   const { userDetails, loading } = useSelector((state) => state.customer);
   const [addressBook, setAddressBook] = useState();
   const [addressForm, setAddressForm] = useState(false);
@@ -47,6 +34,7 @@ const CheckoutScreen = ({ navigation, route }) => {
     country: '',
     pincode: '',
     _id: '',
+    defaultAddress: true,
   });
   var cartAmount = route?.params?.cartAmount;
   var cartProducts = route?.params?.cartProducts;
@@ -72,8 +60,8 @@ const CheckoutScreen = ({ navigation, route }) => {
   }, [navigation]);
 
   useEffect(() => {
-    if (!isEmpty(userDetails.address_book)) {
-      let address = userDetails.address_book;
+    if (!isEmpty(userDetails.addressBook)) {
+      let address = userDetails.addressBook;
       setAddressBook(address);
       setAddressForm(false);
       var found = address.find((item) => {
@@ -95,40 +83,41 @@ const CheckoutScreen = ({ navigation, route }) => {
     }
   }, [isFocused]);
   const defaddress = !isEmpty(userDetails)
-    ? userDetails.address_book.filter(({ _id }) => _id === addressDefault)
+    ? userDetails.addressBook.filter(({ defaultAddress }) => defaultAddress)
     : [];
   const onSubmit = (values) => {
     if (isEmpty(initialFormValues._id)) {
       const payload = {
         id: userDetails._id,
-        first_name: values.firstname,
-        last_name: values.lastname,
+        firstName: values.firstname,
+        lastName: values.lastname,
         phone: values.phone,
-        address_line1: values.address,
-        address_line2: values.landmark,
+        company: '',
+        addressLine1: values.address,
+        addressLine2: values.landmark,
         city: values.city,
         country: values.country,
         state: values.state,
         pincode: values.pincode,
-        default_address: true,
+        defaultAddress: values.defaultAddress,
       };
-
       setAddressForm(false);
       dispatch(addAddressAction(payload));
     } else {
       const payload = {
         id: userDetails._id,
         _id: initialFormValues._id,
-        first_name: values.firstname,
-        last_name: values.lastname,
+        firstName: values.firstname,
+        lastName: values.lastname,
         phone: values.phone,
-        address_line1: values.address,
-        address_line2: values.landmark,
+        company: '',
+        addressLine1: values.address,
+        addressLine2: values.landmark,
         city: values.city,
         country: values.country,
         state: values.state,
         pincode: values.pincode,
-        default_address: true,
+        defaultAddress: values.defaultAddress,
       };
       setInitialFormValues({
         firstname: '',
@@ -140,7 +129,9 @@ const CheckoutScreen = ({ navigation, route }) => {
         state: '',
         country: '',
         pincode: '',
+        defaultAddress: true,
       });
+      console.log(payload, 'payying');
       setAddressForm(false);
       dispatch(updateAddressAction(payload));
     }
@@ -148,23 +139,24 @@ const CheckoutScreen = ({ navigation, route }) => {
   };
   const editFormValues = (values) => {
     setInitialFormValues({
-      firstname: values.first_name,
-      lastname: values.last_name,
+      firstname: values.firstName,
+      lastname: values.lastName,
       phone: values.phone,
-      address: values.address_line1,
-      landmark: values.address_line2,
+      address: values.addressLine1,
+      landmark: values.addressLine2,
       city: values.city,
       state: values.state,
       country: values.country,
       pincode: values.pincode,
       _id: values._id,
+      defaultAddress: values.defaultAddress ?? false,
     });
     setAddressForm(true);
   };
   return (
     <>
       {loading ? <AppLoader /> : null}
-      {(isEmpty(userDetails) && isEmpty(userDetails.address_book)) ||
+      {(isEmpty(userDetails) && isEmpty(userDetails.addressBook)) ||
       addressForm ? (
         <>
           <AdressForm
@@ -235,17 +227,17 @@ const CheckoutScreen = ({ navigation, route }) => {
               nestedScrollEnabled={true}
               scrollEnabled={scrollenable}>
               <AddressWrapper>
-                {userDetails.address_book.map((item, index) => (
+                {userDetails.addressBook.map((item, index) => (
                   <View style={styles.addresscard}>
                     <RadioButtonWrapper>
                       <AText
                         mr="8px"
-                        color="black"
+                        color={Colors.blackColor}
                         fonts={FontStyle.semiBold}
                         large>
-                        {item.first_name}
+                        {item.firstName}
                       </AText>
-                      {item._id === addressDefault ? (
+                      {item.defaultAddress ? (
                         <AIcon
                           name="checkcircleo"
                           size={18}
@@ -257,7 +249,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                       {item.phone}
                     </AText>
                     <AText color={GREYTEXT}>
-                      {item.address_line1}, {item.address_line2}, {item.city}
+                      {item.addressLine1}, {item.addressLine2}, {item.city}
                     </AText>
                     <AText mb="10px" color={GREYTEXT}>
                       {item.state}, {item.pincode}
@@ -357,7 +349,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   label: {
-    fontFamily: 'SegoeUI-SemiBold',
+    fontFamily: FontStyle.semiBold,
     width: '100%',
     alignItems: 'center',
   },
@@ -375,22 +367,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 9,
     marginVertical: 10,
-    backgroundColor: '#fff',
-    // borderWidth: 1,
-    // borderColor: '#f7f7f7',
-    // boxShadow: 0 0 5px #eee,
+    backgroundColor: Colors.whiteColor,
     borderRadius: 8,
     elevation: 3,
   },
   addaddresscard: {
+    marginHorizontal: 2,
     marginBottom: 30,
     paddingHorizontal: 20,
     paddingVertical: 9,
     marginVertical: 10,
-    backgroundColor: '#fff',
-    // borderWidth: 1,
-    // borderColor: '#f7f7f7',
-    // boxShadow: 0 0 5px #eee,
+    backgroundColor: Colors.whiteColor,
     borderRadius: 8,
     elevation: 3,
     flexDirection: 'row',
@@ -401,6 +388,7 @@ const styles = StyleSheet.create({
 
 const AddressWrapper = styled.View`
   margin-bottom: 10px;
+  margin-horizontal: 2px;
 `;
 
 const RadioButtonWrapper = styled.TouchableOpacity`

@@ -1,4 +1,5 @@
 import APclient from '../../Client';
+import NavigationConstants from '../../navigation/NavigationConstants';
 import {
   ADD_ADDRESSBOOK,
   DELETE_ADDRESSBOOK,
@@ -202,7 +203,7 @@ export const registerAction = (payload, navigation) => async (dispatch) => {
       !isEmpty(response.data.addCustomer) &&
       response.data.addCustomer.success
     ) {
-      navigation.navigate('LoginSignUp', {
+      navigation.navigate(NavigationConstants.LOGIN_SIGNUP_SCREEN, {
         initial: false,
       });
       dispatch({

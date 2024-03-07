@@ -30,7 +30,8 @@ function ImageSlider({ dataItems, navigatetonext }) {
     return (
       <TouchableOpacity
         onPress={() => {
-          setSelectedId(item._id);
+          navigatetonext(item);
+          // setSelectedId(item._id);
         }}>
         <ImageBackground
           source={{

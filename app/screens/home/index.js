@@ -29,6 +29,7 @@ import {
   categoriesAction,
   addCartAction,
   updateCartAction,
+  catProductAction,
 } from '../../store/action';
 import HomeCategoryShowViews from './Components.js/CategoryShow';
 import HomeComponentShowViews from './Components.js/HomeComponentShowViews';
@@ -55,14 +56,13 @@ import { USER_ALREADY_HAS_LOGIN } from '../../store/action/customerAction';
 import Colors from '../../constants/Colors';
 import Header from '../components/Header';
 import Styles from '../../Theme';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const HomeScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
   // var allCategories = useSelector(state => state.products.allCategories);
-  function handlePress() {
-    navigation.openDrawer();
-  }
+
   const allCategoriesWithChild = useSelector(
     (state) => state.products.categories.data,
   );
@@ -87,16 +87,13 @@ const HomeScreen = ({ navigation }) => {
   const settingLoading = useSelector((state) => state.settings.loading);
 
   const [allCategories, setAllCategories] = useState([]);
-  const [inpvalue, setInpvalue] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const checkUserLoggedIn = async () => {
     try {
       const token = await getToken();
       const userdata = await getValue('userDetails');
-      // console.log(token, userdata, 'ttk');
-      // const role = await AsyncStorage.getItem('role');
 
       if (token !== null) {
-        // console.log('yes logged in on master screen');
         var loginDetails = {
           user_token: token,
         };
@@ -113,7 +110,7 @@ const HomeScreen = ({ navigation }) => {
 
   //Custom Functions
   const handleinpiut = (e) => {
-    setInpvalue(e);
+    setSearchTerm(e);
   };
 
   useEffect(() => {
@@ -179,15 +176,13 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [loginState]);
 
-  // useEffect(() => {
-  //   if (isFocused) {
-  //     if (cartChecked) {
-  //       if (!isEmpty(userDetails)) {
-  //         UpdateCart();
-  //       }
-  //     }
-  //   }
-  // }, [cartId,cartChecked])
+  useEffect(() => {
+    if (cartChecked) {
+      if (!isEmpty(userDetails)) {
+        UpdateCart();
+      }
+    }
+  }, [cartId, cartChecked]);
 
   const UpdateCart = async () => {
     var cartProduct = await getValue('cartproducts');
@@ -219,7 +214,7 @@ const HomeScreen = ({ navigation }) => {
       if (!isEmpty(filteredProducts)) {
         if (isEmpty(cartId)) {
           const cartData = {
-            user_id: userDetails._id,
+            userId: userDetails._id,
             products: filteredProducts,
           };
           dispatch(addCartAction(cartData));
@@ -235,46 +230,26 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const navigateNextScreen = (category) => {
-    var navigateTo = '';
-    // if (category.children.length < 1) {
-    //   navigateTo = 'Category';
-    // } else {
-    navigateTo = 'SubcategoriesOption';
-    // }
-
     var nestedCategory = [];
     if (!isEmpty(category.children)) {
       nestedCategory = category.children;
     }
-    // console.log(JSON.stringify(category), 'this category going in subcategory');
-    navigation.navigate('CateGories', {
-      screen: navigateTo,
-      initial: false,
-      params: { singleCategory: category, withChildern: nestedCategory },
+    navigation.navigate(NavigationConstants.SUBCATEGORIES_OPTION_SCREEN, {
+      singleCategory: category,
+      withChildern: nestedCategory,
     });
   };
-  console.log(settingLoading, ' ---- ', catLoading);
+
+  const handleSearchProduct = () => {
+    navigation.navigate('Shop', { searchTerm: searchTerm });
+  };
+
   return (
     <View style={Styles.mainContainer}>
       {settingLoading && catLoading ? <AppLoader /> : null}
       <StatusBar backgroundColor={APP_PRIMARY_COLOR} />
       <Header showProfileIcon navigation={navigation} title={''} />
       <View style={styles.searchstyle}>
-        {/* <TouchableOpacity style={{ marginTop: 10 }} onPress={handlePress}>
-          <View style={{ ...styles.barstyle, width: 35 }}></View>
-          <View style={{ ...styles.barstyle, width: 25 }}></View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() =>
-            navigation.navigate('AccountWrapper', { screen: 'Accounts' })
-          }
-          style={{ ...styles.profileimgstyle, elevation: 5 }}>
-          <Image
-            style={styles.profileimgstyle}
-            source={require('../../assets/images/man.png')}
-          />
-        </TouchableOpacity> */}
         <ARow mt={'10px'} row alignItems="center" position="relative">
           <Icon
             style={styles.iconstyle}
@@ -285,7 +260,8 @@ const HomeScreen = ({ navigation }) => {
           <TextInput
             height={30}
             bc={'#E0E0E0'}
-            value={inpvalue}
+            onSubmit={() => handleSearchProduct()}
+            value={searchTerm}
             onchange={handleinpiut}
             padding={0}
             pl={35}
@@ -319,10 +295,10 @@ const HomeScreen = ({ navigation }) => {
           <ImageSlider
             dataItems={recentAddedProduct}
             navigatetonext={(item) => {
-              navigation.navigate('CateGories', {
-                screen: 'SingleProduct',
-                initial: false,
-                params: { productID: item._id, productUrl: item.url },
+              console.log(JSON.stringify(item), 'running func');
+              navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+                productID: item._id,
+                productUrl: item.url,
               });
             }}
           />
@@ -361,11 +337,13 @@ const HomeScreen = ({ navigation }) => {
               <HomeComponentShowViews
                 dataItems={featureData}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
             </SectionView>
@@ -381,11 +359,13 @@ const HomeScreen = ({ navigation }) => {
               <HomeComponentShowViews
                 dataItems={recentAddedProduct}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
             </SectionView>
@@ -413,21 +393,22 @@ const HomeScreen = ({ navigation }) => {
               <CardContainer
                 dataItems={saleProduct}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
 
               {/* <HomeComponentShowViews
                 dataItems={saleProduct}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
+                   navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+                    productID: item._id,
+                    productUrl: item.url,
                   });
                 }}
               /> */}
@@ -454,11 +435,13 @@ const HomeScreen = ({ navigation }) => {
               <HomeComponentShowViews
                 dataItems={ProductByCategory}
                 navigatetonext={(item) => {
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: item._id },
-                  });
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    {
+                      productID: item._id,
+                      productUrl: item.url,
+                    },
+                  );
                 }}
               />
             </SectionView>
@@ -468,11 +451,6 @@ const HomeScreen = ({ navigation }) => {
     </View>
   );
 };
-
-const FeaturedImage = styled.Image`
-  width: 100%;
-  height: 175px;
-`;
 
 const SectionView = styled.View`
   padding: 10px 0;
@@ -490,27 +468,9 @@ const PopularPicksImage = styled.Image`
   height: 100%;
   resize-mode: stretch;
 `;
-const HeaderLogo = styled.Image`
-  resize-mode: contain;
-  width: 90%;
-  height: 60%;
-`;
-const HeaderLogoWrapper = styled.View`
-  width: 100%;
-  height: 80px;
-  justify-content: center;
-  align-items: center;
-  align-self: center;
-  background: #fff;
-`;
-
-const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
-  child: { width, justifyContent: 'center' },
-  image: { width: Dimensions.width, height: 300, resizeMode: 'contain' },
-  text: { fontSize: width * 0.5, textAlign: 'center' },
   searchstyle: {
     flexWrap: 'wrap',
     flexDirection: 'row',
@@ -522,18 +482,12 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  barstyle: {
-    height: 4,
-    backgroundColor: 'black',
-    marginBottom: 5,
-    borderRadius: 5,
-  },
+
   iconstyle: {
     marginRight: 5,
     position: 'absolute',
     left: 10,
     zIndex: 2,
   },
-  profileimgstyle: { height: 30, width: 35, borderRadius: 35 },
 });
 export default HomeScreen;

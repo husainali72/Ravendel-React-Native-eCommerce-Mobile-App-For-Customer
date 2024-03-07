@@ -18,6 +18,7 @@ import ForgotPasswordScreen from './account/forgotPassword';
 import ShippingScreen from './checkout/shipping';
 import PaymentMethodScreen from './checkout/paymentMethods';
 import CheckoutScreen from './checkout/checkout';
+import CheckoutDetails from './checkout/checkoutDetails';
 import OrderDetailScreen from './account/orderHistoryDetail';
 import EditProfileScreen from './account/editProfile';
 import ChangePasswordScreen from './account/changePassword';
@@ -51,4 +52,5 @@ export {
   Splash,
   Shop,
   SubcategoriesOption,
+  CheckoutDetails,
 };

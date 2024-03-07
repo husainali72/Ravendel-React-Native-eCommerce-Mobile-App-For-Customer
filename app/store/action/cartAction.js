@@ -20,11 +20,13 @@ export const checkStorageAction = (userID) => async (dispatch) => {
     dispatch({
       type: CART_LOADING,
     });
-    const response = await query(GET_CART, { id: userID });
-    // .then(async (response) => {
+
     try {
-      if (!isEmpty(response.data.cartbyUser.products)) {
-        var cartProducts = response.data.cartbyUser.products;
+      const response = await query(GET_CART, { id: userID });
+      // .then(async (response) => {
+      console.log(response, ' checkstorage response');
+      if (!isEmpty(response.data.cartbyUser.cartItem)) {
+        var cartProducts = response.data.cartbyUser.cartItem;
         dispatch({
           type: CHECK_STORAGE,
           payload: {
@@ -43,6 +45,13 @@ export const checkStorageAction = (userID) => async (dispatch) => {
       }
     } catch (error) {
       console.log('error in check storage', error);
+      if (error === 'Cart not found') {
+        const cartData = {
+          userId: userID,
+          products: [],
+        };
+        dispatch(addCartAction(cartData));
+      }
       dispatch({
         type: CART_EMPTY,
       });
@@ -81,6 +90,7 @@ export const addToCartAction = (payload) => async (dispatch) => {
     type: CART_LOADING,
   });
   const response = await mutation(ADD_TOCART, payload);
+  console.log(response, 'cart add response');
   // .then((response) => {
   try {
     if (!isEmpty(response.data.addToCart) && response.data.addToCart.success) {
@@ -221,6 +231,7 @@ export const orderHistoryAction = (payload) => async (dispatch) => {
   });
 
   const response = await query(ORDER_HISTORY, payload);
+  console.log(response, 'order response');
   // .then(response => {
   try {
     if (response) {

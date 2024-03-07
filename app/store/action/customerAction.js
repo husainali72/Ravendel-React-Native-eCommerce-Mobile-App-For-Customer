@@ -1,3 +1,4 @@
+import NavigationConstants from '../../navigation/NavigationConstants';
 import {
   ADD_ADDRESSBOOK,
   DELETE_ADDRESSBOOK,
@@ -23,7 +24,7 @@ export const editCustomerAction = (payload, navigation) => async (dispatch) => {
       response.data.updateCustomer.success
     ) {
       dispatch(userDetailsfetch(payload.id));
-      navigation.navigate('Account', {
+      navigation.navigate(NavigationConstants.ACCOUNT_SCREEN, {
         initial: false,
       });
 

@@ -14,6 +14,8 @@ export const DEVELOPMENT_URL = 'http://192.168.1.31:8000/api/';
 export const PRODUCTION_URL = 'https://revendal-image.s3.amazonaws.com/';
 export const VERSION = '1.0.0';
 export const callngVriable = '__c';
+export const dummyImage =
+  'https://www.hbwebsol.com/wp-content/uploads/2020/07/category_dummy.png';
 // export const DATABASE_CONFIG = {
 //   location: 'default'
 // };

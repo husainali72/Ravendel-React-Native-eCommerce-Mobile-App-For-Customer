@@ -24,6 +24,7 @@ import {
 import { StyleSheet } from 'react-native';
 import Colors from '../../constants/Colors';
 import { FontStyle } from '../../utils/config';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const OrderDetailScreen = ({ navigation, route }) => {
   const fontColor = '#7C7C7C';
@@ -58,11 +59,10 @@ const OrderDetailScreen = ({ navigation, route }) => {
                 key={product.product_id}
                 onPress={() =>
                   // setOrderDetailModal(true)
-                  navigation.navigate('CateGories', {
-                    screen: 'SingleProduct',
-                    initial: false,
-                    params: { productID: product.product_id },
-                  })
+                  navigation.navigate(
+                    NavigationConstants.SINGLE_PRODUCT_SCREEN,
+                    { productID: product.product_id, productUrl: product?.url },
+                  )
                 }>
                 <ItemImage
                   source={{

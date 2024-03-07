@@ -15,14 +15,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { formatCurrency, isEmpty } from '../../utils/helper';
-import { ProductPriceText } from '../components';
 
-import {
-  APP_PRIMARY_COLOR,
-  APP_SECONDARY_COLOR,
-  FontStyle,
-  GREYTEXT,
-} from '../../utils/config';
+import { APP_PRIMARY_COLOR, FontStyle, GREYTEXT } from '../../utils/config';
 import Colors from '../../constants/Colors';
 
 const CheckoutScreen = ({ navigation, route }) => {
@@ -32,7 +26,7 @@ const CheckoutScreen = ({ navigation, route }) => {
   var couponCode = route.params.couponCode;
   var paymentMethod = route.params.paymentMethod;
   var defaultaddress = route.params.shippingValue[0];
-  // console.log(cartProducts, 'cart');
+
   const dispatch = useDispatch();
   const { cartId } = useSelector((state) => state.cart);
   const userDetails = useSelector((state) => state.customer.userDetails);
@@ -70,39 +64,36 @@ const CheckoutScreen = ({ navigation, route }) => {
   const setproducts = () => {
     var products = [];
     cartProducts.map((val) => {
+      console.log(val, 'product val');
       products.push({
-        product_id: val._id,
+        productId: val._id,
+        productTitle: val.name,
+        productPrice: val.pricing.sellprice,
         qty: val.cartQty,
-        name: val.name,
-        cost: val.pricing.sellprice,
-        feature_image: val.feature_image,
-        tax_class: val.tax_class,
-        shipping_class: val.shipping.shipping_class,
+        taxClass: val.taxClass,
+        shippingClass: val.shipping.shippingClass,
       });
-      // console.log(val.pricing.sellprice);
       totalcost = totalcost + val.pricing.sellprice;
-      // console.log(totalcost);
     });
     setProductArr(products);
   };
   console.log(shippingValue);
   const checkoutDetails = () => {
     const payload = {
-      customer_id: userDetails._id,
+      userId: userDetails._id,
       billing: {
         order_notes: '',
         zip: shippingValue[0].pincode,
         state: shippingValue[0].state,
         city: shippingValue[0].city,
-        address_line2: shippingValue[0].address_line2,
-        address: shippingValue[0].address_line1,
+        address: shippingValue[0].addressLine1,
         phone: userDetails.phone || '1234',
         company: '',
         email: userDetails.email,
-        lastname: userDetails.last_name,
-        firstname: userDetails.first_name,
+        lastname: userDetails.lastName,
+        firstname: userDetails.firstName,
         country: shippingValue[0].country,
-        payment_method: 'Cash On Delivery',
+        paymentMethod: 'Cash On Delivery',
         transaction_id: '',
       },
       shipping: {
@@ -110,39 +101,36 @@ const CheckoutScreen = ({ navigation, route }) => {
         zip: shippingValue[0].pincode,
         state: shippingValue[0].state,
         city: shippingValue[0].city,
-        address_line2: shippingValue[0].address_line2,
-        address: shippingValue[0].address_line1,
+        address: shippingValue[0].addressLine1,
         phone: shippingValue[0].phone || '1234',
         company: '',
         email: shippingValue[0].email,
-        lastname: shippingValue[0].last_name,
-        firstname: shippingValue[0].first_name,
+        lastname: shippingValue[0].lastName,
+        firstname: shippingValue[0].firstName,
         country: shippingValue[0].country,
-        payment_method: 'Cash On Delivery',
+        paymentMethod: 'Cash On Delivery',
         transaction_id: '',
       },
       products: productArr,
-      subtotal: cartAmount.toString(),
-      shipping_amount: !isEmpty(deliveryCharges)
+      cartTotal: cartAmount.toString(),
+      shippingAmount: !isEmpty(deliveryCharges)
         ? deliveryCharges.toString()
         : '',
-      tax_amount: !isEmpty(taxAmount) ? taxAmount.toString() : '',
-      discount_amount: !isEmpty(couponDiscount)
-        ? couponDiscount.toString()
-        : '',
-      coupon_code: !isEmpty(couponCode) ? couponCode : '',
-      grand_total: !isEmpty(cartAmount) ? cartAmount.toString() : '',
-      checkoutDate: new Date().toString(),
-      shippingAddress: true,
+      taxAmount: !isEmpty(taxAmount) ? taxAmount.toString() : '',
+      discountAmount: !isEmpty(couponDiscount) ? couponDiscount.toString() : '',
+      couponCode: !isEmpty(couponCode) ? couponCode : '',
+      grandTotal: !isEmpty(cartAmount) ? cartAmount.toString() : '',
+      // checkoutDate: new Date().toString(),
+      // shippingAddress: true,
     };
-    console.log('oioi');
+
     dispatch(checkoutDetailsAction(payload, cartId, navigation));
   };
   return (
     <>
       <View style={styles.container}>
+        <ZHeader navigation={navigation} name="Checkout" />
         <ScrollView>
-          <ZHeader navigation={navigation} name="Checkout" />
           <View style={styles.container2}>
             <View style={styles.step}>
               <View style={styles.circle} />
@@ -179,28 +167,26 @@ const CheckoutScreen = ({ navigation, route }) => {
             </View>
           </View>
           <AddressWrapper>
-            {/* {userDetails.address_book.map((item, index) => ( */}
             <AText color="black" fonts={FontStyle.semiBold} large>
               Billing Details
             </AText>
             <View style={styles.addresscard}>
               <RadioButtonWrapper>
                 <AText mr="8px" color="black" fonts={FontStyle.semiBold} large>
-                  {defaultaddress.first_name}
+                  {defaultaddress.firstName}
                 </AText>
               </RadioButtonWrapper>
               <AText color={GREYTEXT} fonts={FontStyle.semiBold}>
                 {defaultaddress.phone}
               </AText>
               <AText color={GREYTEXT}>
-                {defaultaddress.address_line1}, {defaultaddress.address_line2},{' '}
+                {defaultaddress.addressLine1}, {defaultaddress.addressLine2},{' '}
                 {defaultaddress.city}
               </AText>
               <AText mb="10px" color={GREYTEXT}>
                 {defaultaddress.state}, {defaultaddress.pincode}
               </AText>
             </View>
-            {/* ))} */}
             <AText color="black" fonts={FontStyle.semiBold} large>
               Shipping Method
             </AText>
@@ -245,13 +231,6 @@ const CheckoutScreen = ({ navigation, route }) => {
               <ItemDescription2>
                 <PriceQtyWrapper>
                   <AText>{'₹' + product.pricing.price}</AText>
-                  {/* <ProductPriceText
-                    fontsizesmall={true}
-                    Pricing={product.pricing}
-                    DontshowPercentage={true}
-                    showInMulipleLine={'column-reverse'}
-                    fontColor={'#DB3022'}
-                  /> */}
                 </PriceQtyWrapper>
               </ItemDescription2>
             </ItemWrapper>

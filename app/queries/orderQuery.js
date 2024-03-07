@@ -2,26 +2,32 @@ import gql from 'graphql-tag';
 
 const ADD_TOCART = gql`
   mutation (
-    $user_id: ID
+    $userId: ID!
+    $productId: String
+    $productTitle: String
+    $productPrice: String
+    $productImage: String
     $total: Float
-    $product_id: String
-    $product_title: String
-    $product_price: Float
-    $product_image: String
     $qty: Int
-    $tax_class: String
-    $shipping_class: String
+    $shippingClass: String
+    $taxClass: String
+    $attributes: customArray
+    $variantId: String
+    $productQuantity: Int
   ) {
     addToCart(
-      user_id: $user_id
       total: $total
-      product_id: $product_id
-      product_title: $product_title
-      product_price: $product_price
-      product_image: $product_image
+      userId: $userId
+      productId: $productId
+      productTitle: $productTitle
+      productPrice: $productPrice
+      productImage: $productImage
       qty: $qty
-      tax_class: $tax_class
-      shipping_class: $shipping_class
+      attributes: $attributes
+      productQuantity: $productQuantity
+      variantId: $variantId
+      shippingClass: $shippingClass
+      taxClass: $taxClass
     ) {
       message
       success
@@ -29,8 +35,8 @@ const ADD_TOCART = gql`
   }
 `;
 const ADD_CART = gql`
-  mutation ($user_id: ID, $products: [cartProduct]) {
-    addCart(user_id: $user_id, products: $products) {
+  mutation ($userId: ID, $products: [cartProduct]) {
+    addCart(userId: $userId, products: $products) {
       message
       success
     }
@@ -174,24 +180,26 @@ const ADD_CHECKOUT = gql`
   }
 `;
 const ORDER_HISTORY = gql`
-  query ($user_id: ID!) {
-    orderbyUser(user_id: $user_id) {
+  query ($id: ID!) {
+    orderbyUser(userId: $id) {
       data {
-        id
-        customer_id
-        payment_status
-        shipping_status
-        coupon_code
-        shipping
         billing
-        products
+        userId
         date
-        subtotal
-        shipping_amount
-        tax_amount
-        discount_amount
-        grand_total
-        order_number
+        couponCode
+        discountAmount
+        grandTotal
+        id
+        products
+        shipping
+        shippingAmount
+        shippingStatus
+        paymentStatus
+        cartTotal
+        taxAmount
+        discountGrandTotal
+
+        updated
       }
       message {
         message
@@ -202,28 +210,28 @@ const ORDER_HISTORY = gql`
 `;
 const ADD_ORDER = gql`
   mutation (
-    $customer_id: ID
+    $userId: ID
     $billing: customObject
     $shipping: customObject
     $products: customArray
-    $subtotal: String
-    $shipping_amount: String
-    $tax_amount: String
-    $discount_amount: String
-    $grand_total: String
-    $coupon_code: String
+    $cartTotal: String
+    $shippingAmount: String
+    $taxAmount: String
+    $discountAmount: String
+    $grandTotal: String
+    $couponCode: String
   ) {
     addOrder(
-      customer_id: $customer_id
+      userId: $userId
       shipping: $shipping
       billing: $billing
       products: $products
-      subtotal: $subtotal
-      shipping_amount: $shipping_amount
-      tax_amount: $tax_amount
-      discount_amount: $discount_amount
-      grand_total: $grand_total
-      coupon_code: $coupon_code
+      cartTotal: $cartTotal
+      shippingAmount: $shippingAmount
+      taxAmount: $taxAmount
+      discountAmount: $discountAmount
+      grandTotal: $grandTotal
+      couponCode: $couponCode
     ) {
       message
       success

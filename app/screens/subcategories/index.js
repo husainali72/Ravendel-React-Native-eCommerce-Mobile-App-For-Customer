@@ -51,6 +51,7 @@ import {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import NavigationConstants from '../../navigation/NavigationConstants';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
@@ -115,7 +116,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
       selectedCat === 'All' &&
       !isEmpty(singleCateogry)
     ) {
-      // console.log(JSON.stringify(singleCateogry));
       setCategorydata(singleCateogry);
       return array;
     } else if (selectedCat !== 'All' && !isEmpty(inpvalue)) {
@@ -131,7 +131,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         }
       });
     } else if (selectedCat !== 'All' && isEmpty(inpvalue)) {
-      console.log(selectedCat, 'this filter is running');
       array = singleCateogry.filter((item) => {
         if (selectedCat === item.url) {
           return item;
@@ -155,23 +154,12 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     }
   }, [singleCatChildern]);
 
-  const handlefilter = (type) => {
-    if (!optionSelect.includes(type)) {
-      setOptionSelect((old) => [...old, type]);
-    } else {
-      setOptionSelect((old) => old.filter((val) => val !== type));
-    }
-  };
-
   useEffect(() => {
-    // if (!isEmpty(singleCateogry)) {
     setCategorydata(singleCateogry);
-    // }
   }, [singleCateogry]);
 
   useEffect(() => {
     if (singleCat) {
-      console.log('heyyy');
       let filter = {
         category: singleCat.id,
         brand: '',
@@ -187,27 +175,15 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         },
         search: '',
       };
-      console.log(filter, 'filter data');
       dispatch(catProductAction(filter, true));
     } else {
-      console.log('out of foucus runn');
       dispatch({
         type: CAT_PRODUCTS_CLEAR,
       });
     }
   }, [isFocused]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     console.log('out of foucus runn 2');
-  //     dispatch({
-  //       type: CAT_PRODUCTS_CLEAR,
-  //     });
-  //   };
-  // }, []);
-
   useEffect(() => {
-    console.log(selectedCat);
     if (selectedCat !== 'All') {
       let filter = {
         category: selectedCatId,
@@ -224,7 +200,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         },
         search: '',
       };
-      console.log(filter, 'filter data on different type');
       dispatch(catProductAction(filter, true));
     } else {
       let filter = {
@@ -247,7 +222,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
   }, [selectedCat]);
 
   const handleFilter = () => {
-    // console.log(starCount, values, ActiveBrand);
     const brandobj = !isEmpty(ActiveBrand)
       ? brands
           .filter((item) => item.name === ActiveBrand)
@@ -270,27 +244,42 @@ const SubCategoriesScreen = ({ navigation, route }) => {
       },
       search: '',
     };
-    console.log(filter, 'filtering modal');
+    dispatch(catProductAction(filter, true));
+  };
+
+  const handleReset = () => {
+    setActiveBrand('');
+    setStarCount(5);
+    setAmountRange[(0, 10000)];
+    setsearchTerm('');
+    bottomSheetModalRef.current?.dismiss();
+    let filter = {
+      category: '',
+      brand: '',
+      most_reviewed: false,
+      product_type: '',
+      rating: {
+        min: 0,
+        max: 5,
+      },
+      price: {
+        min: 1,
+        max: 100000,
+      },
+      search: '',
+    };
     dispatch(catProductAction(filter, true));
   };
   function renderItem({ item }) {
     return (
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate('CateGories', {
-            screen: 'SingleProduct',
-            initial: false,
-            params: { productID: item._id, productUrl: item.url },
+          navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+            productID: item._id,
+            productUrl: item.url,
           });
         }}
         style={styles.cardstyle}>
-        {/* <Icon
-          onPress={() => alert('Save it Wishlist')}
-          name="heart-o"
-          color={'red'}
-          size={15}
-          style={styles.heart}
-        /> */}
         <ImageBackground
           source={{
             uri: !isEmpty(item.feature_image)
@@ -315,12 +304,7 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 resizeMode: 'cover',
               }}></ImageBackground>
           </View>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              // navigatetonext(item);
-            }}
-            style={styles.overlay}></TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.9} style={styles.overlay} />
           <View style={styles.textContainer}>
             <AText mb="5px" small fonts={FontStyle.fontBold}>
               {item.name.length > 14
@@ -359,7 +343,9 @@ const SubCategoriesScreen = ({ navigation, route }) => {
         <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
           <View style={styles.header}>
             <AIcon
-              onPress={() => navigation.navigate('Home')}
+              onPress={() =>
+                navigation.navigate(NavigationConstants.HOME_SCREEN)
+              }
               name="arrowleft"
               size={22}
             />
@@ -394,6 +380,7 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 placeholder={'Search'}
                 placeholdercolor={'black'}
                 br={30}
+                color={Colors.blackColor}
               />
             </View>
             <TouchableOpacity
@@ -434,7 +421,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 xtrasmall
                 borderColor={'transparent'}
               />
-              {/* {console.log(withChild, 'wothchaild')} */}
               {withChild.map((item) => (
                 <>
                   <AButton
@@ -462,7 +448,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
               ))}
             </ScrollView>
           </View>
-          {/* {console.log(categorydata, 'catteee data')} */}
           <FlatList
             numColumns={2}
             data={categorydata}
@@ -485,21 +470,21 @@ const SubCategoriesScreen = ({ navigation, route }) => {
               </View>
             )}
           />
-          {/* {withChild.length ? menuListing(withChild) : null} */}
         </View>
         <BottomSheetModal
           // enableDismissOnClose={false}
           ref={bottomSheetModalRef}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
-          // handleStyle={{ backgroundColor: 'pink' }}
           containerStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
           style={{ flex: 1, elevation: 10, paddingHorizontal: 15 }}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View
               style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <AText fonts={FontStyle.semiBold}>Filter</AText>
-              <AText fonts={FontStyle.semiBold}>Reset</AText>
+              <TouchableOpacity onPress={() => handleReset()}>
+                <AText fonts={FontStyle.semiBold}>Reset</AText>
+              </TouchableOpacity>
             </View>
             <AText mt={'20px'} mb={'5px'} fonts={FontStyle.semiBold}>
               Brands
@@ -509,8 +494,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 elevation: 10,
                 flexDirection: 'row',
                 flexWrap: 'wrap',
-
-                // backgroundColor: 'orange',
               }}>
               {brands.map((item) => (
                 <TouchableOpacity
