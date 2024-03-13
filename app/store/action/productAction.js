@@ -42,7 +42,6 @@ export const productAction = (id) => async (dispatch) => {
   });
   try {
     const response = await query(GET_PRODUCT, { url: id });
-    console.log(response, 'rsspospso');
     if (!isEmpty(response.data.productbyurl)) {
       return dispatch({
         type: PRODUCT_SUCCESS,

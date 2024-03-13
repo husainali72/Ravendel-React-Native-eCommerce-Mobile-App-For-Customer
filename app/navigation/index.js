@@ -320,14 +320,6 @@ const Navigation = () => {
 
 export default Navigation;
 const style = StyleSheet.create({
-  // tabstyle: {
-  //   borderTopColor: '#C7C7C7',
-  //   borderTopWidth: Platform.OS === 'ios' ? 0.3 : 1,
-  //   backgroundColor: '#F9F9F9',
-  //   height: 70,
-  //   paddingBottom: Platform.OS === 'ios' ? 20 : 10,
-  //   paddingTop: 5,
-  // },
   imgstyle: {
     resizeMode: 'contain',
     width: 15,

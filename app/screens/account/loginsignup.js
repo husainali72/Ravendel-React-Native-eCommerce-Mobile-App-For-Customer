@@ -25,7 +25,7 @@ const UserEntry = ({ navigation }) => {
   const [activetab, setActivetab] = useState('Login');
 
   // Custom Function
-  const handleactivetab = (tabname) => {
+  const handleActiveTab = (tabname) => {
     tabname === 'Login' ? setActivetab('Login') : setActivetab('Signup');
   };
 
@@ -44,7 +44,7 @@ const UserEntry = ({ navigation }) => {
         <View style={styles.logincard}>
           <View style={styles.singupheader}>
             <TouchableOpacity
-              onPress={() => handleactivetab('Login')}
+              onPress={() => handleActiveTab('Login')}
               style={{
                 ...styles.login,
                 backgroundColor:
@@ -58,7 +58,7 @@ const UserEntry = ({ navigation }) => {
               </AText>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleactivetab('Signup')}
+              onPress={() => handleActiveTab('Signup')}
               style={{
                 ...styles.signup,
                 backgroundColor:
@@ -76,7 +76,7 @@ const UserEntry = ({ navigation }) => {
             <LoginScreen navigation={navigation} />
           ) : (
             <SignupScreen
-              handleactivetab={handleactivetab}
+              handleActiveTab={handleActiveTab}
               navigation={navigation}
             />
           )}

@@ -177,7 +177,7 @@ export const sessionCheck = () => async (dispatch) => {
 };
 
 export const registerAction =
-  (payload, navigation, handleactivetab) => async (dispatch) => {
+  (payload, navigation, handleActiveTab) => async (dispatch) => {
     dispatch({
       type: LOGIN_LOADING,
     });
@@ -192,7 +192,7 @@ export const registerAction =
         // navigation.navigate(NavigationConstants.LOGIN_SIGNUP_SCREEN, {
         //   initial: false,
         // });
-        handleactivetab('Login');
+        handleActiveTab('Login');
         dispatch({
           type: LOGIN_STOP,
         });
