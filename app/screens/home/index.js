@@ -54,6 +54,7 @@ import Colors from '../../constants/Colors';
 import Header from '../components/Header';
 import Styles from '../../Theme';
 import NavigationConstants from '../../navigation/NavigationConstants';
+import URL from '../../utils/baseurl';
 
 const HomeScreen = ({ navigation }) => {
   // States and Variables
@@ -172,7 +173,27 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('Shop', { searchTerm: searchTerm });
   };
 
+  const getCategoryImage = (name) => {
+    const cat =
+      URL +
+      homeData
+        .filter((item) => {
+          if (item.label === name) {
+            return true;
+          }
+        })
+        .map((item) => {
+          return item.section_img;
+        })[0];
+    return cat;
+  };
+
   // Use Effect Call
+
+  useEffect(() => {
+    console.log(homeData);
+  }, []);
+
   useEffect(() => {
     dispatch(AppSettingAction());
     dispatch(categoriesAction());
@@ -278,42 +299,37 @@ const HomeScreen = ({ navigation }) => {
           }}
           allCategories={allCategories}
         />
-        <ARow mb="20px" wrap row>
-          <ACol col={1}>
-            <PopularPicksWrapper>
-              <PopularPicksImage
-                source={require('../../assets/images/section.jpg')}
-              />
-            </PopularPicksWrapper>
-          </ACol>
-        </ARow>
+
         {!isEmpty(recentAddedProduct) && (
-          <ImageSlider
-            dataItems={recentAddedProduct}
-            navigatetonext={(item) => {
-              console.log(JSON.stringify(item), 'running func');
-              navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
-                productID: item._id,
-                productUrl: item.url,
-              });
-            }}
-          />
+          <>
+            <ARow mb="20px" wrap row>
+              <ACol col={1}>
+                <PopularPicksWrapper>
+                  <PopularPicksImage
+                    source={{
+                      uri: getCategoryImage('Recently Added Products'),
+                    }}
+                  />
+                </PopularPicksWrapper>
+              </ACol>
+            </ARow>
+            <ImageSlider
+              dataItems={recentAddedProduct}
+              navigatetonext={(item) => {
+                navigation.navigate(NavigationConstants.SINGLE_PRODUCT_SCREEN, {
+                  productID: item._id,
+                  productUrl: item.url,
+                });
+              }}
+            />
+          </>
         )}
         <ARow wrap row></ARow>
 
-        <ARow mb="20px" wrap row>
-          <ACol col={1}>
-            <PopularPicksWrapper>
-              <PopularPicksImage
-                source={require('../../assets/images/section.jpg')}
-              />
-            </PopularPicksWrapper>
-          </ACol>
-        </ARow>
         {!isEmpty(brands) && (
           <SectionView>
             <AText uppercase heavy mb={'20px'} center color={primaryColor}>
-              Fatured Brands
+              Featured Brands
             </AText>
             <HomeBrandViews
               allbrands={brands}
@@ -326,6 +342,17 @@ const HomeScreen = ({ navigation }) => {
         )}
         {!isEmpty(featureData) && (
           <>
+            <ARow mb="20px" wrap row>
+              <ACol col={1}>
+                <PopularPicksWrapper>
+                  <PopularPicksImage
+                    source={{
+                      uri: getCategoryImage('Featured Product'),
+                    }}
+                  />
+                </PopularPicksWrapper>
+              </ACol>
+            </ARow>
             <SectionView>
               <AText uppercase heavy center color={primaryColor}>
                 FEATURED COLLECTIONS
@@ -348,6 +375,17 @@ const HomeScreen = ({ navigation }) => {
 
         {!isEmpty(recentAddedProduct) && (
           <>
+            <ARow mb="20px" wrap row>
+              <ACol col={1}>
+                <PopularPicksWrapper>
+                  <PopularPicksImage
+                    source={{
+                      uri: getCategoryImage('Products On Sales'),
+                    }}
+                  />
+                </PopularPicksWrapper>
+              </ACol>
+            </ARow>
             <SectionView>
               <AText uppercase heavy center color={primaryColor}>
                 Latest collection
@@ -368,23 +406,19 @@ const HomeScreen = ({ navigation }) => {
           </>
         )}
 
-        <SectionView>
-          <AText uppercase heavy center color={primaryColor}>
-            POPULAR PICKS
-          </AText>
-          <ARow>
-            <ACol col={1}>
-              <PopularPicksWrapper>
-                <PopularPicksImage
-                  source={require('../../assets/images/summer_sale_60.webp')}
-                />
-              </PopularPicksWrapper>
-            </ACol>
-          </ARow>
-        </SectionView>
-
         {!isEmpty(saleProduct) && (
           <>
+            <ARow mb="20px" wrap row>
+              <ACol col={1}>
+                <PopularPicksWrapper>
+                  <PopularPicksImage
+                    source={{
+                      uri: getCategoryImage('Product from Specific Categories'),
+                    }}
+                  />
+                </PopularPicksWrapper>
+              </ACol>
+            </ARow>
             <SectionView>
               <CardContainer
                 dataItems={saleProduct}
@@ -414,18 +448,6 @@ const HomeScreen = ({ navigation }) => {
 
         {!isEmpty(ProductByCategory) && (
           <>
-            <SectionView>
-              <ARow>
-                <ACol col={1}>
-                  <PopularPicksWrapper>
-                    <PopularPicksImage
-                      source={require('../../assets/images/section2.jpg')}
-                    />
-                  </PopularPicksWrapper>
-                </ACol>
-              </ARow>
-            </SectionView>
-
             <SectionView>
               {/* <AText uppercase heavy mb={'10px'} center color={primaryColor}></AText> */}
               <HomeComponentShowViews

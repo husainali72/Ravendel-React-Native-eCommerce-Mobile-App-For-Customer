@@ -15,11 +15,11 @@ import { capitalizeFirstLetter, isEmpty } from '../../utils/helper';
 import FastImage from 'react-native-fast-image';
 import URL from '../../utils/baseurl';
 import NavigationConstants from '../../navigation/NavigationConstants';
+import PropTypes from 'prop-types';
 
 const SubcategoryOption = ({ navigation, route }) => {
   const singleCat = route?.params?.singleCategory;
   const singleCatChildern = route?.params?.withChildern;
-  console.log(singleCat, '---', singleCatChildern);
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
       <View style={styles.header}>
@@ -124,6 +124,11 @@ const SubcategoryOption = ({ navigation, route }) => {
       </View>
     </ScrollView>
   );
+};
+
+SubcategoryOption.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
 };
 
 const styles = StyleSheet.create({

@@ -11,7 +11,7 @@ import { AText } from '../../../theme-components';
 import { FontStyle, GREYTEXT } from '../../../utils/config';
 import URL from '../../../utils/baseurl';
 import { isEmpty } from '../../../utils/helper';
-
+import PropTypes from 'prop-types';
 function CategoryItem({ category, navigateNextScreen }) {
   return (
     <TouchableOpacity
@@ -48,7 +48,7 @@ function CategoryList({ allCategories, navigateNextScreen }) {
 }
 function Categories({ allCategories, navigateNextScreen }) {
   return (
-    <View style={{ marginHorizontal: 30 }}>
+    <View style={{ marginHorizontal: 30, marginBottom: 10 }}>
       <AText mb={'10px'} large fonts={FontStyle.fontBold}>
         Categories
       </AText>
@@ -59,6 +59,12 @@ function Categories({ allCategories, navigateNextScreen }) {
     </View>
   );
 }
+
+Categories.propTypes = {
+  navigateNextScreen: PropTypes.func,
+  allCategories: PropTypes.array,
+};
+
 export default Categories;
 const styles = StyleSheet.create({
   categoryItem: {
