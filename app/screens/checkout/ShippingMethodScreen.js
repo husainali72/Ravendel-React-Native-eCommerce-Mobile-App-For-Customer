@@ -1,5 +1,5 @@
 import React from 'react';
-import { AText, AButton, ZHeader } from '../../theme-components';
+import { AText, AButton, BackHeader } from '../../theme-components';
 import styled from 'styled-components/native';
 import { isEmpty } from '../../utils/helper';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,6 +10,7 @@ import { addAddressAction } from '../../store/action';
 import { AdressForm } from '../components';
 import Colors from '../../constants/Colors';
 import NavigationConstants from '../../navigation/NavigationConstants';
+import PropTypes from 'prop-types';
 
 const ShippingMethodScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -118,7 +119,7 @@ const ShippingMethodScreen = ({ navigation, route }) => {
         </>
       ) : (
         <View style={styles.container}>
-          <ZHeader navigation={navigation} name="Checkout" />
+          <BackHeader navigation={navigation} name="Checkout" />
           <View style={styles.container2}>
             <View style={styles.step}>
               <View style={styles.circle} />
@@ -231,6 +232,11 @@ const ShippingMethodScreen = ({ navigation, route }) => {
       )}
     </>
   );
+};
+
+ShippingMethodScreen.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
 };
 
 const AddressWrapper = styled.View`

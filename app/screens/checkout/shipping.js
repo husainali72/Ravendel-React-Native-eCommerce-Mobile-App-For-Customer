@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { AText, AButton, AppLoader, ZHeader } from '../../theme-components';
+import { AText, AButton, AppLoader, BackHeader } from '../../theme-components';
 import styled from 'styled-components/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +14,8 @@ import { AdressForm } from '../components';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import { APP_PRIMARY_COLOR, FontStyle, GREYTEXT } from '../../utils/config';
 import Colors from '../../constants/Colors';
+import PropTypes from 'prop-types';
+
 const CheckoutScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
@@ -174,7 +176,7 @@ const CheckoutScreen = ({ navigation, route }) => {
       ) : (
         <>
           <View style={styles.container}>
-            <ZHeader navigation={navigation} name="Checkout" />
+            <BackHeader navigation={navigation} name="Checkout" />
             <View style={styles.container2}>
               <View style={styles.step}>
                 <View style={styles.circle} />
@@ -310,6 +312,11 @@ const CheckoutScreen = ({ navigation, route }) => {
       )}
     </>
   );
+};
+
+CheckoutScreen.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
 };
 
 const styles = StyleSheet.create({

@@ -4,7 +4,7 @@ import {
   AContainer,
   AHeader,
   AButton,
-  ZHeader,
+  BackHeader,
 } from '../../theme-components';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -27,6 +27,7 @@ import NavigationConstants from '../../navigation/NavigationConstants';
 const AccountScreen = ({ navigation }) => {
   const isLoggin = useSelector((state) => state.customer.isLoggin);
   const dispatch = useDispatch();
+  const userDetails = useSelector((state) => state.customer.userDetails);
 
   const Logout = () => {
     dispatch(LogOut(navigation));
@@ -46,20 +47,20 @@ const AccountScreen = ({ navigation }) => {
                 center
                 fonts={FontStyle.semiBold}
                 color="black">
-                Candice King
+                {userDetails.firstName} {userDetails.lastName}
               </AText>
               <AText
                 mb="5px"
                 center
                 fonts={FontStyle.semiBold}
                 color={APP_PRIMARY_COLOR}>
-                Custom@ravendel.com
+                {userDetails.email}
               </AText>
               <AText
                 center
                 fonts={FontStyle.semiBold}
                 color={APP_PRIMARY_COLOR}>
-                5452545545
+                {userDetails.phone}
               </AText>
             </View>
             <View style={styles.container}>

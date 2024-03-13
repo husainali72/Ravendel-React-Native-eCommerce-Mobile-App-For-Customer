@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
-import { AButton, AText, ZHeader } from '../../theme-components';
+import { AButton, AText, BackHeader } from '../../theme-components';
 import { FontStyle, GREYTEXT } from '../../utils/config';
 import Colors from '../../constants/Colors';
 import moment from 'moment';
 import NavigationConstants from '../../navigation/NavigationConstants';
 import { Divider } from 'react-native-paper';
+import PropTypes from 'prop-types';
 
 export default function CheckoutDetails({ navigation, route }) {
   const checoutDetailsData = route.params.checoutDetailsData;
@@ -28,7 +29,7 @@ export default function CheckoutDetails({ navigation, route }) {
   console.log(checoutDetailsData, ' checoutDetailsData');
   return (
     <View style={styles.container}>
-      <ZHeader navigation={navigation} name="Order Status" />
+      <BackHeader navigation={navigation} name="Order Status" />
       <View style={{ marginHorizontal: 35, marginTop: 30 }}>
         <AText big1 fonts={FontStyle.semiBold}>
           Your order has been received
@@ -123,6 +124,11 @@ export default function CheckoutDetails({ navigation, route }) {
     </View>
   );
 }
+
+CheckoutDetails.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
+};
 
 const styles = StyleSheet.create({
   container: {

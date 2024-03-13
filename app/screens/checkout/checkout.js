@@ -3,7 +3,7 @@ import {
   AText,
   AContainer,
   AButton,
-  ZHeader,
+  BackHeader,
   TextInput,
 } from '../../theme-components';
 import styled from 'styled-components/native';
@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { formatCurrency, isEmpty } from '../../utils/helper';
-
 import { APP_PRIMARY_COLOR, FontStyle, GREYTEXT } from '../../utils/config';
 import Colors from '../../constants/Colors';
+import PropTypes from 'prop-types';
 
 const CheckoutScreen = ({ navigation, route }) => {
   var shippingValue = route.params.shippingValue;
@@ -129,7 +129,7 @@ const CheckoutScreen = ({ navigation, route }) => {
   return (
     <>
       <View style={styles.container}>
-        <ZHeader navigation={navigation} name="Checkout" />
+        <BackHeader navigation={navigation} name="Checkout" />
         <ScrollView>
           <View style={styles.container2}>
             <View style={styles.step}>
@@ -355,6 +355,11 @@ const CheckoutScreen = ({ navigation, route }) => {
       </View>
     </>
   );
+};
+
+CheckoutScreen.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
 };
 
 const Shippingwrapper = styled.View`

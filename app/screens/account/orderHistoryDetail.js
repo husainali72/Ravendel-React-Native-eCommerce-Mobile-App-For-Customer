@@ -7,7 +7,7 @@ import {
   AButton,
   ARow,
   ACol,
-  ZHeader,
+  BackHeader,
 } from '../../theme-components';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components/native';
@@ -25,6 +25,7 @@ import { StyleSheet } from 'react-native';
 import Colors from '../../constants/Colors';
 import { FontStyle } from '../../utils/config';
 import NavigationConstants from '../../navigation/NavigationConstants';
+import PropTypes from 'prop-types';
 
 const OrderDetailScreen = ({ navigation, route }) => {
   const fontColor = '#7C7C7C';
@@ -114,7 +115,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
       {loadingproduct || loading ? <AppLoader /> : null}
       {/* <AHeader title="Cart" /> */}
       <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
-        <ZHeader navigation={navigation} name="Order Detail" />
+        <BackHeader navigation={navigation} name="Order Detail" />
         <AContainer>
           <OrderDetailHeader>
             <AText small>
@@ -297,6 +298,12 @@ const OrderDetailScreen = ({ navigation, route }) => {
     </>
   );
 };
+
+OrderDetailScreen.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
+};
+
 const styles = StyleSheet.create({
   CouponCellStyle: { color: 'green', fontWeight: 'bold' },
   valueCellStyle: { fontWeight: 'bold', color: '#7C7C7C' },

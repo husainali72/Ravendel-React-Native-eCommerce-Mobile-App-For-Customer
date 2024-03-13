@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { AText, AButton, AHeader, ZHeader } from '../../theme-components';
+import { AText, AButton, AHeader, BackHeader } from '../../theme-components';
 import { Formik, useFormik } from 'formik';
 import styled from 'styled-components/native';
 import { Appbar, Checkbox, TextInput } from 'react-native-paper';
@@ -16,6 +16,8 @@ import { countryArray } from '../../utils/CountryData';
 import { validationSchema } from '../checkout/validationSchema';
 import { APP_SECONDARY_COLOR, FontStyle } from '../../utils/config';
 import Colors from '../../constants/Colors';
+import PropTypes from 'prop-types';
+
 const AdressForm = ({
   initialFormValues,
   addForm,
@@ -61,7 +63,7 @@ const AdressForm = ({
         visible={true}
         animationInTiming={1500}>
         <View style={{ flex: 1, backgroundColor: Colors.whiteColor }}>
-          <ZHeader navigation={navigation} name={'Add New Address'} />
+          <BackHeader navigation={navigation} name={'Add New Address'} />
           <CheckoutWrapper
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled={true}
@@ -248,6 +250,13 @@ const AdressForm = ({
       </Modal>
     </>
   );
+};
+
+AdressForm.propTypes = {
+  initialFormValues: PropTypes.object,
+  addForm: PropTypes.func,
+  cancelAddForm: PropTypes.func,
+  navigation: PropTypes.object,
 };
 
 const styles = StyleSheet.create({
