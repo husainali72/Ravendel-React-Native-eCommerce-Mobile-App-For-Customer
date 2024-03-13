@@ -21,7 +21,11 @@ import URL from '../../utils/baseurl';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CommonActions, useIsFocused } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
-import { capitalizeFirstLetter, isEmpty } from '../../utils/helper';
+import {
+  capitalizeFirstLetter,
+  formatCurrency,
+  isEmpty,
+} from '../../utils/helper';
 import {
   // FlatList,
   ImageBackground,
@@ -52,6 +56,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import NavigationConstants from '../../navigation/NavigationConstants';
+import PropTypes from 'prop-types';
 
 const SubCategoriesScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
@@ -65,7 +70,9 @@ const SubCategoriesScreen = ({ navigation, route }) => {
 
   // variables
   const snapPoints = useMemo(() => ['60%'], []);
-
+  const { currencyOptions, currencySymbol } = useSelector(
+    (state) => state.settings,
+  );
   // callbacks
   const handlePresentModalPress = useCallback(() => {
     console.log('pressing', bottomSheetModalRef.current);
@@ -312,7 +319,11 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 : item.name}
             </AText>
             <AText small fonts={FontStyle.fontBold} style={styles.text}>
-              $ {item.pricing.sellprice + '.00'}
+              {formatCurrency(
+                item.pricing.sellprice,
+                currencyOptions,
+                currencySymbol,
+              )}
             </AText>
           </View>
           <View style={styles.textContainer2}>
@@ -574,6 +585,12 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     </>
   );
 };
+
+SubCategoriesScreen.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
+};
+
 const styles = StyleSheet.create({
   fastImageStyle: { flex: 1, resizeMode: 'cover' },
   chipstyle: {

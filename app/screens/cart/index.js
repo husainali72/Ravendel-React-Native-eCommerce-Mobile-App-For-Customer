@@ -8,7 +8,7 @@ import {
   applyCouponAction,
   checkStorageAction,
 } from '../../store/action';
-import { getToken, isEmpty } from '../../utils/helper';
+import { formatCurrency, getToken, isEmpty } from '../../utils/helper';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import URL from '../../utils/baseurl';
@@ -51,6 +51,9 @@ const CartScreen = ({ navigation }) => {
   );
   const { Loading, products } = useSelector((state) => state.products);
   const loadingproduct = useSelector((state) => state.products.loading);
+  const { currencySymbol, currencyOptions } = useSelector(
+    (state) => state.settings,
+  );
   const [cartProducts, setCartProduct] = useState([]);
   const [coupontotal, setCouponTotal] = useState(0);
   const [couponModal, setCouponModal] = useState(false);
@@ -271,7 +274,7 @@ const CartScreen = ({ navigation }) => {
                         NavigationConstants.SINGLE_PRODUCT_SCREEN,
                         {
                           productID: product.productId,
-                          productUrl: product.productTitle,
+                          productUrl: product.url,
                         },
                       );
                     }}>
@@ -373,7 +376,9 @@ const CartScreen = ({ navigation }) => {
                         </PriceQtyWrapper>
                       </View>
                     </ItemDescription>
-                    <RemoveItem onPress={() => removeCartItem(product)}>
+                    <RemoveItem
+                      style={{ zIndex: 10 }}
+                      onPress={() => removeCartItem(product)}>
                       <AText color="#fff">
                         <Icon color={'#72787e'} name="close" size={12} />
                       </AText>
@@ -431,7 +436,11 @@ const CartScreen = ({ navigation }) => {
                   <View style={styles.summary}>
                     <AText fonts={FontStyle.semiBold}>Total MRP</AText>
                     <AText color={Colors.grayColor}>
-                      ${cartSummary?.mrpTotal}
+                      {formatCurrency(
+                        cartSummary?.mrpTotal,
+                        currencyOptions,
+                        currencySymbol,
+                      )}
                     </AText>
                   </View>
                   {/* <View style={styles.summary}>
@@ -441,7 +450,11 @@ const CartScreen = ({ navigation }) => {
                   <View style={styles.summary}>
                     <AText fonts={FontStyle.semiBold}>Discount On MRP</AText>
                     <AText color={Colors.green}>
-                      {cartSummary?.discountTotal}
+                      {formatCurrency(
+                        cartSummary?.discountTotal,
+                        currencyOptions,
+                        currencySymbol,
+                      )}
                     </AText>
                   </View>
                   <View
@@ -460,7 +473,11 @@ const CartScreen = ({ navigation }) => {
                       color={Colors.grayColor}>
                       {cartSummary?.totalShipping === 0
                         ? 'FREE SHIPPING'
-                        : cartSummary?.totalShipping}
+                        : formatCurrency(
+                            cartSummary?.totalShipping,
+                            currencyOptions,
+                            currencySymbol,
+                          )}
                     </AText>
                   </View>
                   {/* <View
@@ -479,7 +496,13 @@ const CartScreen = ({ navigation }) => {
                       marginBottom: 25,
                     }}>
                     <AText fonts={FontStyle.semiBold}>Grand Total</AText>
-                    <AText color="gray">${cartSummary?.grandTotal}</AText>
+                    <AText color="gray">
+                      {formatCurrency(
+                        cartSummary?.grandTotal,
+                        currencyOptions,
+                        currencySymbol,
+                      )}
+                    </AText>
                   </View>
                 </View>
               </ScrollView>
@@ -505,7 +528,7 @@ const CartScreen = ({ navigation }) => {
                   round
                   mb="30px"
                   onPress={() => {
-                    !isEmpty(cartId)
+                    !isEmpty(isLoggin)
                       ? navigation.navigate(
                           NavigationConstants.SHIPPING_SCREEN,
                           {

@@ -21,7 +21,7 @@ import URL from '../../utils/baseurl';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CommonActions, useIsFocused } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
-import { isEmpty } from '../../utils/helper';
+import { formatCurrency, isEmpty } from '../../utils/helper';
 import {
   FlatList,
   ImageBackground,
@@ -54,9 +54,9 @@ import {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import PropTypes from 'prop-types';
 
-const SubCategoriesScreen = ({ navigation, route }) => {
-  const isFocused = useIsFocused();
+const Shop = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const [amountRange, setAmountRange] = useState([0, 10000]);
 
@@ -67,7 +67,9 @@ const SubCategoriesScreen = ({ navigation, route }) => {
 
   // variables
   const snapPoints = useMemo(() => ['60%'], []);
-
+  const { currencyOptions, currencySymbol } = useSelector(
+    (state) => state.settings,
+  );
   // callbacks
   const handlePresentModalPress = useCallback(() => {
     console.log('pressing', bottomSheetModalRef.current);
@@ -264,7 +266,11 @@ const SubCategoriesScreen = ({ navigation, route }) => {
                 : item.name}
             </AText>
             <AText small fonts={FontStyle.fontBold} style={styles.text}>
-              $ {item.pricing.sellprice + '.00'}
+              {formatCurrency(
+                item.pricing.sellprice,
+                currencyOptions,
+                currencySymbol,
+              )}
             </AText>
           </View>
           <View style={styles.textContainer2}>
@@ -464,6 +470,12 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     </BottomSheetModalProvider>
   );
 };
+
+Shop.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
+};
+
 const styles = StyleSheet.create({
   fastImageStyle: { flex: 1, resizeMode: 'cover' },
   chipstyle: {
@@ -581,48 +593,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const CollapseContainer = styled.View`
-  background: #f7f7f7;
-  border-radius: 10px;
-`;
-
-const CategoriesList = styled.TouchableOpacity``;
-
-const ListItem = styled.View`
-  flex: 1;
-  flex-wrap: wrap;
-  margin: 5px 2px 5px 5px;
-  flex-direction: row;
-  align-items: center;
-`;
-
-const SubCategoryContainer = styled.View``;
-
-const CategoryContainer = styled.View`
-  flex: 1;
-`;
-
-const CategoryImageWrapper = styled.View`
-  width: 30px;
-  height: 30px;
-  border-radius: 50px;
-  overflow: hidden;
-`;
-
-const CategoryImage = styled.Image`
-  width: null;
-  height: null;
-  flex: 1;
-  resize-mode: cover;
-`;
-const CollapseIcon = styled.Text`
-  align-self: flex-end;
-`;
-
-const CategoryName = styled.View`
-  flex: 1;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: row;
-`;
-export default SubCategoriesScreen;
+export default Shop;

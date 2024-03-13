@@ -72,19 +72,11 @@ export const checkStorageAction = (userID, load) => async (dispatch) => {
             // }
             // }
           });
-          if (!isEmpty(filteredProducts)) {
-            const cartData = {
-              userId: userDetails._id,
-              products: filteredProducts,
-            };
-            dispatch(addCartAction(cartData));
-          } else {
-            const cartData = {
-              userId: userID,
-              products: [],
-            };
-            dispatch(addCartAction(cartData));
-          }
+          const cartData = {
+            userId: userID,
+            products: !isEmpty(filteredProducts) ? filteredProducts : [],
+          };
+          dispatch(addCartAction(cartData));
         }
       }
       dispatch({

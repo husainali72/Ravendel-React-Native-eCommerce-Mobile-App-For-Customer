@@ -41,7 +41,7 @@ import {
 } from 'react-native';
 import StarRating from 'react-native-star-rating';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isEmpty } from '../../utils/helper';
+import { formatCurrency, isEmpty } from '../../utils/helper';
 import { useIsFocused } from '@react-navigation/native';
 import { ProductPriceText } from '../components';
 import { DataTable } from 'react-native-paper';
@@ -61,6 +61,8 @@ import {
 } from '@gorhom/bottom-sheet';
 import { ScrollView, FlatList } from 'react-native-gesture-handler';
 import NavigationConstants from '../../navigation/NavigationConstants';
+import PropTypes from 'prop-types';
+
 var reviewObject = {
   title: '',
   email: '',
@@ -84,6 +86,9 @@ const SingleProductScreen = ({ navigation, route }) => {
   );
   const { manage_stock } = useSelector((state) => state.settings);
   const Loading = useSelector((state) => state.products.loading);
+  const { currencyOptions, currencySymbol } = useSelector(
+    (state) => state.settings,
+  );
   const ProductId = route.params.productID;
   const ProductUrl = route.params.productUrl;
   const [ProductIds, setProductIds] = useState(ProductId);
@@ -370,7 +375,7 @@ const SingleProductScreen = ({ navigation, route }) => {
               snapPoints={snapPoints}
               style={{ flex: 1 }}>
               <ScrollView style={{ flex: 1 }}>
-                <ProductPriceText Pricing={SingleProduct.pricing} />
+                {/* <ProductPriceText Pricing={SingleProduct.pricing} /> */}
                 {/* ===============Product Name============= */}
                 <View
                   style={{
@@ -406,7 +411,11 @@ const SingleProductScreen = ({ navigation, route }) => {
                       big
                       fonts={FontStyle.semiBold}
                       color={'black'}>
-                      $ {SingleProduct.pricing.price + '.00'}
+                      {formatCurrency(
+                        SingleProduct.pricing.price,
+                        currencyOptions,
+                        currencySymbol,
+                      )}
                     </AText>
                   </ProductName>
                   <View style={{ width: '45%' }}>
@@ -780,6 +789,11 @@ const SingleProductScreen = ({ navigation, route }) => {
       </Modal>
     </BottomSheetModalProvider>
   );
+};
+
+SingleProductScreen.propTypes = {
+  navigation: PropTypes.object,
+  route: PropTypes.object,
 };
 
 //  ===============For Style=============

@@ -16,8 +16,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import StarRating from 'react-native-star-rating';
 import URL from '../../../utils/baseurl';
 import FastImage from 'react-native-fast-image';
-import { isEmpty } from '../../../utils/helper';
+import { formatCurrency, isEmpty } from '../../../utils/helper';
 import { ProductPriceText } from '../../components';
+import { useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 
 const windowWidth = Dimensions.get('window').width;
 const itemWidth = windowWidth * 0.4; // visible item width
@@ -25,6 +27,9 @@ const itemHeight = itemWidth * 1.5; // visible item height
 
 function ImageSlider({ dataItems, navigatetonext }) {
   const [selectedId, setSelectedId] = useState(null);
+  const { currencySymbol, currencyOptions } = useSelector(
+    (state) => state.settings,
+  );
 
   function renderItem({ item }) {
     return (
@@ -72,7 +77,12 @@ function ImageSlider({ dataItems, navigatetonext }) {
                 : item.name}
             </AText>
             <AText small fonts={FontStyle.fontBold}>
-              $ {item.pricing.sellprice + '.00'}
+              {formatCurrency(
+                item.pricing.sellprice,
+                currencyOptions,
+                currencySymbol,
+              )}
+              {/* $ {item.pricing.sellprice + '.00'} */}
             </AText>
             {/* <ProductPriceText fontsizesmall={true} Pricing={item.pricing} /> */}
           </View>
@@ -111,6 +121,11 @@ function ImageSlider({ dataItems, navigatetonext }) {
 }
 
 export default ImageSlider;
+
+ImageSlider.propTypes = {
+  dataItems: PropTypes.array,
+  navigatetonext: PropTypes.func,
+};
 
 const styles = StyleSheet.create({
   container: {
