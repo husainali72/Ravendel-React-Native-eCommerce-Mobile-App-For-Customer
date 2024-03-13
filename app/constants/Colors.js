@@ -16,7 +16,7 @@ export default {
   grayColor: 'rgb(142,142,147)',
   lightGrayColor: 'rgba(241, 241, 241, 0.8)',
   loaderBackgroundColor: 'rgba(95,95,95,255)',
-  redColor: 'red',
+  redColor: '#ff0000',
   textGrayColor: '#828282',
   textBlackColor: '#4F4F4F',
   lightestRedColor: '#FDFAFA',

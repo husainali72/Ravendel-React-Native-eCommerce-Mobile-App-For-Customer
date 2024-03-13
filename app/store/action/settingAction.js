@@ -6,7 +6,7 @@ import {
   RECENT_PRODUCT,
   SALE_PRODUCT,
 } from '../../queries/productQuery';
-import { isEmpty } from '../../utils/helper';
+import { isEmpty, storeData } from '../../utils/helper';
 import { query } from '../../utils/service';
 
 export const AppSettingAction = () => async (dispatch) => {
@@ -14,13 +14,12 @@ export const AppSettingAction = () => async (dispatch) => {
   //   type: SETTING_LOADING,
   // });
   const response = await query(GET_APP_SETTING);
-  // console.log(response, 'rrsp');
   try {
     if (!isEmpty(response.data.getSettings)) {
       var currencyOptions = response.data.getSettings.store.currency_options;
       var crSymbol = '';
       if (
-        currencyOptions.currency == 'dollar' ||
+        currencyOptions.currency == 'usd' ||
         currencyOptions.currency == 'cad'
       ) {
         if (currencyOptions.currency_position == 'left_space') {
@@ -47,6 +46,10 @@ export const AppSettingAction = () => async (dispatch) => {
           crSymbol = '£';
         }
       }
+      storeData(
+        'PrimaryColor',
+        response.data.getSettings.appearance.theme.primary_color,
+      );
       return dispatch({
         type: GET_THEME_VALUE,
         payload: {
