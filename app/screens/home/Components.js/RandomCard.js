@@ -14,6 +14,7 @@ import { isEmpty } from '../../../utils/helper';
 import URL from '../../../utils/baseurl';
 import FastImage from 'react-native-fast-image';
 import { ProductPriceText } from '../../components';
+import PropTypes from 'prop-types';
 
 const { width } = Dimensions.get('window');
 
@@ -91,6 +92,11 @@ const CardContainer = ({ dataItems, navigatetonext }) => (
     })}
   </View>
 );
+
+CardContainer.propTypes = {
+  dataItems: PropTypes.array,
+  navigatetonext: PropTypes.func,
+};
 
 const styles = StyleSheet.create({
   container: {
