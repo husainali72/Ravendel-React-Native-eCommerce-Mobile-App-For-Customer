@@ -1,6 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import { ADD_CHECKOUT, ADD_ORDER } from '../../queries/orderQuery';
+import {
+  ADD_CHECKOUT,
+  ADD_ORDER,
+  ADD_TOCART,
+  CHECK_ZIPCODE,
+} from '../../queries/orderQuery';
 import { getValue, isEmpty } from '../../utils/helper';
 import { mutation, query } from '../../utils/service';
 import { ALERT_ERROR } from '../reducers/alert';
@@ -53,6 +58,29 @@ export const checkoutDetailsAction =
       dispatch({
         type: ALERT_ERROR,
         payload: 'Something went wrong. Please try again later.',
+      });
+    }
+  };
+
+export const checkPincodeValid =
+  (payload, navigation, navParams) => async (dispatch) => {
+    dispatch({
+      type: CHECKOUT_LOADING,
+    });
+    try {
+      const response = await query(CHECK_ZIPCODE, payload);
+      if (response.data.checkZipcode.success) {
+        navigation.navigate('ShippingMethod', navParams);
+      } else {
+        dispatch({
+          type: ALERT_ERROR,
+          payload: response.data.checkZipcode.message,
+        });
+      }
+    } catch (error) {
+      console.log('error', error);
+      dispatch({
+        type: CART_FAIL,
       });
     }
   };

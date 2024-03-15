@@ -279,6 +279,16 @@ const ORDER_HISTORY = gql`
     }
   }
 `;
+
+const CHECK_ZIPCODE = gql`
+  query ($zipcode: String!) {
+    checkZipcode(zipcode: $zipcode) {
+      message
+      success
+    }
+  }
+`;
+
 const ADD_ORDER = gql`
   mutation (
     $userId: ID
@@ -328,4 +338,5 @@ export {
   CALCULATE_CART,
   CALCULATE_CART_WITHOUT_LOGIN,
   CHANGE_QTY,
+  CHECK_ZIPCODE,
 };

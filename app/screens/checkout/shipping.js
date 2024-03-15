@@ -15,6 +15,7 @@ import AIcon from 'react-native-vector-icons/AntDesign';
 import { APP_PRIMARY_COLOR, FontStyle, GREYTEXT } from '../../utils/config';
 import Colors from '../../constants/Colors';
 import PropTypes from 'prop-types';
+import { checkPincodeValid } from '../../store/action/checkoutAction';
 
 const CheckoutScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -155,6 +156,19 @@ const CheckoutScreen = ({ navigation, route }) => {
     });
     setAddressForm(true);
   };
+
+  const handleShipping = () => {
+    const payload = { zipcode: defaddress[0].pincode };
+    const navigationParams = {
+      screen: 'ShippingMethod',
+      shippingValue: defaddress,
+      cartAmount: cartAmount,
+      cartProducts: cartProducts,
+      couponCode: couponCode,
+    };
+    dispatch(checkPincodeValid(payload, navigation, navigationParams));
+  };
+
   return (
     <>
       {loading ? <AppLoader /> : null}
@@ -295,13 +309,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                 ml="50px"
                 mr="50px"
                 onPress={() => {
-                  navigation.navigate('ShippingMethod', {
-                    screen: 'ShippingMethod',
-                    shippingValue: defaddress,
-                    cartAmount: cartAmount,
-                    cartProducts: cartProducts,
-                    couponCode: couponCode,
-                  });
+                  handleShipping();
                 }}
                 round
                 title="Next"
