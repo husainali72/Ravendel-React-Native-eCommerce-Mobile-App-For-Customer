@@ -11,50 +11,39 @@ import { mutation, query } from '../../utils/service';
 import { ALERT_ERROR } from '../reducers/alert';
 import { updateCartAction } from './cartAction';
 import NavigationConstants from '../../navigation/NavigationConstants';
+import _ from 'lodash';
 
 export const checkoutDetailsAction =
-  (checoutDetailsData, cartId, navigation) => async (dispatch) => {
-    dispatch({
-      type: CHECKOUT_LOADING,
-    });
-    const response = await mutation(ADD_ORDER, checoutDetailsData);
-    try {
-      if (response) {
-        if (
-          !isEmpty(response.data.addOrder) &&
-          response.data.addOrder.success
-        ) {
-          dispatch({
-            type: REMOVE_ALL_CART_PRODUCT,
-          });
-          await AsyncStorage.removeItem('cartproducts');
-          dispatch({
-            type: CHEKOUT_DETAILS,
-            payload: checoutDetailsData,
-          });
-          const cartData = {
-            id: cartId,
-            products: [],
-          };
-          dispatch(updateCartAction(cartData, checoutDetailsData.customer_id));
+  (checkoutDetailsData, cartId, navigation) => async (dispatch) => {
+    dispatch({ type: CHECKOUT_LOADING });
 
-          navigation.navigate(NavigationConstants.CHECKOUT_DETAILS_SCREEN, {
-            checoutDetailsData,
-          });
-        } else {
-          dispatch({
-            type: CHECKOUT_LOADING_STOP,
-          });
-          dispatch({
-            type: ALERT_ERROR,
-            payload: 'Something went wrong. Please try again later.',
-          });
-        }
+    try {
+      const response = await mutation(ADD_ORDER, checkoutDetailsData);
+
+      if (
+        !isEmpty(response) &&
+        !isEmpty(response.data.addOrder) &&
+        response.data.addOrder.success
+      ) {
+        dispatch({ type: REMOVE_ALL_CART_PRODUCT });
+        await AsyncStorage.removeItem('cartproducts');
+        dispatch({ type: CHEKOUT_DETAILS, payload: checkoutDetailsData });
+
+        const cartData = { id: cartId, products: [] };
+        dispatch(updateCartAction(cartData, checkoutDetailsData.customer_id));
+
+        navigation.navigate(NavigationConstants.CHECKOUT_DETAILS_SCREEN, {
+          checkoutDetailsData,
+        });
+      } else {
+        dispatch({ type: CHECKOUT_LOADING_STOP });
+        dispatch({
+          type: ALERT_ERROR,
+          payload: 'Something went wrong. Please try again later.',
+        });
       }
     } catch (error) {
-      dispatch({
-        type: CHECKOUT_LOADING_STOP,
-      });
+      dispatch({ type: CHECKOUT_LOADING_STOP });
       dispatch({
         type: ALERT_ERROR,
         payload: 'Something went wrong. Please try again later.',
@@ -64,24 +53,26 @@ export const checkoutDetailsAction =
 
 export const checkPincodeValid =
   (payload, navigation, navParams) => async (dispatch) => {
-    dispatch({
-      type: CHECKOUT_LOADING,
-    });
+    dispatch({ type: CHECKOUT_LOADING });
+
     try {
       const response = await query(CHECK_ZIPCODE, payload);
-      if (response.data.checkZipcode.success) {
+
+      if (!isEmpty(response) && _.get(response, 'data.checkZipcode.success')) {
         navigation.navigate('ShippingMethod', navParams);
       } else {
         dispatch({
           type: ALERT_ERROR,
-          payload: response.data.checkZipcode.message,
+          payload: _.get(
+            response,
+            'data.checkZipcode.message',
+            'Invalid zipcode.',
+          ),
         });
       }
     } catch (error) {
       console.log('error', error);
-      dispatch({
-        type: CART_FAIL,
-      });
+      dispatch({ type: CART_FAIL });
     }
   };
 

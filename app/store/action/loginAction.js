@@ -45,10 +45,7 @@ export const LoginAction =
           index: 0,
           routes: [{ name: 'Home' }],
         });
-        // var cartProductstore = await getValue('cartproducts');
-        // if (!isEmpty(cartProductstore)) {
-        //   dispatch(getCartDetails(data.customer._id, cartProductstore));
-        // }
+
         dispatch({
           type: ALERT_SUCCESS,
           payload: 'Login  successfully',
@@ -74,96 +71,97 @@ export const LoginAction =
     }
   };
 
-export const getCartDetails =
-  (userID, cartProductstore) => async (dispatch) => {
-    const response = await query(GET_CART, { id: userID });
-    try {
-      if (!isEmpty(response.data.cartbyUser.products)) {
-        var cartProducts = response.data.cartbyUser.products;
-        if (!isEmpty(cartProductstore)) {
-          var filteredProducts = [];
-          cartProductstore = JSON.parse(cartProductstore);
-          var mergedArr = [...cartProductstore, ...cartProducts];
-          var filteredProducts = [];
-          mergedArr.filter((val) => {
-            let exist = mergedArr.find(
-              (n) => n.product_id === val.product_id && n.qty > val.qty,
-            );
-            if (
-              !filteredProducts.find((n) => n.product_id === val.product_id)
-            ) {
-              if (isEmpty(exist)) {
-                filteredProducts.push({
-                  product_id: val.product_id,
-                  product_title: val.product_title,
-                  qty: val.qty,
-                });
-              } else {
-                filteredProducts.push({
-                  product_id: val.product_id,
-                  product_title: val.product_title,
-                  qty: exist.qty,
-                });
-              }
-            }
-          });
-          if (!isEmpty(filteredProducts)) {
-            const cartData = {
-              id: response.data.cartbyUser.id,
-              products: filteredProducts,
-            };
-            dispatch(updateCartAction(cartData, userID));
-          }
-        }
-      } else if (
-        !isEmpty(response.data.cartbyUser.id) &&
-        isEmpty(response.data.cartbyUser.products)
-      ) {
-        if (!isEmpty(cartProductstore)) {
-          var filteredProducts = [];
-          cartProductstore = JSON.parse(cartProductstore);
-          var filteredProducts = [];
-          cartProductstore.map((val) => {
-            filteredProducts.push({
-              product_id: val.product_id,
-              product_title: val.product_title,
-              qty: val.qty,
-            });
-          });
-          if (!isEmpty(filteredProducts)) {
-            const cartData = {
-              id: response.data.cartbyUser.id,
-              products: filteredProducts,
-            };
-            dispatch(updateCartAction(cartData, userID));
-          }
-        }
-      }
-    } catch (error) {
-      if (!isEmpty(cartProductstore)) {
-        var filteredProducts = [];
-        cartProductstore = JSON.parse(cartProductstore);
-        var filteredProducts = [];
-        cartProductstore.map((val) => {
-          filteredProducts.push({
-            product_id: val.product_id,
-            product_title: val.product_title,
-            qty: val.qty,
-          });
-        });
-        if (!isEmpty(filteredProducts)) {
-          const cartData = {
-            user_id: userID,
-            products: filteredProducts,
-          };
-          dispatch(addCartAction(cartData));
-        }
-      }
-      dispatch({
-        type: CART_EMPTY,
-      });
-    }
-  };
+// export const getCartDetails =
+//   (userID, cartProductstore) => async (dispatch) => {
+//     const response = await query(GET_CART, { id: userID });
+//     try {
+//       if (!isEmpty(response.data.cartbyUser.products)) {
+//         var cartProducts = response.data.cartbyUser.products;
+//         if (!isEmpty(cartProductstore)) {
+//           var filteredProducts = [];
+//           cartProductstore = JSON.parse(cartProductstore);
+//           var mergedArr = [...cartProductstore, ...cartProducts];
+//           var filteredProducts = [];
+//           mergedArr.filter((val) => {
+//             let exist = mergedArr.find(
+//               (n) => n.product_id === val.product_id && n.qty > val.qty,
+//             );
+//             if (
+//               !filteredProducts.find((n) => n.product_id === val.product_id)
+//             ) {
+//               if (isEmpty(exist)) {
+//                 filteredProducts.push({
+//                   product_id: val.product_id,
+//                   product_title: val.product_title,
+//                   qty: val.qty,
+//                 });
+//               } else {
+//                 filteredProducts.push({
+//                   product_id: val.product_id,
+//                   product_title: val.product_title,
+//                   qty: exist.qty,
+//                 });
+//               }
+//             }
+//           });
+//           if (!isEmpty(filteredProducts)) {
+//             const cartData = {
+//               id: response.data.cartbyUser.id,
+//               products: filteredProducts,
+//             };
+//             dispatch(updateCartAction(cartData, userID));
+//           }
+//         }
+//       } else if (
+//         !isEmpty(response.data.cartbyUser.id) &&
+//         isEmpty(response.data.cartbyUser.products)
+//       ) {
+//         if (!isEmpty(cartProductstore)) {
+//           var filteredProducts = [];
+//           cartProductstore = JSON.parse(cartProductstore);
+//           var filteredProducts = [];
+//           cartProductstore.map((val) => {
+//             filteredProducts.push({
+//               product_id: val.product_id,
+//               product_title: val.product_title,
+//               qty: val.qty,
+//             });
+//           });
+//           if (!isEmpty(filteredProducts)) {
+//             const cartData = {
+//               id: response.data.cartbyUser.id,
+//               products: filteredProducts,
+//             };
+//             dispatch(updateCartAction(cartData, userID));
+//           }
+//         }
+//       }
+//     } catch (error) {
+//       if (!isEmpty(cartProductstore)) {
+//         var filteredProducts = [];
+//         cartProductstore = JSON.parse(cartProductstore);
+//         var filteredProducts = [];
+//         cartProductstore.map((val) => {
+//           filteredProducts.push({
+//             product_id: val.product_id,
+//             product_title: val.product_title,
+//             qty: val.qty,
+//           });
+//         });
+//         if (!isEmpty(filteredProducts)) {
+//           const cartData = {
+//             user_id: userID,
+//             products: filteredProducts,
+//           };
+//           dispatch(addCartAction(cartData));
+//         }
+//       }
+//       dispatch({
+//         type: CART_EMPTY,
+//       });
+//     }
+//   };
+
 export const sessionCheck = () => async (dispatch) => {
   const loginDetails = await checkUserLoginStorage();
   if (!isEmpty(loginDetails.token) && !isEmpty(loginDetails.userDetails)) {
