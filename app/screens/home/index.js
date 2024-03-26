@@ -43,7 +43,11 @@ import {
 } from 'react-native';
 import { brandAction } from '../../store/action/settingAction';
 import HomeBrandViews from './Components.js/BrandShow';
-import { APP_PRIMARY_COLOR, APP_SECONDARY_COLOR } from '../../utils/config';
+import {
+  APP_PRIMARY_COLOR,
+  APP_SECONDARY_COLOR,
+  FontStyle,
+} from '../../utils/config';
 import Icon from 'react-native-vector-icons/Feather';
 import Categories from './Components.js/CategoriesList';
 import ImageSlider from './Components.js/CustomSlider';
@@ -139,21 +143,11 @@ const HomeScreen = ({ navigation }) => {
         }
       });
       if (!isEmpty(filteredProducts)) {
-        if (isEmpty(cartId)) {
-          const cartData = {
-            userId: userDetails._id,
-            products: filteredProducts,
-          };
-          console.log(cartData, ' Add cart payload Home');
-          dispatch(addCartAction(cartData));
-        } else {
-          const cartData = {
-            id: cartId,
-            products: filteredProducts,
-          };
-          console.log(cartData, ' Add cart payload Home2');
-          dispatch(updateCartAction(cartData, userDetails._id));
-        }
+        const cartData = {
+          userId: userDetails._id,
+          products: filteredProducts,
+        };
+        dispatch(addCartAction(cartData));
       }
     }
   };
@@ -328,7 +322,12 @@ const HomeScreen = ({ navigation }) => {
 
         {!isEmpty(brands) && (
           <SectionView>
-            <AText uppercase heavy mb={'20px'} center color={primaryColor}>
+            <AText
+              ml="30px"
+              mb={'10px'}
+              mt={'15px'}
+              large
+              fonts={FontStyle.fontBold}>
               Featured Brands
             </AText>
             <HomeBrandViews
@@ -354,8 +353,13 @@ const HomeScreen = ({ navigation }) => {
               </ACol>
             </ARow>
             <SectionView>
-              <AText uppercase heavy center color={primaryColor}>
-                FEATURED COLLECTIONS
+              <AText
+                ml="30px"
+                mb={'10px'}
+                mt={'15px'}
+                large
+                fonts={FontStyle.fontBold}>
+                Featured Collection
               </AText>
               <HomeComponentShowViews
                 dataItems={featureData}
@@ -387,8 +391,13 @@ const HomeScreen = ({ navigation }) => {
               </ACol>
             </ARow>
             <SectionView>
-              <AText uppercase heavy center color={primaryColor}>
-                Latest collection
+              <AText
+                ml="30px"
+                mb={'10px'}
+                mt={'15px'}
+                large
+                fonts={FontStyle.fontBold}>
+                Latest Collection
               </AText>
               <HomeComponentShowViews
                 dataItems={recentAddedProduct}
@@ -493,7 +502,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     flexDirection: 'row',
     backgroundColor: Colors.whiteColor,
-    height: 90,
+    height: 60,
     marginTop: 30,
     paddingHorizontal: 30,
     paddingTop: 20,

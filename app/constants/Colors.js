@@ -5,6 +5,7 @@ export default {
   splashBackgroundColor: '#F5F5F5',
   ligthPrimaryColor: '#C5E9FA',
   lightGreen: '#DCF0EF',
+  gray: '#6E6E6E',
   green: '#1FAD08',
   secondaryColor: 'rgb(238,238,238)',
   themeOrangeColor: '#000000',

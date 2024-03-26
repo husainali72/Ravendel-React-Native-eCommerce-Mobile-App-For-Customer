@@ -61,6 +61,7 @@ import PropTypes from 'prop-types';
 const SubCategoriesScreen = ({ navigation, route }) => {
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
+  const [amountRange, setAmountRange] = useState([0, 10000]);
   const [values, setValues] = useState([0, 10000]);
 
   const multiSliderValuesChange = (values) => {
@@ -258,7 +259,6 @@ const SubCategoriesScreen = ({ navigation, route }) => {
     setActiveBrand('');
     setStarCount(5);
     setAmountRange[(0, 10000)];
-    setsearchTerm('');
     bottomSheetModalRef.current?.dismiss();
     let filter = {
       category: '',

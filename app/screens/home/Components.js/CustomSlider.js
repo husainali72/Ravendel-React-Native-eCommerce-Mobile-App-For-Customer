@@ -148,13 +148,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     marginHorizontal: (windowWidth * 0.1) / 2,
   },
-  // centeredItemImage: {
-  //   width: centeredItemWidth,
-  //   height: centeredItemHeight,
-  //   resizeMode: 'contain',
-  //   borderRadius: 10,
-  //   marginHorizontal: windowWidth * 0.05,
-  // },
   overlay: {
     position: 'absolute',
     bottom: 0,
@@ -163,21 +156,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.5)',
     alignItems: 'center',
     justifyContent: 'center',
-    // borderTopLeftRadius: 10,
-    // borderTopRightRadius: 10,
   },
-  // text: {
-  //   fontSize: 16,
-  //   fontFamily: 'SegoeUI',
-  //   fontWeight: 600,
-  //   color: 'black',
-  //   fontWeight: 'bold',
-  //   // textAlign: 'center',
-  //   textShadowColor: 'rgba(0, 0, 0, 0.5)', // translucent black
-  //   textShadowOffset: { width: 2, height: 2 },
-  //   // textShadowRadius: 4,
-  //   marginBottom: 5,
-  // },
+
   textContainer: {
     position: 'absolute',
     bottom: 0,

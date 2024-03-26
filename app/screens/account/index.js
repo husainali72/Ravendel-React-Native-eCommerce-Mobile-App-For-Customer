@@ -25,9 +25,8 @@ import Styles from '../../Theme';
 import NavigationConstants from '../../navigation/NavigationConstants';
 
 const AccountScreen = ({ navigation }) => {
-  const isLoggin = useSelector((state) => state.customer.isLoggin);
+  const { isLoggin, userDetails } = useSelector((state) => state.customer);
   const dispatch = useDispatch();
-  const userDetails = useSelector((state) => state.customer.userDetails);
 
   const Logout = () => {
     dispatch(LogOut(navigation));

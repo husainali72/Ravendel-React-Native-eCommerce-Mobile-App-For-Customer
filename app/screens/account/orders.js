@@ -61,7 +61,7 @@ const OrderScreen = ({ navigation }) => {
                           color={Colors.blackColor}>
                           Order Number:{' '}
                         </AText>
-                        <AText color={'#6E6E6E'}>
+                        <AText color={Colors.gray}>
                           {'000026 '}
                           {prod.order_number}{' '}
                         </AText>
@@ -72,7 +72,7 @@ const OrderScreen = ({ navigation }) => {
                           color={Colors.grayColor}>
                           Date:
                         </AText>
-                        <AText color={'#6E6E6E'}>
+                        <AText color={Colors.gray}>
                           {' '}
                           {moment(prod.date).format('LL')}
                         </AText>

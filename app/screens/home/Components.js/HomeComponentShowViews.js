@@ -98,17 +98,4 @@ const Card = styled.TouchableOpacity`
     elevation: 5;
 `;
 
-const CardImageWrapper = styled.View`
-  width: 100%;
-  height: 146px;
-  border-radius: 10px;
-  background-color: ${APP_PRIMARY_COLOR};
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-`;
-const CardBody = styled.View`
-  padding: 15px 5px;
-`;
-
 export default HomeComponentShowViews;

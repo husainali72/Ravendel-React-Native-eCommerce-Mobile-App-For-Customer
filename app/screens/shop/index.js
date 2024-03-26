@@ -31,6 +31,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { ScrollView as GestureScrollView } from 'react-native-gesture-handler';
 import AIcon from 'react-native-vector-icons/AntDesign';
 import {
   APP_PRIMARY_COLOR,
@@ -370,7 +371,7 @@ const Shop = ({ navigation, route }) => {
           // handleStyle={{ backgroundColor: 'pink' }}
           containerStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
           style={{ flex: 1, elevation: 10, paddingHorizontal: 15 }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <GestureScrollView showsVerticalScrollIndicator={false}>
             <View
               style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <AText fonts={FontStyle.semiBold}>Filter</AText>
@@ -456,8 +457,8 @@ const Shop = ({ navigation, route }) => {
                 fullStarColor={'#FFDB20'}
               />
             </View>
-          </ScrollView>
-          <View style={{ position: 'absolute', bottom: 20, width: '100%' }}>
+          </GestureScrollView>
+          <View style={{ width: '100%', paddingBottom: 5 }}>
             <AButton
               mt={'20px'}
               title={'Apply Filter'}

@@ -43,11 +43,13 @@ const App = () => {
     }, 2000);
   });
 
+  const updateColor = async () => {
+    const col = await getValue('PrimaryColor');
+    updatePrimaryColor(col);
+  };
+
   useEffect(() => {
-    (async () => {
-      const col = await getValue('PrimaryColor');
-      updatePrimaryColor(col);
-    })();
+    updateColor();
   }, []);
 
   return (

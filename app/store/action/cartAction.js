@@ -37,7 +37,6 @@ export const checkStorageAction = (userID, load) => async (dispatch) => {
         {},
       );
       const cartID = _.get(response, 'data.calculateCart.id', '');
-
       dispatch({
         type: CHECK_STORAGE,
         payload: { cartProducts, cartSummary, cartID },
@@ -115,7 +114,7 @@ export const addToCartAction = (payload) => async (dispatch) => {
     const addToCartSuccess = _.get(response, 'data.addToCart.success', false);
     if (addToCartSuccess) {
       dispatch({ type: RESPONSE_HANDLE, payload: addToCartSuccess });
-      dispatch(checkStorageAction(payload.user_id));
+      dispatch(checkStorageAction(payload.userId));
     }
   } catch (error) {
     console.log('error', error);
@@ -215,8 +214,8 @@ export const removeCartAction = (userID) => async (dispatch) => {
     // Check if response is not empty and has expected properties
     if (
       !isEmpty(response) &&
-      !isEmpty(response.data.deleteCartProduct) &&
-      response.data.deleteCartProduct.success
+      !isEmpty(response.data.deleteCart) &&
+      response.data.deleteCart.success
     ) {
       dispatch({ type: CART_FAIL });
       dispatch(checkStorageAction(userID));

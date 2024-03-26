@@ -28,6 +28,8 @@ import {
   SubcategoriesOption,
   Shop,
   CheckoutDetails,
+  StripePayment,
+  ThankYou,
 } from '../screens';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
@@ -72,7 +74,7 @@ const Navigation = () => {
   // Custom Components
   const IconWithBadge = ({ name, badgeCount, color, size }) => {
     return (
-      <View style={{ width: 24, height: 24, margin: 5 }}>
+      <View style={{ width: 24, height: 24, margin: 0 }}>
         <Icon name={name} size={size} color={color} />
         {badgeCount > 0 && (
           <View
@@ -119,35 +121,23 @@ const Navigation = () => {
           tabBarInactiveTintColor: Colors.grayColor,
           tabBarHideOnKeyboard: true,
           tabBarIcon: ({ focused, color, size }) => {
-            let image;
+            let name;
             if (route.name === 'Home') {
-              image = focused
-                ? require('../assets/images/homeactive.png')
-                : require('../assets/images/home.png');
+              name = 'home';
             } else if (route.name === 'Categories') {
-              image = focused
-                ? require('../assets/images/catactive.png')
-                : require('../assets/images/categori.png');
+              name = 'grid';
             } else if (route.name === 'Cart') {
               return (
                 <HomeIconWithBadge
                   name="shopping-cart"
-                  size={size}
+                  size={20}
                   color={color}
                 />
               );
             } else if (route.name === 'Account') {
-              image = focused
-                ? require('../assets/images/useractive.png')
-                : require('../assets/images/user.png');
+              name = 'user';
             }
-            return (
-              <Image
-                source={image}
-                resizeMode="contain"
-                style={style.imgstyle}
-              />
-            );
+            return <Icon name={name} size={20} color={color} />;
           },
         })}
         backBehavior={'history'}>
@@ -226,9 +216,19 @@ const Navigation = () => {
           component={CheckoutScreen}
         />
         <Stack.Screen
+          name={NVC.STRIPE_PAYMENT}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={StripePayment}
+        />
+        <Stack.Screen
           name={NVC.CHECKOUT_DETAILS_SCREEN}
           options={{ headerShown: false, tabBarButton: () => null }}
           component={CheckoutDetails}
+        />
+        <Stack.Screen
+          name={NVC.THANK_YOU_SCREEN}
+          options={{ headerShown: false, tabBarButton: () => null }}
+          component={ThankYou}
         />
         {/* Cart End */}
 
