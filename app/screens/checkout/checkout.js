@@ -20,16 +20,37 @@ import Colors from '../../constants/Colors';
 import PropTypes from 'prop-types';
 
 const CheckoutScreen = ({ navigation, route }) => {
+  console.log(route.params, 'route');
   var shippingValue = route.params.shippingValue;
   var cartAmount = route.params.cartAmount;
   var cartProducts = route.params.cartProducts;
   var couponCode = route.params.couponCode;
   var paymentMethod = route.params.paymentMethod;
   var defaultaddress = route.params.shippingValue[0];
-
+  const {
+    pincode,
+    state,
+    city,
+    addressLine1,
+    addressLine2,
+    phone,
+    email,
+    lastName,
+    firstName,
+    country,
+  } = route.params.shippingValue[0];
   const dispatch = useDispatch();
   const { cartId } = useSelector((state) => state.cart);
   const userDetails = useSelector((state) => state.customer.userDetails);
+  const cartSummary = useSelector((state) => state.cart.cartSummary);
+
+  const {
+    phone: userPhone,
+    email: userEmail,
+    lastName: userLastName,
+    firstName: userFirstName,
+    _id,
+  } = userDetails;
   const { checkoutSuccess } = useSelector((state) => state.checkoutDetail);
   const [deliveryCharges, setDeliveryCharges] = useState(0);
   const [taxAmount, setTaxAmount] = useState(0);
@@ -39,6 +60,7 @@ const CheckoutScreen = ({ navigation, route }) => {
   const { currencyOptions, currencySymbol } = useSelector(
     (state) => state.settings,
   );
+
   const isFocused = useIsFocused();
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -53,85 +75,77 @@ const CheckoutScreen = ({ navigation, route }) => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    setproducts();
-    console.log(totalcost);
-  }, [isFocused]);
-  let totalcost = 0;
-  console.log(cartProducts, 'aaaa');
-  cartProducts.map((val) => {
-    totalcost = totalcost + val.productPrice;
-  });
-  const setproducts = () => {
-    var products = [];
-    cartProducts.map((val) => {
-      console.log(val, 'product val');
-      products.push({
-        productId: val._id,
-        productTitle: val.name,
-        productPrice: val.productPrice,
-        qty: val.cartQty,
-        taxClass: val.taxClass,
-        shippingClass: val.shippingClass,
-      });
-      totalcost = totalcost + val.productPrice;
-    });
-    setProductArr(products);
-  };
-  console.log(shippingValue);
-  const checkoutDetails = () => {
-    if (checked === 'cod') {
-      const payload = {
-        userId: userDetails._id,
-        billing: {
-          order_notes: '',
-          zip: shippingValue[0].pincode,
-          state: shippingValue[0].state,
-          city: shippingValue[0].city,
-          address: shippingValue[0].addressLine1,
-          phone: userDetails.phone || '1234',
-          company: '',
-          email: userDetails.email,
-          lastname: userDetails.lastName,
-          firstname: userDetails.firstName,
-          country: shippingValue[0].country,
-          paymentMethod: 'Cash On Delivery',
-          transaction_id: '',
-        },
-        shipping: {
-          order_notes: '',
-          zip: shippingValue[0].pincode,
-          state: shippingValue[0].state,
-          city: shippingValue[0].city,
-          address: shippingValue[0].addressLine1,
-          phone: shippingValue[0].phone || '1234',
-          company: '',
-          email: shippingValue[0].email,
-          lastname: shippingValue[0].lastName,
-          firstname: shippingValue[0].firstName,
-          country: shippingValue[0].country,
-          paymentMethod: 'Cash On Delivery',
-          transaction_id: '',
-        },
-        products: productArr,
-        cartTotal: cartAmount.toString(),
-        shippingAmount: !isEmpty(deliveryCharges)
-          ? deliveryCharges.toString()
-          : '',
-        taxAmount: !isEmpty(taxAmount) ? taxAmount.toString() : '',
-        discountAmount: !isEmpty(couponDiscount)
-          ? couponDiscount.toString()
-          : '',
-        couponCode: !isEmpty(couponCode) ? couponCode : '',
-        grandTotal: !isEmpty(cartAmount) ? cartAmount.toString() : '',
-        // checkoutDate: new Date().toString(),
-        // shippingAddress: true,
-      };
+  // let totalcost = 0;
+  // cartProducts.map((val) => {
+  //   totalcost = totalcost + val.productPrice;
+  // });
 
-      dispatch(checkoutDetailsAction(payload, cartId, navigation));
-    } else {
-      navigation.navigate('StripePayment');
-    }
+  // const setproducts = () => {
+  //   var products = [];
+  //   cartProducts.map((val) => {
+  //     console.log(val, 'product val');
+  //     products.push({
+  //       productId: val._id,
+  //       productTitle: val.name,
+  //       productPrice: val.productPrice,
+  //       qty: val.cartQty,
+  //       taxClass: val.taxClass,
+  //       shippingClass: val.shippingClass,
+  //     });
+  //     totalcost = totalcost + val.productPrice;
+  //   });
+  //   setProductArr(products);
+  // };
+  const checkoutDetails = () => {
+    // if (checked === 'cod') {
+    const payload = {
+      userId: _id,
+      billing: {
+        // order_notes: '',
+        lastname: lastName,
+        firstname: firstName,
+        address: addressLine1,
+        city: city,
+        zip: pincode,
+        country: country,
+        state: state,
+        email: userEmail,
+        phone: phone || '1234',
+        paymentMethod: checked,
+        // company: '',
+        // transaction_id: '',
+      },
+      shipping: {
+        firstname: userFirstName,
+        lastname: userLastName,
+        address: addressLine1,
+        city: city,
+        zip: pincode,
+        country: country,
+        state: state,
+        email: userEmail,
+        phone: userPhone || '1234',
+        notes: '',
+        // company: '',
+        // paymentMethod: 'Cash On Delivery',
+        // transaction_id: '',
+      },
+      // products: productArr,
+      // cartTotal: cartAmount.toString(),
+      // shippingAmount: !isEmpty(deliveryCharges)
+      //   ? deliveryCharges.toString()
+      //   : '',
+      // taxAmount: !isEmpty(taxAmount) ? taxAmount.toString() : '',
+      // discountAmount: !isEmpty(couponDiscount) ? couponDiscount.toString() : '',
+      // couponCode: !isEmpty(couponCode) ? couponCode : '',
+      // grandTotal: !isEmpty(cartAmount) ? cartAmount.toString() : '',
+    };
+    console.log(JSON.stringify(payload), 'payyyyl check');
+    // return;
+    dispatch(checkoutDetailsAction(payload, cartId, navigation));
+    // } else {
+    //   navigation.navigate('StripePayment');
+    // }
   };
   return (
     <>
@@ -180,18 +194,17 @@ const CheckoutScreen = ({ navigation, route }) => {
             <View style={styles.addresscard}>
               <RadioButtonWrapper>
                 <AText mr="8px" color="black" fonts={FontStyle.semiBold} large>
-                  {defaultaddress.firstName}
+                  {firstName}
                 </AText>
               </RadioButtonWrapper>
               <AText color={GREYTEXT} fonts={FontStyle.semiBold}>
-                {defaultaddress.phone}
+                {phone}
               </AText>
               <AText color={GREYTEXT}>
-                {defaultaddress.addressLine1}, {defaultaddress.addressLine2},{' '}
-                {defaultaddress.city}
+                {addressLine1}, {addressLine2}, {city}
               </AText>
               <AText mb="10px" color={GREYTEXT}>
-                {defaultaddress.state}, {defaultaddress.pincode}
+                {state}, {pincode}
               </AText>
             </View>
             <AText color="black" fonts={FontStyle.semiBold} large>
@@ -280,7 +293,7 @@ const CheckoutScreen = ({ navigation, route }) => {
               <AText style={{ color: 'black' }}>Paypal</AText>
             </View> */}
           </View>
-          <AText ml="30px" color="black" fonts={FontStyle.semiBold} large>
+          {/* <AText ml="30px" color="black" fonts={FontStyle.semiBold} large>
             Coupon Code
           </AText>
           <View style={styles.addresscard2}>
@@ -295,7 +308,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                 }}
               />
             </View>
-          </View>
+          </View> */}
           <AText ml="30px" color="black" fonts={FontStyle.semiBold} large>
             Cart Total
           </AText>
@@ -306,7 +319,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                 <DataTable.Cell numeric>
                   <AText capitalize>
                     {formatCurrency(
-                      totalcost + deliveryCharges - couponDiscount,
+                      cartSummary?.mrpTotal,
                       currencyOptions,
                       currencySymbol,
                     )}
@@ -316,16 +329,24 @@ const CheckoutScreen = ({ navigation, route }) => {
               <DataTable.Row>
                 <DataTable.Cell>Taxes</DataTable.Cell>
                 <DataTable.Cell numeric>
-                  {taxAmount === 0 ? 'Free' : taxAmount}
+                  {cartSummary.totalTax === 0 ? 'Free' : cartSummary.totalTax}
                 </DataTable.Cell>
               </DataTable.Row>
 
               <DataTable.Row>
                 <DataTable.Cell>Shipping</DataTable.Cell>
-                <DataTable.Cell numeric>Free Shipping</DataTable.Cell>
+                <DataTable.Cell numeric>
+                  {cartSummary?.totalShipping === 0
+                    ? 'FREE SHIPPING'
+                    : formatCurrency(
+                        cartSummary?.totalShipping,
+                        currencyOptions,
+                        currencySymbol,
+                      )}
+                </DataTable.Cell>
               </DataTable.Row>
 
-              {couponDiscount > 0 && (
+              {cartSummary?.discountTotal > 0 && (
                 <DataTable.Row>
                   <DataTable.Cell>
                     Coupon code
@@ -337,7 +358,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                     <AText color={'green'}>
                       -{' '}
                       {formatCurrency(
-                        couponDiscount,
+                        cartSummary?.discountTotal,
                         currencyOptions,
                         currencySymbol,
                       )}
@@ -350,7 +371,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                 <DataTable.Cell>Total</DataTable.Cell>
                 <DataTable.Cell numeric>
                   {formatCurrency(
-                    totalcost + deliveryCharges - couponDiscount,
+                    cartSummary?.grandTotal,
                     currencyOptions,
                     currencySymbol,
                   )}

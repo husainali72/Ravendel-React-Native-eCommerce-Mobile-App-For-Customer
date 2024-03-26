@@ -5,6 +5,7 @@ import {
   ADD_ORDER,
   ADD_TOCART,
   CHECK_ZIPCODE,
+  UPDATE_PAYMENT_STATUS,
 } from '../../queries/orderQuery';
 import { getValue, isEmpty } from '../../utils/helper';
 import { mutation, query } from '../../utils/service';
@@ -19,7 +20,7 @@ export const checkoutDetailsAction =
 
     try {
       const response = await mutation(ADD_ORDER, checkoutDetailsData);
-
+      console.log(response, ' resssponse cart checkout');
       if (
         !isEmpty(response) &&
         !isEmpty(response.data.addOrder) &&
@@ -32,8 +33,8 @@ export const checkoutDetailsAction =
         const cartData = { id: cartId, products: [] };
         dispatch(updateCartAction(cartData, checkoutDetailsData.customer_id));
 
-        navigation.navigate(NavigationConstants.CHECKOUT_DETAILS_SCREEN, {
-          checkoutDetailsData,
+        navigation.navigate(NavigationConstants.STRIPE_PAYMENT, {
+          url: response.data.addOrder.redirectUrl,
         });
       } else {
         dispatch({ type: CHECKOUT_LOADING_STOP });
@@ -73,6 +74,31 @@ export const checkPincodeValid =
     } catch (error) {
       console.log('error', error);
       dispatch({ type: CART_FAIL });
+    }
+  };
+
+export const paymentStatus =
+  (paymentStatusData, navigation) => async (dispatch) => {
+    dispatch({ type: CHECKOUT_LOADING });
+
+    try {
+      const response = await mutation(UPDATE_PAYMENT_STATUS, paymentStatusData);
+      console.log(response, ' Cart payment Status');
+      if (!isEmpty(response)) {
+        navigation.navigate(NavigationConstants.THANK_YOU_SCREEN);
+      } else {
+        dispatch({ type: CHECKOUT_LOADING_STOP });
+        dispatch({
+          type: ALERT_ERROR,
+          payload: 'Something went wrong. Please try again later.',
+        });
+      }
+    } catch (error) {
+      dispatch({ type: CHECKOUT_LOADING_STOP });
+      dispatch({
+        type: ALERT_ERROR,
+        payload: 'Something went wrong. Please try again later.',
+      });
     }
   };
 

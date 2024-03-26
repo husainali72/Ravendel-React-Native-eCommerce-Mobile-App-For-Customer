@@ -32,6 +32,9 @@ export const AppSettingAction = () => async (dispatch) => {
       } else if (currencyOptions.currency === 'gbp') {
         crSymbol =
           currencyOptions.currency_position === 'left_space' ? '£ ' : ' £';
+      } else if (currencyOptions.currency === 'inr') {
+        crSymbol =
+          currencyOptions.currency_position === 'left_space' ? '₹ ' : ' ₹';
       }
       storeData(
         'PrimaryColor',

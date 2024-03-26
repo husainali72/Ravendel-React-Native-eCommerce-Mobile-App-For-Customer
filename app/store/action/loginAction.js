@@ -25,7 +25,7 @@ export const LoginAction =
       email: email,
       password: password,
     });
-    console.log(response, 'reponse data signin');
+    console.log(JSON.stringify(response), 'login');
     try {
       let data = response.data;
       if (!isEmpty(response.data.success) && response.data.success) {
@@ -179,17 +179,11 @@ export const registerAction =
     dispatch({
       type: LOGIN_LOADING,
     });
-    const response = await mutation(ADD_CUSTOMER, payload);
-    // .then((response) => {
-    console.log(response);
     try {
-      if (
-        !isEmpty(response.data.addCustomer) &&
-        response.data.addCustomer.success
-      ) {
-        // navigation.navigate(NavigationConstants.LOGIN_SIGNUP_SCREEN, {
-        //   initial: false,
-        // });
+      const response = await mutation(ADD_CUSTOMER, payload);
+      const { data } = response;
+      const { addCustomer } = data;
+      if (!isEmpty(addCustomer) && addCustomer.success) {
         handleActiveTab('Login');
         dispatch({
           type: LOGIN_STOP,
@@ -205,7 +199,7 @@ export const registerAction =
         dispatch({
           type: ALERT_ERROR,
           payload:
-            response.data.addCustomer.message ||
+            addCustomer.message ||
             'Something went wrong. Please try again later.',
         });
       }

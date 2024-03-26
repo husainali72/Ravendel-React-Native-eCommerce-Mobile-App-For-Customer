@@ -108,8 +108,8 @@ const UPDATE_ORDER = gql`
   }
 `;
 const DELETE_CART_PRODUCT = gql`
-  mutation ($id: ID!, $product_id: ID!) {
-    deleteCartProduct(id: $id, product_id: $product_id) {
+  mutation DeleteCartProduct($userId: ID!, $productId: ID!) {
+    deleteCartProduct(userId: $userId, productId: $productId) {
       message
       success
     }
@@ -290,30 +290,18 @@ const CHECK_ZIPCODE = gql`
 `;
 
 const ADD_ORDER = gql`
-  mutation (
-    $userId: ID
-    $billing: customObject
-    $shipping: customObject
-    $products: customArray
-    $cartTotal: String
-    $shippingAmount: String
-    $taxAmount: String
-    $discountAmount: String
-    $grandTotal: String
-    $couponCode: String
-  ) {
-    addOrder(
-      userId: $userId
-      shipping: $shipping
-      billing: $billing
-      products: $products
-      cartTotal: $cartTotal
-      shippingAmount: $shippingAmount
-      taxAmount: $taxAmount
-      discountAmount: $discountAmount
-      grandTotal: $grandTotal
-      couponCode: $couponCode
-    ) {
+  mutation ($userId: ID, $billing: customObject, $shipping: customObject) {
+    addOrder(userId: $userId, shipping: $shipping, billing: $billing) {
+      message
+      success
+      redirectUrl
+    }
+  }
+`;
+
+export const UPDATE_PAYMENT_STATUS = gql`
+  mutation ($id: ID!, $paymentStatus: String!) {
+    updatePaymentStatus(id: $id, paymentStatus: $paymentStatus) {
       message
       success
     }

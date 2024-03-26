@@ -24,4 +24,6 @@ export default {
   ORDER_DETAIL_SCREEN: 'OrderDetail',
   EDIT_PROFILE_SCREEN: 'EditProfile',
   CHANGE_PASSWORD_SCREEN: 'ChangePassword',
+  STRIPE_PAYMENT: 'StripePayment',
+  THANK_YOU_SCREEN: 'ThankYouScreen',
 };
